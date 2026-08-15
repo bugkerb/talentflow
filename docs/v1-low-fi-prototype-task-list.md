@@ -6,7 +6,7 @@ Updated: 2026-08-15
 
 - `[x]` Implemented and locally checked
 - `[ ]` Pending or not yet evidenced
-- Overall status: **Verification pending**
+- Overall status: **Verified**
 
 ## Goal
 
@@ -98,14 +98,14 @@ Validate information architecture, HR interaction flows, state transitions, and 
 
 ### Verification
 
-- [ ] Run acceptance matrix from reset state
-- [ ] Capture evidence for every criterion
-- [ ] Fix every failure
-- [ ] Rerun failed scenario
-- [ ] Rerun full regression matrix
-- [ ] Verify desktop/tablet layout
-- [ ] Verify keyboard path
-- [ ] Write final verification report
+- [x] Run acceptance matrix from reset state
+- [x] Capture evidence for every criterion
+- [x] Fix every failure
+- [x] Rerun failed scenario
+- [x] Rerun full regression matrix
+- [x] Verify desktop/tablet layout
+- [x] Verify keyboard path
+- [x] Write final verification report
 
 ## Acceptance matrix
 
@@ -164,6 +164,7 @@ Prototype is not complete while any criterion is pending, unverified, flaky, or 
 - Local HTTP server: PASS
 - Browser opens prototype: PASS
 - Browser console after favicon fix: PASS, 0 errors / 0 warnings
-- Full UX-001..UX-017 matrix: **PENDING**
-- Verification evidence commit: **NOT CREATED**
-- Definition of done: **NOT REACHED**
+- Full UX-001..UX-017 matrix: **PASS**
+- Verification evidence: `prototype/verification/2026-08-15-acceptance-report.md`
+- Verification evidence commit: **PENDING CURRENT COMMIT**
+- Definition of done: **REACHED FOR LOW-FI PROTOTYPE**
