@@ -1,14 +1,528 @@
-<!doctype html>
-<html lang="th">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>TalentFlow | พื้นที่ทำงานสรรหาบุคลากร</title>
-    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <div id="app"></div>
-    <script src="app.js"></script>
-  </body>
-</html>
+<!DOCTYPE html><html class="light" lang="th" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>TalentFlow - ระบบติดตามผู้สมัครงาน (ATS)</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Calistoga&amp;family=Inter:wght@400;500;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet">
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "tertiary-container": "#0078a2",
+                        "on-tertiary-container": "#ebf6ff",
+                        "electric-gradient-start": "#0062FF",
+                        "error": "#ba1a1a",
+                        "on-error": "#ffffff",
+                        "on-background": "#191c1e",
+                        "on-primary": "#ffffff",
+                        "surface-bright": "#f7f9fb",
+                        "surface-container": "#eceef0",
+                        "status-pulse": "#22C55E",
+                        "error-container": "#ffdad6",
+                        "surface-variant": "#e0e3e5",
+                        "inverse-primary": "#b4c5ff",
+                        "surface": "#f7f9fb",
+                        "surface-container-highest": "#e0e3e5",
+                        "background": "#f7f9fb",
+                        "on-surface": "#191c1e",
+                        "surface-container-high": "#e6e8ea",
+                        "nav-bg": "#020617",
+                        "on-tertiary-fixed-variant": "#004c69",
+                        "on-secondary-container": "#5c647a",
+                        "surface-container-low": "#f2f4f6",
+                        "primary-fixed": "#dbe1ff",
+                        "inverse-surface": "#2d3133",
+                        "on-primary-fixed": "#00174b",
+                        "primary": "#004cca",
+                        "outline": "#737687",
+                        "on-tertiary-fixed": "#001e2c",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed": "#dae2fd",
+                        "on-secondary-fixed-variant": "#3f465c",
+                        "on-secondary-fixed": "#131b2e",
+                        "primary-container": "#0062ff",
+                        "secondary-fixed-dim": "#bec6e0",
+                        "error-alert": "#EF4444",
+                        "outline-variant": "#c2c6d9",
+                        "secondary-container": "#dae2fd",
+                        "tertiary": "#005e80",
+                        "secondary": "#565e74",
+                        "on-primary-container": "#f3f3ff",
+                        "surface-container-lowest": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "tertiary-fixed": "#c4e7ff",
+                        "surface-tint": "#0053da",
+                        "electric-gradient-end": "#38BDF8",
+                        "surface-dim": "#d8dadc",
+                        "inverse-on-surface": "#eff1f3",
+                        "tertiary-fixed-dim": "#7bd0ff",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-surface-variant": "#424656",
+                        "on-tertiary": "#ffffff",
+                        "primary-fixed-dim": "#b4c5ff"
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.25rem",
+                        lg: "0.5rem",
+                        xl: "0.75rem",
+                        full: "9999px"
+                    },
+                    spacing: {
+                        "margin-mobile": "16px",
+                        "unit": "4px",
+                        "margin-desktop": "32px",
+                        "sidebar-width": "260px",
+                        "gutter": "24px"
+                    },
+                    fontFamily: {
+                        "body-lg": ["Inter", "sans-serif"],
+                        "headline-lg-mobile": ["Calistoga", "serif"],
+                        "body-md": ["Inter", "sans-serif"],
+                        "headline-md": ["Calistoga", "serif"],
+                        "body-sm": ["Inter", "sans-serif"],
+                        "label-caps": ["Inter", "sans-serif"],
+                        "headline-lg": ["Calistoga", "serif"],
+                        "data-mono": ["JetBrains Mono", "monospace"]
+                    },
+                    fontSize: {
+                        "body-lg": ["18px", { lineHeight: "28px", fontWeight: "400" }],
+                        "headline-lg-mobile": ["30px", { lineHeight: "38px", fontWeight: "400" }],
+                        "body-md": ["16px", { lineHeight: "24px", fontWeight: "400" }],
+                        "headline-md": ["28px", { lineHeight: "36px", fontWeight: "400" }],
+                        "body-sm": ["14px", { lineHeight: "20px", fontWeight: "400" }],
+                        "label-caps": ["12px", { lineHeight: "16px", letterSpacing: "0.05em", fontWeight: "700" }],
+                        "headline-lg": ["40px", { lineHeight: "52px", letterSpacing: "-0.01em", fontWeight: "400" }],
+                        "data-mono": ["14px", { lineHeight: "20px", letterSpacing: "-0.02em", fontWeight: "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .kanban-scroll::-webkit-scrollbar {
+            height: 8px;
+            width: 8px;
+        }
+        .kanban-scroll::-webkit-scrollbar-track {
+            background: #f2f4f6;
+            border-radius: 4px;
+        }
+        .kanban-scroll::-webkit-scrollbar-thumb {
+            background-color: #c2c6d9;
+            border-radius: 4px;
+        }
+        .pulse-dot {
+            animation: pulse-ring 2s infinite;
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); opacity: 0.5; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(0.8); opacity: 0.5; }
+        }
+        .hover-lift {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .hover-lift:hover {
+            transform: translateY(-2px);
+            box-shadow: 0px 8px 16px rgba(15, 23, 42, 0.1);
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-left: 1px solid rgba(255, 255, 255, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md text-body-md flex h-screen overflow-hidden">
+<!-- SideNavBar (Shared Component) -->
+<nav class="hidden md:flex flex-col w-sidebar-width h-screen sticky top-0 left-0 bg-nav-bg text-primary-container shadow-xl z-40 border-r border-outline-variant/10">
+<div class="flex flex-col h-full py-6">
+<!-- Header Brand -->
+<div class="px-6 mb-8 flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-gradient-to-br from-electric-gradient-start to-electric-gradient-end flex items-center justify-center shadow-lg">
+<span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">insights</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-white tracking-tight">TalentFlow</h1>
+<p class="font-label-caps text-label-caps text-outline-variant uppercase">Executive Suite</p>
+</div>
+</div>
+<!-- Navigation Links -->
+<div class="flex-1 overflow-y-auto mt-4 px-2 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant/70 hover:text-white hover:bg-white/5 hover:translate-x-1 transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="">แดชบอร์ด</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant/70 hover:text-white hover:bg-white/5 hover:translate-x-1 transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">work</span>
+<span class="">ตำแหน่งงาน</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant/70 hover:text-white hover:bg-white/5 hover:translate-x-1 transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">person_search</span>
+<span class="">ค้นหาผู้สมัคร</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant/70 hover:text-white hover:bg-white/5 hover:translate-x-1 transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">description</span>
+<span class="">คัดกรองเรซูเม่</span>
+</a>
+<!-- ACTIVE NAV ITEM -->
+<a class="flex items-center gap-3 px-4 py-3 bg-tertiary-container/20 text-on-tertiary-container border-l-4 border-primary-container font-bold rounded-r-lg scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">group</span>
+<span class="">ระบบติดตามผู้สมัคร</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant/70 hover:text-white hover:bg-white/5 hover:translate-x-1 transition-all duration-200 rounded-lg" href="#">
+<span class="material-symbols-outlined">calendar_month</span>
+<span class="">ตารางนัดสัมภาษณ์</span>
+</a>
+</div>
+<!-- CTA & Footer Tabs -->
+<div class="px-6 mt-auto pt-6 border-t border-white/10">
+<button class="w-full bg-gradient-to-r from-electric-gradient-start to-electric-gradient-end text-white font-body-sm text-body-sm font-bold py-3 px-4 rounded-lg shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all mb-6 flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">add</span>
+                    สร้างตำแหน่งงานใหม่
+                </button>
+<div class="space-y-1">
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant/70 hover:text-white transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined text-sm">settings</span>
+<span class="font-body-sm text-body-sm">ตั้งค่า</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-on-surface-variant/70 hover:text-white transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined text-sm">help</span>
+<span class="font-body-sm text-body-sm">ช่วยเหลือ</span>
+</a>
+</div>
+</div>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 flex flex-col relative w-full h-full overflow-hidden bg-background">
+<!-- TopAppBar (Shared Component) -->
+<header class="flex justify-between items-center px-margin-mobile md:px-margin-desktop w-full h-16 sticky top-0 z-30 bg-surface-container-lowest border-b border-surface-container shadow-sm flex-shrink-0">
+<!-- Mobile Menu / Search -->
+<div class="flex items-center gap-4 flex-1">
+<button class="md:hidden text-primary hover:bg-surface-container-high transition-colors cursor-pointer rounded-full p-2">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<!-- Search Bar (on_left) -->
+<div class="relative w-full max-w-md hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-surface border border-outline-variant rounded-full font-body-sm text-body-sm focus:outline-none focus:ring-2 focus:ring-primary-container focus:border-transparent transition-shadow placeholder-outline" placeholder="ค้นหาผู้สมัคร, ตำแหน่ง..." type="text">
+</div>
+</div>
+<!-- Trailing Actions & Profile -->
+<div class="flex items-center gap-2 md:gap-4">
+<button aria-label="Notifications" class="text-on-surface-variant hover:bg-surface-container-high transition-colors cursor-pointer rounded-full p-2">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button aria-label="History" class="text-on-surface-variant hover:bg-surface-container-high transition-colors cursor-pointer rounded-full p-2">
+<span class="material-symbols-outlined">history</span>
+</button>
+<button aria-label="Help" class="text-on-surface-variant hover:bg-surface-container-high transition-colors cursor-pointer rounded-full p-2 hidden sm:block">
+<span class="material-symbols-outlined">help</span>
+</button>
+<div class="h-8 w-px bg-outline-variant/30 mx-2 hidden sm:block"></div>
+<button class="w-9 h-9 rounded-full overflow-hidden border-2 border-surface-container-highest hover:border-primary-container transition-colors cursor-pointer">
+<img alt="Executive User Profile" class="w-full h-full object-cover" data-alt="Close-up portrait of an executive user in a modern office setting, bright lighting, professional attire, looking confident. High contrast, sharp focus, corporate aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAm2qRPVQtoWBi-K87p7GWTDtqZXWQpunUUvAe_TDXcPlfbls70qkONU7koGQegy1iV1xYJawpubp7Z2o_FxKXwi3BeD7du6gn1wFA1q8yAK9l0UucRX4lmfIukg5EsHtSxvTnMST5dx373APtT1Iis2K3yueGMZIa3FWCypo9kLeVBVIcSOsaQhgVZ-9hcw_sRPGUIpqX2iFvmSsMtmJDdnVMPhSZJViERqW_O8G5GW896iK-czVipqQ">
+</button>
+</div>
+</header>
+<!-- Canvas Area -->
+<div class="flex-1 overflow-hidden flex flex-col p-4 md:p-gutter gap-4">
+<!-- Page Header & Toolbar -->
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 flex-shrink-0">
+<div>
+<h2 class="font-headline-lg-mobile md:font-headline-md text-headline-lg-mobile md:text-headline-md text-on-surface">Applicant Tracking (ATS)</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1">จัดการและติดตามสถานะผู้สมัครงานทั้งหมดในระบบ</p>
+</div>
+<!-- Filters Toolbar -->
+<div class="flex flex-wrap items-center gap-3"><div class="flex items-center bg-surface-container-high p-1 rounded-lg mr-2">
+<button class="flex items-center gap-2 px-3 py-1.5 bg-white text-primary shadow-sm rounded-md font-medium transition-all">
+<span class="material-symbols-outlined text-[18px]">dashboard</span>
+<span class="text-sm">บอร์ด</span>
+</button>
+<button class="flex items-center gap-2 px-3 py-1.5 text-on-surface-variant hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined text-[18px]">format_list_bulleted</span>
+<span class="text-sm">รายการ</span>
+</button>
+</div>
+<div class="relative">
+<select class="appearance-none bg-surface-container-lowest border border-outline-variant text-on-surface font-body-sm text-body-sm rounded-lg pl-3 pr-8 py-2 focus:ring-2 focus:ring-primary-container focus:outline-none cursor-pointer">
+<option>ตำแหน่ง: Senior Frontend Engineer</option>
+<option>ตำแหน่ง: Product Manager</option>
+<option>ตำแหน่ง: UX/UI Designer</option>
+</select>
+<span class="material-symbols-outlined absolute right-2 top-1/2 -translate-y-1/2 text-outline pointer-events-none text-sm">expand_more</span>
+</div>
+<button class="flex items-center gap-2 bg-surface-container-lowest border border-outline-variant text-on-surface hover:bg-surface-container-low transition-colors font-body-sm text-body-sm rounded-lg px-3 py-2">
+<span class="material-symbols-outlined text-sm">calendar_today</span>
+<span class="">สัปดาห์นี้</span>
+</button>
+<button class="flex items-center gap-2 bg-nav-bg text-white hover:bg-nav-bg/90 transition-colors font-body-sm text-body-sm rounded-lg px-4 py-2 font-medium shadow-sm hover-lift">
+<span class="material-symbols-outlined text-sm">filter_list</span>
+<span class="">ตัวกรองเพิ่มเติม</span>
+</button>
+</div>
+</div>
+<!-- Kanban Board Area -->
+<div class="flex-1 overflow-x-auto kanban-scroll flex gap-6 pb-4">
+<!-- Stage 1: New Applications -->
+<div class="flex-shrink-0 w-80 flex flex-col bg-surface-container-low rounded-xl p-3 border border-outline-variant/20">
+<div class="flex justify-between items-center mb-4 px-2">
+<h3 class="font-body-md text-body-md font-bold text-on-surface flex items-center gap-2">
+<div class="w-2.5 h-2.5 rounded-full bg-surface-tint pulse-dot"></div>
+                            สมัครใหม่ (New)
+                        </h3>
+<span class="bg-surface-variant text-on-surface-variant font-label-caps text-label-caps px-2 py-0.5 rounded-full">12</span>
+</div>
+<div class="flex-1 overflow-y-auto space-y-3 pr-1 kanban-scroll">
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest rounded-lg border border-outline-variant/30 p-4 shadow-sm hover-lift cursor-pointer">
+<div class="flex justify-between items-start mb-1">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-full bg-primary-fixed flex items-center justify-center text-sm text-on-primary-fixed font-bold">ว</div>
+<div>
+<h4 class="font-body-md text-body-md font-bold text-on-surface line-clamp-1">วิชญะ อารีรัตน์</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">3 ปีประสบการณ์</p>
+</div>
+</div>
+<span class="text-outline text-[10px] font-medium">วันนี้</span>
+</div>
+<div class="flex flex-wrap gap-1.5 mt-3">
+<span class="bg-surface-container-high text-on-surface-variant font-label-caps text-[10px] px-2 py-0.5 rounded">React</span>
+<span class="bg-surface-container-high text-on-surface-variant font-label-caps text-[10px] px-2 py-0.5 rounded">Tailwind</span>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest rounded-lg border border-outline-variant/30 p-4 shadow-sm hover-lift cursor-pointer">
+<div class="flex justify-between items-start mb-1">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-full bg-primary-fixed flex items-center justify-center text-sm text-on-primary-fixed font-bold">ณ</div>
+<div>
+<h4 class="font-body-md text-body-md font-bold text-on-surface line-clamp-1">ณัฐกานต์ วงศ์สว่าง</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">5 ปีประสบการณ์</p>
+</div>
+</div>
+<span class="text-outline text-[10px] font-medium">เมื่อวาน</span>
+</div>
+<div class="flex flex-wrap gap-1.5 mt-3">
+<span class="bg-surface-container-high text-on-surface-variant font-label-caps text-[10px] px-2 py-0.5 rounded">Vue.js</span>
+<span class="bg-surface-container-high text-on-surface-variant font-label-caps text-[10px] px-2 py-0.5 rounded">Figma</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Stage 2: Initial Screening -->
+<div class="flex-shrink-0 w-80 flex flex-col bg-surface-container-low rounded-xl p-3 border border-outline-variant/20">
+<div class="flex justify-between items-center mb-4 px-2">
+<h3 class="font-body-md text-body-md font-bold text-on-surface flex items-center gap-2">
+<div class="w-2.5 h-2.5 rounded-full bg-tertiary"></div>
+                            คัดกรองเบื้องต้น
+                        </h3>
+<span class="bg-surface-variant text-on-surface-variant font-label-caps text-label-caps px-2 py-0.5 rounded-full">5</span>
+</div>
+<div class="flex-1 overflow-y-auto space-y-3 pr-1 kanban-scroll">
+<!-- Selected Card Template (Active State) -->
+<div class="bg-surface-container-lowest rounded-lg border border-outline-variant/30 p-4 shadow-sm hover-lift cursor-pointer">
+<div class="flex justify-between items-start mb-1">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-full bg-tertiary-fixed-dim/20 flex items-center justify-center text-sm text-tertiary font-bold">ชน</div>
+<div>
+<h4 class="font-body-md text-body-md font-bold text-on-surface line-clamp-1">ธนโชติ วงศ์วิวัฒน์</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">4 ปีประสบการณ์</p>
+</div>
+</div>
+<div class="flex items-center gap-1 bg-tertiary-fixed-dim/10 border border-tertiary-container/20 px-2 py-0.5 rounded text-[10px] text-tertiary font-medium">
+<span class="material-symbols-outlined text-[12px]">call</span>
+<span class="">รอติดต่อ</span>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-2 mb-3 line-clamp-2">
+ผู้สมัครมีทักษะ React แข็งแกร่ง แต่ต้องการเงินเดือนสูงกว่าโครงสร้างเล็กน้อย...
+</p>
+<div class="flex justify-between items-center pt-2 border-t border-outline-variant/20">
+<span class="text-outline text-[10px]">อัพเดท 1 ชม. ที่แล้ว</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Stage 3: Interview -->
+<div class="flex-shrink-0 w-80 flex flex-col bg-surface-container-low rounded-xl p-3 border border-outline-variant/20">
+<div class="flex justify-between items-center mb-4 px-2">
+<h3 class="font-body-md text-body-md font-bold text-on-surface flex items-center gap-2">
+<div class="w-2.5 h-2.5 rounded-full bg-status-pulse"></div>
+                            สัมภาษณ์ (Interview)
+                        </h3>
+<span class="bg-surface-variant text-on-surface-variant font-label-caps text-label-caps px-2 py-0.5 rounded-full">3</span>
+</div>
+<div class="flex-1 overflow-y-auto space-y-3 pr-1 kanban-scroll">
+<!-- Card 3 -->
+<div class="bg-surface-container-lowest rounded-lg border border-outline-variant/30 p-4 shadow-sm hover-lift cursor-pointer">
+<div class="flex justify-between items-start mb-1">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-full overflow-hidden">
+<img alt="Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAm2qRPVQtoWBi-K87p7GWTDtqZXWQpunUUvAe_TDXcPlfbls70qkONU7koGQegy1iV1xYJawpubp7Z2o_FxKXwi3BeD7du6gn1wFA1q8yAK9l0UucRX4lmfIukg5EsHtSxvTnMST5dx373APtT1Iis2K3yueGMZIa3FWCypo9kLeVBVIcSOsaQhgVZ-9hcw_sRPGUIpqX2iFvmSsMtmJDdnVMPhSZJViERqW_O8G5GW896iK-czVipqQ">
+</div>
+<div>
+<h4 class="font-body-md text-body-md font-bold text-on-surface line-clamp-1">นภัสสร รุ่งเรือง</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">6 ปีประสบการณ์</p>
+</div>
+</div>
+</div>
+<div class="bg-tertiary-fixed-dim/20 border border-tertiary-container/30 rounded-md p-2 mt-3 mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary-container text-[16px]">event</span>
+<span class="font-data-mono text-data-mono text-tertiary-container text-xs">พรุ่งนี้, 14:00 น.</span>
+</div>
+<div class="flex justify-between items-center pt-2 border-t border-outline-variant/20">
+<span class="text-outline text-[10px]">ผู้สัมภาษณ์: CTO</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Stage 4: Offer/Hired -->
+<div class="flex-shrink-0 w-80 flex flex-col bg-surface-container-low rounded-xl p-3 border border-outline-variant/20">
+<div class="flex justify-between items-center mb-4 px-2">
+<h3 class="font-body-md text-body-md font-bold text-on-surface flex items-center gap-2">
+<div class="w-2.5 h-2.5 rounded-full bg-secondary"></div>
+                            ข้อเสนอ/รับเข้าทำงาน
+                        </h3>
+<span class="bg-surface-variant text-on-surface-variant font-label-caps text-label-caps px-2 py-0.5 rounded-full">1</span>
+</div>
+<div class="flex-1 overflow-y-auto space-y-3 pr-1 kanban-scroll">
+<!-- Empty State for styling variety, or a successful card -->
+<div class="bg-surface-container-lowest rounded-lg border-l-4 border-l-status-pulse border-y border-r border-y-outline-variant/30 border-r-outline-variant/30 p-4 shadow-sm opacity-80">
+<div class="flex justify-between items-start mb-2">
+<h4 class="font-body-md text-body-md font-bold text-on-surface line-clamp-1">ธนพล สุขสันต์</h4>
+<span class="material-symbols-outlined text-status-pulse text-sm">check_circle</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant mb-2 line-clamp-1">Frontend Lead • รอเซ็นสัญญา</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Candidate Details Drawer (Glassmorphism overlay on right) -->
+<aside class="absolute top-0 right-0 h-full w-[400px] glass-panel shadow-2xl transform translate-x-0 transition-transform duration-300 z-40 flex flex-col hidden md:flex">
+<!-- Drawer Header -->
+<div class="flex justify-between items-center p-6 border-b border-outline-variant/20">
+<h2 class="font-headline-md text-[20px] font-bold text-on-surface">รายละเอียดผู้สมัคร</h2>
+<button class="text-on-surface-variant hover:text-error transition-colors p-1 rounded-full hover:bg-error-container/20">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<!-- Drawer Content (Scrollable) -->
+<div class="flex-1 overflow-y-auto p-6 kanban-scroll">
+<!-- Profile Header Card -->
+<div class="flex items-start gap-4 mb-6">
+<img alt="Somchai Jai Dee" class="w-16 h-16 rounded-xl object-cover border border-outline-variant shadow-sm" data-alt="High quality professional headshot of an Asian male software developer. Wearing smart casual attire. Bright, clean corporate office background. Optimistic expression." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDnfw0Pd2GOOOA_jUF7Y_ny1gYU1qZnnMu2BHqf8OXgSOhFai8AN9KibRbq3LPQRp2o2HijNo6vUEWhiE53cxk-7d-Hop8vyOwq3wS8QDS17cbQMwci-SJWOCvfJJUdr8RIG7-RU2MWJ1AsyvTsAQVUT615u5tKHDQthBThUppA5kBtDm_gGv7KA4c6S-ZymCPIWlah3SQIQss20wr9KYnxZ1ldpuBubPiYb0jwEN3aZCcTEB-fZKB37w">
+<div>
+<h3 class="font-headline-md text-[24px] font-bold text-on-surface leading-tight">สมชาย ใจดี</h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Senior React Developer</p>
+<p class="font-body-sm text-body-sm text-outline flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-[14px]">location_on</span> กรุงเทพมหานคร, ประเทศไทย
+                        </p>
+</div>
+</div>
+<!-- Quick Actions -->
+<div class="flex gap-2 mb-8">
+<button class="flex-1 bg-surface-container-lowest border border-outline-variant hover:bg-surface-container-high transition-colors text-on-surface font-body-sm text-body-sm font-medium py-2 rounded-lg flex justify-center items-center gap-2 shadow-sm">
+<span class="material-symbols-outlined text-[18px]">download</span> เรซูเม่ (PDF)
+                    </button>
+<button class="flex-1 bg-surface-container-lowest border border-outline-variant hover:bg-surface-container-high transition-colors text-on-surface font-body-sm text-body-sm font-medium py-2 rounded-lg flex justify-center items-center gap-2 shadow-sm">
+<span class="material-symbols-outlined text-[18px]">mail</span> อีเมล
+                    </button>
+<button class="w-10 bg-surface-container-lowest border border-outline-variant hover:bg-surface-container-high transition-colors text-on-surface rounded-lg flex justify-center items-center shadow-sm">
+<span class="material-symbols-outlined text-[18px]">more_horiz</span>
+</button>
+</div>
+<!-- Info Sections -->
+<div class="space-y-6">
+<!-- Section: Status -->
+<div>
+<h4 class="font-label-caps text-label-caps text-on-surface-variant mb-2">สถานะปัจจุบัน</h4>
+<div class="bg-tertiary-fixed-dim/10 border border-tertiary-container/30 rounded-lg p-3 flex justify-between items-center">
+<div class="flex items-center gap-2">
+<div class="w-2.5 h-2.5 rounded-full bg-tertiary"></div>
+<span class="font-body-md text-body-md font-medium text-tertiary">คัดกรองเบื้องต้น</span>
+</div>
+<select class="appearance-none bg-transparent border-none text-tertiary font-body-sm text-body-sm focus:ring-0 cursor-pointer text-right underline decoration-dotted">
+<option>เปลี่ยนสถานะ</option>
+<option>สัมภาษณ์</option>
+<option>ปฏิเสธ</option>
+</select>
+</div>
+</div>
+<!-- Section: Skills -->
+<div>
+<h4 class="font-label-caps text-label-caps text-on-surface-variant mb-2">ทักษะหลัก (Primary Skills)</h4>
+<div class="flex flex-wrap gap-2">
+<span class="bg-primary-fixed text-on-primary-fixed font-body-sm text-body-sm px-3 py-1 rounded-full border border-primary-fixed-dim/50">React (Expert)</span>
+<span class="bg-primary-fixed text-on-primary-fixed font-body-sm text-body-sm px-3 py-1 rounded-full border border-primary-fixed-dim/50">TypeScript</span>
+<span class="bg-secondary-fixed text-on-secondary-fixed font-body-sm text-body-sm px-3 py-1 rounded-full">Next.js</span>
+<span class="bg-secondary-fixed text-on-secondary-fixed font-body-sm text-body-sm px-3 py-1 rounded-full">Tailwind CSS</span>
+<span class="bg-secondary-fixed text-on-secondary-fixed font-body-sm text-body-sm px-3 py-1 rounded-full">Redux</span>
+</div>
+</div>
+<!-- Section: Experience -->
+<div>
+<h4 class="font-label-caps text-label-caps text-on-surface-variant mb-3">ประสบการณ์ทำงาน</h4>
+<div class="relative pl-4 border-l-2 border-outline-variant/30 space-y-4">
+<div class="relative">
+<div class="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-outline-variant border-2 border-white"></div>
+<h5 class="font-body-md text-body-md font-bold text-on-surface">Senior Frontend Developer</h5>
+<p class="font-body-sm text-body-sm text-primary-container">TechCorp (Thailand) Co., Ltd.</p>
+<p class="font-body-sm text-[12px] text-outline mt-0.5">2021 - ปัจจุบัน (3 ปี)</p>
+</div>
+<div class="relative">
+<div class="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-outline-variant border-2 border-white"></div>
+<h5 class="font-body-md text-body-md font-bold text-on-surface">Web Developer</h5>
+<p class="font-body-sm text-body-sm text-primary-container">Digital Agency BKK</p>
+<p class="font-body-sm text-[12px] text-outline mt-0.5">2017 - 2021 (4 ปี)</p>
+</div>
+</div>
+</div>
+<!-- Section: Education -->
+<div>
+<h4 class="font-label-caps text-label-caps text-on-surface-variant mb-3">การศึกษา</h4>
+<div class="relative pl-4 border-l-2 border-outline-variant/30 space-y-4">
+<div class="relative">
+<div class="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-outline-variant border-2 border-white"></div>
+<h5 class="font-body-md text-body-md font-bold text-on-surface">ปริญญาตรี วิศวกรรมคอมพิวเตอร์</h5>
+<p class="font-body-sm text-body-sm text-primary-container">มหาวิทยาลัยเทคโนโลยีแห่งหนึ่ง</p>
+<p class="font-body-sm text-[12px] text-outline mt-0.5">2016 - 2020</p>
+</div>
+</div>
+</div>
+<!-- Section: Expected Salary -->
+<div>
+<h4 class="font-label-caps text-label-caps text-on-surface-variant mb-2">เงินเดือนที่คาดหวัง</h4>
+<div class="bg-surface-container-lowest border border-outline-variant/30 rounded-lg p-3 flex justify-between items-center">
+<span class="font-body-md text-body-md font-bold text-on-surface">45,000 THB</span>
+<span class="font-body-sm text-body-sm text-outline">ปัจจุบัน: 35,000 THB</span>
+</div>
+</div>
+<!-- Section: HR Notes -->
+</div>
+</div>
+<!-- Drawer Footer (Fixed Action) -->
+<div class="p-6 border-t border-outline-variant/20 bg-surface-container-lowest mt-auto">
+<button class="w-full bg-gradient-to-r from-electric-gradient-start to-electric-gradient-end text-white font-body-md text-body-md font-bold py-3 px-4 rounded-lg shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">calendar_add_on</span>
+                    นัดหมายสัมภาษณ์ (Schedule Interview)
+                </button>
+</div>
+</aside>
+</main>
+
+
+<script src="stitch-interactions.js"></script>
+</body></html>

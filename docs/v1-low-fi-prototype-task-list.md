@@ -171,6 +171,14 @@ Prototype is not complete while any criterion is pending, unverified, flaky, or 
 
 ## Verification status
 
+### Stitch baseline reset (2026-08-16)
+
+- [x] Replace prototype entry screen with Stitch `talentflow/code.html` design output
+- [x] Remove legacy `app.js` and `styles.css` runtime from prototype surface
+- [x] Add separate Stitch interaction bridge
+- [ ] Rebuild all previous acceptance flows on top of Stitch baseline
+- [ ] Browser verification against Stitch baseline
+
 ### Thai UI / interaction regression (2026-08-15)
 
 - [x] Replace remaining user-facing English labels in tracker controls and empty states
