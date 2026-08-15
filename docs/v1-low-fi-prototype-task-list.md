@@ -6,7 +6,7 @@ Updated: 2026-08-15
 
 - `[x]` Implemented and locally checked
 - `[ ]` Pending or not yet evidenced
-- Overall status: **Stitch baseline audit in progress — UX-001..UX-017 not yet fully evidenced**
+- Overall status: **Verified — UX-001..UX-017 passed on Stitch baseline**
 
 ## Design and localization update
 
@@ -193,7 +193,7 @@ Prototype is not complete while any criterion is pending, unverified, flaky, or 
 - Local HTTP server: PASS
 - Browser opens prototype: PASS
 - Browser console after favicon fix: PASS, 0 errors / 0 warnings
-- Full UX-001..UX-017 matrix: **PENDING AFTER STITCH RESET**
+- Full UX-001..UX-017 matrix: **PASS — `prototype/verification/2026-08-16-ux-001-017-final-report.md`**
 - Verification evidence: `prototype/verification/2026-08-15-acceptance-report.md`
 - Verification evidence commit: **PENDING CURRENT COMMIT**
 - Definition of done: **REACHED FOR LOW-FI PROTOTYPE**
@@ -208,7 +208,7 @@ Prototype is not complete while any criterion is pending, unverified, flaky, or 
 - [x] Interview scheduler page from Stitch
 - [x] Shared navigation and interaction bridge
 - [x] Implement deterministic flow states for UX-001..UX-015
-- [ ] Deterministic UX-001..UX-017 browser rerun on Stitch baseline
+- [x] Deterministic UX-001..UX-017 browser rerun on Stitch baseline
 - [x] Write Stitch clickable verification evidence
 
 ### UX audit correction (2026-08-16)
