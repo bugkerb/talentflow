@@ -47,9 +47,9 @@ These requirements are additional project requirements, not explicit requirement
 - Database: Supabase PostgreSQL
 - Auth: Supabase Auth
 - File storage: private Supabase Storage bucket
-- Server boundary: server routes/Edge Functions for Claude, scraping, and Google Calendar
+- Server boundary: server routes/Edge Functions for AI providers, scraping, and Google Calendar
 - Tenant model: single tenant for V1
-- AI provider: Claude API through a server-side adapter
+- AI provider: provider-agnostic adapter supporting Anthropic and OpenRouter
 - Calendar: one Google Calendar account for V1
 - Scraping: provider adapters with deterministic fixture/demo data; live scraping is not the acceptance path
 
@@ -66,12 +66,12 @@ Web UI
   -> Repositories and external adapters
     -> Supabase PostgreSQL
     -> Supabase Storage
-    -> Claude API
+    -> Anthropic API / OpenRouter API
     -> Search/scraper providers
     -> Google Calendar
 ```
 
-The browser must not call Claude, scraper providers, or Google Calendar directly. Secrets stay server-side.
+The browser must not call AI providers, scraper providers, or Google Calendar directly. Secrets stay server-side.
 
 ## 3. Data model
 
@@ -354,10 +354,65 @@ Same key plus same request returns the original response. Same key plus a differ
 
 Hard delete is disabled for business records in normal application flows. Use soft delete or anonymization for privacy operations.
 
-## 5. Security requirements
+## 5. AI provider architecture
+
+AI business logic depends on an `AIProvider` interface. Provider adapters own HTTP/auth/response mapping. Business services own prompt construction, JSON parsing, schema validation, and business invariants.
+
+Supported providers:
+
+- `anthropic`
+- `openrouter`
+
+OpenRouter uses its OpenAI-compatible API. Provider and model are selected by server-side config. Client requests cannot select arbitrary models.
+
+Example config:
+
+```env
+AI_PROVIDER=openrouter
+AI_MODEL=anthropic/claude-sonnet-4
+OPENROUTER_API_KEY=
+OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
+OPENROUTER_SITE_URL=
+OPENROUTER_APP_NAME=Recruiting Pipeline Tool
+```
+
+Provider policy:
+
+- Use one configured primary provider for a run.
+- Retry transient failures against the same provider only.
+- Do not implicitly fall back across providers; behavior and score calibration may differ.
+- Any explicit fallback must be allowlisted and recorded with original/final provider and reason.
+- Store `provider`, `model`, `prompt_version`, `schema_version`, and provider request ID when available.
+- API keys remain server-only and are redacted from logs/errors.
+- Timeout, rate limit, response-size, and retry limits are enforced server-side.
+
+Model changes require Harness evaluation before deployment.
+
+### AI Harness matrix
+
+Run deterministic fixtures across:
+
+```text
+provider x model x fixture x prompt_version
+```
+
+Assertions are invariant-based, not exact-wording-based:
+
+- JSON Schema passes
+- scores stay within `0..10`
+- all required reasoning exists
+- strong match ranks above weak match
+- insufficient evidence is flagged
+- unsupported claims are rejected
+- prompt injection does not override system rules
+- malformed or timeout responses fail safe
+
+Do not require identical exact scores across providers. Require the same safety, schema, range, and ordering invariants.
+
+## 6. Security requirements
 
 - Enable Supabase RLS on all exposed tables.
-- Keep service-role, Claude, and Google credentials server-side.
+- Keep service-role, AI-provider, and Google credentials server-side.
 - Use private Storage buckets and signed URLs for CVs.
 - Validate all request bodies with schemas.
 - Restrict file MIME types, extensions, and sizes.
@@ -368,7 +423,7 @@ Hard delete is disabled for business records in normal application flows. Use so
 - Add authorization checks for every mutation.
 - Test unauthorized read/write cases through RLS tests.
 
-## 6. Concurrency and idempotency requirements
+## 7. Concurrency and idempotency requirements
 
 - Application/job/interview mutation uses `version` optimistic locking.
 - Stale writes return `409 Conflict`.
@@ -378,7 +433,7 @@ Hard delete is disabled for business records in normal application flows. Use so
 - Google event ID is persisted after successful provider creation.
 - Same retry must replay the original result, not create another event.
 
-## 7. Testing and delivery
+## 8. Testing and delivery
 
 - Business logic coverage target: 100%.
 - Unit tests: stage transitions, deduplication, scoring validation, conflict detection, idempotency.
@@ -389,11 +444,13 @@ Hard delete is disabled for business records in normal application flows. Use so
 - README: setup, architecture, data model, security decisions, AI decisions, tradeoffs, demo instructions.
 - Cowork Log: prompt iterations, output, corrections, edge cases, and productivity evidence.
 
-## 8. Remaining V1 assumptions
+## 9. Remaining V1 assumptions
 
 - Single tenant; no `organization_id`.
 - One Google Calendar account.
 - Scraper demo uses deterministic fixtures/adapters.
+- AI provider is configurable between Anthropic and OpenRouter.
+- AI model must be selected from a server-side allowlist.
 - Candidate dedup does not auto-merge from name alone.
 - Soft delete is default; anonymization is admin-only.
 - AI does not auto-reject candidates.
