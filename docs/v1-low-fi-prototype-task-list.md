@@ -207,4 +207,6 @@ Prototype is not complete while any criterion is pending, unverified, flaky, or 
 - [x] Applicant tracker page from Stitch
 - [x] Interview scheduler page from Stitch
 - [x] Shared navigation and interaction bridge
-- [ ] Deterministic UX-001..UX-017 rerun on Stitch baseline
+- [x] Implement deterministic flow states for UX-001..UX-015
+- [ ] Deterministic UX-001..UX-017 browser rerun on Stitch baseline
+- [x] Write Stitch clickable verification evidence
