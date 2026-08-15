@@ -82,3 +82,4 @@ create policy screenings_authenticated_read on public.screenings for select to a
 create policy interviews_authenticated_all on public.interviews for all to authenticated using (true) with check (true);
 create policy participants_authenticated_all on public.interview_participants for all to authenticated using (true) with check (true);
 create policy pipeline_events_authenticated_read on public.pipeline_events for select to authenticated using (true);
+grant select on public.jobs to anon;

@@ -8,8 +8,8 @@
 
 ### Phase 0: Baseline
 
-- [ ] Confirm clean working tree scope
-- [ ] Preserve untracked PDF and `.DS_Store`
+- [x] Confirm clean working tree scope
+- [x] Preserve untracked PDF and `.DS_Store`
 - [x] Confirm Node/npm versions
 - [x] Create baseline command report
 - [x] Record initial failures/limitations
@@ -21,8 +21,8 @@
 - [x] Add Tailwind + shadcn/ui
 - [x] Add npm scripts
 - [x] Create module directories
-- [ ] Add server/browser boundary
-- [ ] Add environment schema validation
+- [x] Add server/browser boundary
+- [x] Add environment schema validation
 - [x] Add `.env.example`
 - [x] Verify production build
 
@@ -54,46 +54,46 @@
 - [x] Add indexes
 - [x] Add RLS policies
 - [x] Add immutable pipeline-event policy
-- [ ] Add migration tests
+- [x] Add migration tests
 
 ### Phase 4: Seed and local data
 
-- [ ] Add demo HR profile
-- [ ] Add demo Tech Lead job
-- [ ] Add manual referral candidate
-- [ ] Add candidates across stages
-- [ ] Add applications
-- [ ] Add pipeline events
-- [ ] Make seed repeatable/idempotent
-- [ ] Verify seed from empty database
+- [x] Add demo HR profile
+- [x] Add demo Tech Lead job
+- [x] Add manual referral candidate
+- [x] Add candidates across stages
+- [x] Add applications
+- [x] Add pipeline events
+- [x] Make seed repeatable/idempotent
+- [x] Verify seed from empty database
 
 ### Phase 5: Domain services
 
-- [ ] Implement `JobService`
-- [ ] Implement `CandidateService`
-- [ ] Implement `ApplicationService`
-- [ ] Implement `IdempotencyService`
-- [ ] Implement optimistic-lock behavior
-- [ ] Implement typed domain errors
-- [ ] Add audit field updates
-- [ ] Add pipeline event writes
-- [ ] Add unit tests before implementation where practical
-- [ ] Reach 100% business-logic coverage
+- [x] Implement `JobService`
+- [x] Implement `CandidateService`
+- [x] Implement `ApplicationService`
+- [x] Implement `IdempotencyService`
+- [x] Implement optimistic-lock behavior
+- [x] Implement typed domain errors
+- [x] Add audit field updates
+- [x] Add pipeline event writes
+- [x] Add unit tests before implementation where practical
+- [x] Reach 100% business-logic coverage
 
 ### Phase 6: First vertical slice
 
-- [ ] Build dashboard shell
-- [ ] Build job list/create/edit flow
-- [ ] Build manual candidate form
-- [ ] Support referral metadata
-- [ ] Build application creation flow
-- [ ] Build Kanban tracker
-- [ ] Build table toggle
-- [ ] Add stage/source/job filters
-- [ ] Add stage transition UI
-- [ ] Add stale-version conflict UI
-- [ ] Add loading/empty/error/retry states
-- [ ] Add smoke E2E flow
+- [x] Build dashboard shell
+- [x] Build job list/create/edit flow
+- [x] Build manual candidate form
+- [x] Support referral metadata
+- [x] Build application creation flow
+- [x] Build Kanban tracker
+- [x] Build table toggle
+- [x] Add stage/source/job filters
+- [x] Add stage transition UI
+- [x] Add stale-version conflict UI
+- [x] Add loading/empty/error/retry states
+- [x] Add smoke E2E flow
 
 ### Phase 7: CI/CD
 
@@ -103,23 +103,23 @@
 - [x] Run typecheck
 - [x] Run unit tests
 - [x] Enforce coverage
-- [ ] Run integration tests
-- [ ] Run build
-- [ ] Add secrets scan
-- [ ] Add Playwright smoke job
+- [x] Run integration tests
+- [x] Run build
+- [x] Add secrets scan
+- [x] Add Playwright smoke job
 - [ ] Verify CI from clean checkout
 
 ### Phase 8: Documentation
 
-- [ ] Update README setup
-- [ ] Document env vars
-- [ ] Document migration/seed commands
-- [ ] Document architecture
-- [ ] Document error handling/logger
-- [ ] Document test commands
-- [ ] Document acceptance evidence
-- [ ] Record known limitations
-- [ ] Keep UX/data-model/technical docs separated
+- [x] Update README setup
+- [x] Document env vars
+- [x] Document migration/seed commands
+- [x] Document architecture
+- [x] Document error handling/logger
+- [x] Document test commands
+- [x] Document acceptance evidence
+- [x] Record known limitations
+- [x] Keep UX/data-model/technical docs separated
 
 ## Deterministic verification loop
 
