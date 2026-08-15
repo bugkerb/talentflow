@@ -171,6 +171,15 @@ Prototype is not complete while any criterion is pending, unverified, flaky, or 
 
 ## Verification status
 
+### Thai UI / interaction regression (2026-08-15)
+
+- [x] Replace remaining user-facing English labels in tracker controls and empty states
+- [x] Make tracker view buttons and filters render Thai labels while preserving stable values
+- [x] Apply shared custom select styling to field and toolbar dropdowns
+- [x] Bind modal close and route actions for dynamically-created dialogs
+- [x] Re-run JavaScript syntax and whitespace checks
+- [ ] Browser interaction evidence after latest UI patch
+
 - `node --check prototype/app.js`: PASS
 - `git diff --check`: PASS for feature commits
 - Local HTTP server: PASS
