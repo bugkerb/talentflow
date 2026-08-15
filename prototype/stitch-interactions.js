@@ -18,7 +18,8 @@
     return backdrop;
   };
   document.querySelectorAll('a[href="#"]').forEach((link) => {
-    const label = link.textContent.trim();
+    const spans = [...link.querySelectorAll("span")];
+    const label = (spans.at(-1)?.textContent || link.textContent).trim();
     if (routes[label]) { link.href = `${root}${routes[label]}`; }
     else link.addEventListener("click", (event) => event.preventDefault());
   });
