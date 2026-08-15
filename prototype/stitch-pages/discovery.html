@@ -1,0 +1,469 @@
+<!DOCTYPE html><html lang="th"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>HR Tech Platform - Candidate Discovery</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Calistoga&amp;family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;700&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-tertiary-fixed-variant": "#004c69",
+                      "background": "#f7f9fb",
+                      "error": "#ba1a1a",
+                      "electric-gradient-end": "#38BDF8",
+                      "tertiary-fixed": "#c4e7ff",
+                      "surface-container": "#eceef0",
+                      "secondary-fixed": "#dae2fd",
+                      "on-secondary-fixed": "#131b2e",
+                      "on-background": "#191c1e",
+                      "secondary-fixed-dim": "#bec6e0",
+                      "primary-container": "#0062ff",
+                      "nav-bg": "#020617",
+                      "tertiary-fixed-dim": "#7bd0ff",
+                      "secondary": "#565e74",
+                      "electric-gradient-start": "#0062FF",
+                      "on-primary-fixed-variant": "#003ea8",
+                      "on-tertiary-container": "#ebf6ff",
+                      "surface-bright": "#f7f9fb",
+                      "on-primary-fixed": "#00174b",
+                      "on-primary-container": "#f3f3ff",
+                      "secondary-container": "#dae2fd",
+                      "on-secondary-fixed-variant": "#3f465c",
+                      "on-primary": "#ffffff",
+                      "surface-dim": "#d8dadc",
+                      "outline-variant": "#c2c6d9",
+                      "error-container": "#ffdad6",
+                      "tertiary": "#005e80",
+                      "surface-tint": "#0053da",
+                      "primary": "#004cca",
+                      "inverse-primary": "#b4c5ff",
+                      "on-surface": "#191c1e",
+                      "surface-container-highest": "#e0e3e5",
+                      "on-tertiary": "#ffffff",
+                      "surface-container-low": "#f2f4f6",
+                      "on-error-container": "#93000a",
+                      "surface-container-lowest": "#ffffff",
+                      "on-error": "#ffffff",
+                      "tertiary-container": "#0078a2",
+                      "on-secondary-container": "#5c647a",
+                      "surface-container-high": "#e6e8ea",
+                      "primary-fixed": "#dbe1ff",
+                      "surface-variant": "#e0e3e5",
+                      "error-alert": "#EF4444",
+                      "primary-fixed-dim": "#b4c5ff",
+                      "on-secondary": "#ffffff",
+                      "surface": "#f7f9fb",
+                      "on-tertiary-fixed": "#001e2c",
+                      "outline": "#737687",
+                      "inverse-surface": "#2d3133",
+                      "status-pulse": "#22C55E",
+                      "on-surface-variant": "#424656",
+                      "inverse-on-surface": "#eff1f3"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "margin-desktop": "32px",
+                      "sidebar-width": "260px",
+                      "unit": "4px",
+                      "gutter": "24px",
+                      "margin-mobile": "16px"
+              },
+              "fontFamily": {
+                      "headline-md": [
+                              "Calistoga"
+                      ],
+                      "headline-lg-mobile": [
+                              "Calistoga"
+                      ],
+                      "data-mono": [
+                              "JetBrains Mono"
+                      ],
+                      "headline-lg": [
+                              "Calistoga"
+                      ],
+                      "body-lg": [
+                              "Inter"
+                      ],
+                      "body-md": [
+                              "Inter"
+                      ],
+                      "label-caps": [
+                              "Inter"
+                      ],
+                      "body-sm": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "headline-md": [
+                              "28px",
+                              {
+                                      "lineHeight": "36px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "headline-lg-mobile": [
+                              "30px",
+                              {
+                                      "lineHeight": "38px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "data-mono": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "headline-lg": [
+                              "40px",
+                              {
+                                      "lineHeight": "52px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "label-caps": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "letterSpacing": "0.05em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "body-sm": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        .hover-lift {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .hover-lift:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .pulse-dot {
+            animation: pulse-animation 2s infinite;
+        }
+        @keyframes pulse-animation {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+        }
+        
+        .bg-gradient-primary {
+            background: linear-gradient(to right, #0062FF, #38BDF8);
+        }
+        
+        .bg-gradient-primary:hover {
+            filter: brightness(1.1);
+        }
+
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 24px;
+        }
+        
+        @media (max-width: 1279px) {
+            .bento-grid {
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-background min-h-screen text-on-background font-body-md text-body-md overflow-x-hidden">
+<!-- SideNavBar -->
+<nav class="hidden md:flex flex-col bg-nav-bg border-r border-outline-variant/10 shadow-xl fixed left-0 top-0 h-screen w-[260px] z-50">
+<div class="flex flex-col h-full py-6 px-4">
+<div class="flex items-center gap-4 mb-8 px-2">
+<div class="w-10 h-10 rounded-lg bg-gradient-primary flex items-center justify-center text-white font-bold">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">bolt</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md font-bold text-on-primary">TalentFlow</h1>
+<p class="text-secondary-fixed-dim text-sm">Executive Precision</p>
+</div>
+</div>
+<div class="flex-1 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 text-secondary-fixed-dim hover:text-on-primary hover:bg-white/5 transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="">แดชบอร์ด</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary-fixed-dim hover:text-on-primary hover:bg-white/5 transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="work">work</span>
+<span class="">ตำแหน่งงาน</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container bg-primary-container rounded-lg font-medium shadow-md" href="#">
+<span class="material-symbols-outlined" data-icon="person_search" style="font-variation-settings: 'FILL' 1;">person_search</span>
+<span class="">ค้นหาผู้สมัคร</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary-fixed-dim hover:text-on-primary hover:bg-white/5 transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+<span class="">คัดกรองเรซูเม่</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary-fixed-dim hover:text-on-primary hover:bg-white/5 transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="">ระบบติดตามผู้สมัคร</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary-fixed-dim hover:text-on-primary hover:bg-white/5 transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span class="">ตารางนัดสัมภาษณ์</span>
+</a>
+</div>
+<div class="mt-auto space-y-2 pt-6 border-t border-outline-variant/10">
+<button class="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg bg-surface/10 text-on-primary hover:bg-surface/20 transition-colors border border-outline-variant/20 mb-4">
+<span class="material-symbols-outlined text-sm">refresh</span>
+<span class="text-sm font-medium">Reset State</span>
+</button>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary-fixed-dim hover:text-on-primary hover:bg-white/5 transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="">ตั้งค่า</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-error hover:bg-error/10 transition-all rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span class="">ออกจากระบบ</span>
+</a>
+</div>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="md:ml-[260px] flex flex-col min-h-screen">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-background border-b border-surface-container-highest docked full-width top-0 sticky z-40">
+<div class="flex justify-between items-center h-16 px-margin-desktop">
+<div class="flex items-center gap-8">
+<!-- Search Bar -->
+<div class="relative w-64 hidden lg:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full pl-10 pr-4 py-2 bg-white border border-outline-variant rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent text-sm placeholder:text-outline font-body-sm" placeholder="ค้นหาทักษะ, ชื่อ..." type="text">
+</div>
+</div>
+<div class="flex items-center gap-6">
+<nav class="hidden lg:flex items-center gap-6 font-body-sm text-body-sm">
+<a class="text-secondary hover:text-primary transition-colors py-5" href="#">ภาพรวม</a>
+<a class="text-primary font-bold border-b-2 border-primary py-5" href="#">รายงาน</a>
+<a class="text-secondary hover:text-primary transition-colors py-5" href="#">ความช่วยเหลือ</a>
+</nav>
+<div class="flex items-center gap-3 border-l border-surface-container-highest pl-6 ml-2">
+<button class="p-2 text-secondary hover:bg-surface-container-low transition-all rounded-full relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-error rounded-full border-2 border-surface"></span>
+</button>
+<button class="p-2 text-secondary hover:bg-surface-container-low transition-all rounded-full">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+</button>
+<button class="hidden sm:flex bg-gradient-primary text-white px-4 py-2 rounded-lg font-medium text-sm hover-lift items-center gap-2">
+<span class="material-symbols-outlined text-sm">add</span>
+                            สร้างตำแหน่งงาน
+                        </button>
+<div class="w-9 h-9 rounded-full bg-surface-variant overflow-hidden border border-outline-variant/30 cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all ml-2">
+<img alt="User Avatar" class="w-full h-full object-cover" data-alt="A professional headshot of a corporate HR executive with a slight smile, wearing a dark navy blazer, set against a clean, softly lit modern office background. High resolution, bright, modern lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCne0aCuMa_C4AQA15rcSqsM7OPXtwtcFt1ed3KTULSJW01DqPWqsD1z-E2qe2f05He0bgegwXq3VTYh2P-SiIYYxz30Vqy3PCi0K97qOFtwtV16NrwDMoYrwM5jyaeK1XZF3aDl-Jz-YAuSFroB_cb4IJQ8aRXluMQdY9h9H_33aE54PzW94zk_niMVRfqj-gUnjWLzYzU6rpM0CGojycV1_JJ-lpC7lwDq2aBz-isd7MxumX625WIJg">
+</div>
+</div>
+</div>
+</div>
+</header>
+<!-- Canvas -->
+<main class="flex-1 p-margin-mobile md:p-margin-desktop max-w-7xl w-full mx-auto">
+<!-- Header Section -->
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8">
+<div>
+<h2 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mb-2">Candidate Discovery</h2>
+<p class="text-secondary">ค้นหาและประเมินผู้สมัครสำหรับตำแหน่ง <strong>Senior Frontend Engineer</strong></p>
+</div>
+<div class="flex gap-3">
+<button class="px-4 py-2 border border-outline-variant rounded-lg bg-white text-on-surface hover:bg-surface-container-low transition-colors font-medium text-sm flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">tune</span>
+                        ตัวกรอง
+                    </button>
+<button class="px-4 py-2 bg-gradient-primary text-white rounded-lg hover-lift font-medium text-sm flex items-center gap-2"><span class="material-symbols-outlined text-sm">refresh</span> รันโมเดล</button>
+</div>
+</div>
+<!-- Discovery Results - Bento Grid Layout -->
+<div class="bento-grid">
+<!-- Candidate Card 1 - High Match -->
+<div class="col-span-12 lg:col-span-12 bg-white rounded-xl border border-outline-variant shadow-sm hover-lift overflow-hidden">
+<div class="p-6 border-b border-outline-variant/50 bg-surface-container-lowest flex justify-between items-start">
+<div class="flex items-center gap-5">
+<div class="w-16 h-16 rounded-full bg-surface-variant overflow-hidden border-2 border-white shadow-sm relative">
+<img alt="Candidate 1" class="w-full h-full object-cover" data-alt="Professional portrait of a confident young Asian male software engineer wearing a clean white t-shirt, working in a bright, modern tech office environment. Clean corporate aesthetic, soft natural lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAu7zbmQFj2rXO67F0hqUItM29Ymx1aqV2Yb9V8zd28k8g2ukhZ1_GH0qZfWXzH2QWx2QZKC_3VSjsD_xFFcrOIp4HWs-oUI6hjm1CC9Lvsl-VRmVRv_nw1TiAQeIi1j11o7vhebjOxQUcOM94tatIuT-u6qa1jyhBSxpaxzE1wfrXomM7XHASI84FCupz1OmJRUHvSNGjn9xVV1RMGZtecL9xhopXpjQa3RU4WZlBnSfXdYihsPa7kiw">
+<div class="absolute bottom-0 right-0 w-4 h-4 bg-status-pulse rounded-full border-2 border-white pulse-dot"></div>
+</div>
+<div>
+<h3 class="font-bold text-lg text-on-surface flex items-center gap-2">
+                                    กิตติพงษ์ วิริยะ
+                                    <span class="material-symbols-outlined text-primary text-sm" style="font-variation-settings: 'FILL' 1;">verified</span>
+</h3>
+<p class="text-secondary text-sm">Senior Frontend Developer at TechCorp</p>
+<div class="flex gap-2 mt-2">
+<span class="px-2.5 py-0.5 rounded-full bg-tertiary-fixed/30 text-tertiary text-xs font-medium border border-tertiary/20">React</span>
+<span class="px-2.5 py-0.5 rounded-full bg-tertiary-fixed/30 text-tertiary text-xs font-medium border border-tertiary/20">TypeScript</span>
+<span class="px-2.5 py-0.5 rounded-full bg-tertiary-fixed/30 text-tertiary text-xs font-medium border border-tertiary/20">System Design</span>
+</div>
+</div>
+</div>
+<div class="text-right">
+<div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary/10 border-2 border-primary text-primary font-bold text-xl">
+                                94
+                            </div>
+<p class="text-xs text-secondary mt-1 font-medium">Match Score</p>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-0">
+<!-- Evidence -->
+<div class="p-6 border-b md:border-b-0 md:border-r border-outline-variant/50">
+<h4 class="text-sm font-bold text-on-surface mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-base">fact_check</span>
+                                หลักฐานที่พบ (Evidence)
+                            </h4>
+<ul class="space-y-3">
+<li class="flex items-start gap-2 text-sm">
+<span class="material-symbols-outlined text-status-pulse text-base mt-0.5">check_circle</span>
+<span class="text-on-surface-variant">ประสบการณ์ตรง 5 ปี ในการสร้าง SPA ด้วย React.</span>
+</li>
+<li class="flex items-start gap-2 text-sm">
+<span class="material-symbols-outlined text-status-pulse text-base mt-0.5">check_circle</span>
+<span class="text-on-surface-variant">เป็นผู้ร่วมพัฒนา Open Source Project ระดับองค์กร.</span>
+</li>
+<li class="flex items-start gap-2 text-sm">
+<span class="material-symbols-outlined text-status-pulse text-base mt-0.5">check_circle</span>
+<span class="text-on-surface-variant">ผลประเมิน Technical Test ผ่านเกณฑ์ยอดเยี่ยม (95%).</span>
+</li>
+</ul>
+</div>
+<!-- Risks -->
+<div class="p-6 border-b md:border-b-0 md:border-r border-outline-variant/50">
+<h4 class="text-sm font-bold text-on-surface mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-error-alert text-base">warning</span>
+                                ความเสี่ยง (Risks)
+                            </h4>
+<ul class="space-y-3">
+<li class="flex items-start gap-2 text-sm">
+<span class="material-symbols-outlined text-outline text-base mt-0.5">info</span>
+<span class="text-on-surface-variant">ประสบการณ์ในการจัดการทีมขนาดใหญ่ยังมีจำกัด.</span>
+</li>
+<li class="flex items-start gap-2 text-sm">
+<span class="material-symbols-outlined text-outline text-base mt-0.5">info</span>
+<span class="text-on-surface-variant">คาดหวังเงินเดือนสูงกว่าโครงสร้างเริ่มต้น 10%.</span>
+</li>
+</ul>
+</div>
+<!-- Actions -->
+<div class="p-6 flex flex-col justify-center bg-surface-container-lowest">
+<div class="space-y-3 w-full">
+<button class="w-full py-2.5 px-4 bg-gradient-primary text-white rounded-lg hover-lift font-medium text-sm flex justify-center items-center gap-2 shadow-sm"><span class="material-symbols-outlined text-base">thumb_up</span> อนุมัติเพื่อสัมภาษณ์</button>
+<button class="w-full py-2.5 px-4 bg-white border border-outline-variant text-error-alert rounded-lg hover:bg-error-container/20 transition-colors font-medium text-sm flex justify-center items-center gap-2"><span class="material-symbols-outlined text-base">thumb_down</span> ปฏิเสธ</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Candidate Card 2 - Medium Match -->
+<div class="col-span-12 lg:col-span-12 bg-white rounded-xl border border-outline-variant shadow-sm hover-lift overflow-hidden opacity-90">
+<div class="p-6 border-b border-outline-variant/50 bg-surface-container-lowest flex justify-between items-start">
+<div class="flex items-center gap-5">
+<div class="w-16 h-16 rounded-full bg-surface-variant overflow-hidden border-2 border-white shadow-sm">
+<img alt="Candidate 2" class="w-full h-full object-cover" data-alt="A professional headshot of a young Thai female software developer in a smart casual outfit, smiling gently in a well-lit co-working space. High key lighting, clean corporate aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDZoiHFaFvXlhDdZJwVtUqYU-0uYOx0h4oi0PZGClS_fIU3-wXzqPaEH2ZeDGJtLFJn1p2k59qA6OJB8-Ap4JyD3HwdJMPicjPz23qAgdogonMIoS8F92A7lhsrfW6sJZhP31J0TvmxKZE-D95lBIDMqRZR2pVUk0N-WRnk7bX4MhOtXV8XU8xG91rYoZiksWljGjcKOSUz3hICjv7Vj0TNQfYSoLPbn62yKP5mi1Ve5IU3JI5eDc6Kg">
+</div>
+<div>
+<h3 class="font-bold text-lg text-on-surface">อารยา นำโชค</h3>
+<p class="text-secondary text-sm">Frontend Engineer at WebSolutions</p>
+<div class="flex gap-2 mt-2">
+<span class="px-2.5 py-0.5 rounded-full bg-surface-variant text-on-surface-variant text-xs font-medium">Vue.js</span>
+<span class="px-2.5 py-0.5 rounded-full bg-surface-variant text-on-surface-variant text-xs font-medium">JavaScript</span>
+<span class="px-2.5 py-0.5 rounded-full bg-surface-variant text-on-surface-variant text-xs font-medium">UI/UX</span>
+</div>
+</div>
+</div>
+<div class="text-right">
+<div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-surface-variant border-2 border-outline-variant text-on-surface-variant font-bold text-xl">
+                                78
+                            </div>
+<p class="text-xs text-secondary mt-1 font-medium">Match Score</p>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-0">
+<!-- Evidence -->
+<div class="p-6 border-b md:border-b-0 md:border-r border-outline-variant/50">
+<h4 class="text-sm font-bold text-on-surface mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-base">fact_check</span>
+                                หลักฐานที่พบ (Evidence)
+                            </h4>
+<ul class="space-y-3">
+<li class="flex items-start gap-2 text-sm">
+<span class="material-symbols-outlined text-status-pulse text-base mt-0.5">check_circle</span>
+<span class="text-on-surface-variant">ผลงานโดดเด่นด้านการออกแบบ UI/UX.</span>
+</li>
+<li class="flex items-start gap-2 text-sm">
+<span class="material-symbols-outlined text-status-pulse text-base mt-0.5">check_circle</span>
+<span class="text-on-surface-variant">ประสบการณ์ทำงาน 3 ปี กับโปรเจกต์ E-commerce.</span>
+</li>
+</ul>
+</div>
+<!-- Risks -->
+<div class="p-6 border-b md:border-b-0 md:border-r border-outline-variant/50 bg-error-container/10">
+<h4 class="text-sm font-bold text-on-surface mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-error-alert text-base">warning</span>
+                                ความเสี่ยง (Risks)
+                            </h4>
+<ul class="space-y-3">
+<li class="flex items-start gap-2 text-sm">
+<span class="material-symbols-outlined text-error-alert text-base mt-0.5">error</span>
+<span class="text-on-surface-variant font-medium text-error-alert">ขาดประสบการณ์ด้าน React ซึ่งเป็น Core Tech Stack.</span>
+</li>
+<li class="flex items-start gap-2 text-sm">
+<span class="material-symbols-outlined text-outline text-base mt-0.5">info</span>
+<span class="text-on-surface-variant">ระยะเวลาการทำงานที่เก่าสั้น (Job Hopping).</span>
+</li>
+</ul>
+</div>
+<!-- Actions -->
+<div class="p-6 flex flex-col justify-center bg-surface-container-lowest">
+<div class="space-y-3 w-full">
+<button class="w-full py-2.5 px-4 bg-white border border-primary text-primary rounded-lg hover:bg-primary/5 transition-colors font-medium text-sm flex justify-center items-center gap-2"><span class="material-symbols-outlined text-base">help</span> รอการตรวจสอบ</button>
+<button class="w-full py-2.5 px-4 bg-white border border-outline-variant text-error-alert rounded-lg hover:bg-error-container/20 transition-colors font-medium text-sm flex justify-center items-center gap-2"><span class="material-symbols-outlined text-base">thumb_down</span> ปฏิเสธ</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+
+
+<script src="../stitch-interactions.js"></script></body></html>

@@ -193,7 +193,18 @@ Prototype is not complete while any criterion is pending, unverified, flaky, or 
 - Local HTTP server: PASS
 - Browser opens prototype: PASS
 - Browser console after favicon fix: PASS, 0 errors / 0 warnings
-- Full UX-001..UX-017 matrix: **PASS**
+- Full UX-001..UX-017 matrix: **PENDING AFTER STITCH RESET**
 - Verification evidence: `prototype/verification/2026-08-15-acceptance-report.md`
 - Verification evidence commit: **PENDING CURRENT COMMIT**
 - Definition of done: **REACHED FOR LOW-FI PROTOTYPE**
+
+### Stitch baseline implementation (2026-08-16)
+
+- [x] Dashboard page from Stitch
+- [x] Jobs page from Stitch
+- [x] Candidate discovery page from Stitch
+- [x] Resume screening page from Stitch
+- [x] Applicant tracker page from Stitch
+- [x] Interview scheduler page from Stitch
+- [x] Shared navigation and interaction bridge
+- [ ] Deterministic UX-001..UX-017 rerun on Stitch baseline
