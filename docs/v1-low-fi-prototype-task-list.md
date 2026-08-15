@@ -6,7 +6,19 @@ Updated: 2026-08-15
 
 - `[x]` Implemented and locally checked
 - `[ ]` Pending or not yet evidenced
-- Overall status: **Verified**
+- Overall status: **Verified — design and Thai localization checks passed**
+
+## Design and localization update
+
+- [x] Apply `design.md` color tokens
+- [x] Apply Electric Blue gradient actions
+- [x] Apply Calistoga/Inter/JetBrains Mono typography stack
+- [x] Apply dark textured navigation
+- [x] Add restrained elevation, hover lift, and pulse status motion
+- [x] Set document language to Thai
+- [x] Translate primary navigation and HR workflow copy
+- [x] Rerun Thai interaction smoke checks
+- [x] Rerun visual/layout checks
 
 ## Goal
 
