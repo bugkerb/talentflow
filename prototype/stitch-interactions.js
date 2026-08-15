@@ -9,6 +9,7 @@
   };
   const root = location.pathname.includes("/stitch-pages/") ? "" : "stitch-pages/";
   const go = (page) => { location.href = `${root}${page}`; };
+  const toast = (message) => { const node = document.createElement("div"); node.textContent = message; node.className = "fixed bottom-5 right-5 z-[120] rounded-lg bg-slate-900 px-4 py-3 text-sm font-bold text-white shadow-xl"; node.setAttribute("role", "status"); document.body.append(node); setTimeout(() => node.remove(), 1600); };
   const modal = (title, body, actions = "") => {
     const backdrop = document.createElement("div");
     backdrop.className = "fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/50 p-4";
@@ -21,7 +22,7 @@
     const spans = [...link.querySelectorAll("span")];
     const label = (spans.at(-1)?.textContent || link.textContent).trim();
     if (routes[label]) { link.href = `${root}${routes[label]}`; }
-    else link.addEventListener("click", (event) => event.preventDefault());
+    else link.addEventListener("click", (event) => { event.preventDefault(); toast("เปิดฟังก์ชันนี้ในเวอร์ชันถัดไป"); });
   });
   document.querySelectorAll("button").forEach((button) => {
     const label = button.textContent.trim();
@@ -45,15 +46,16 @@
     if (label.includes("รันโมเดล")) { modal("ผลการค้นหา", '<div class="rounded-lg bg-blue-50 p-4">ผลลัพธ์ผ่าน validation แล้ว ต้องให้ HR ตรวจสอบก่อนดำเนินการต่อ</div>', '<button data-provider-fail class="rounded-lg border border-red-300 px-4 py-2 text-red-700">จำลองผู้ให้บริการล้มเหลว</button><button data-close class="rounded-lg border border-slate-300 px-4 py-2">ปิด</button>'); return; }
     if (label.includes("เริ่มการวิเคราะห์ AI")) { modal("ผลลัพธ์ AI", '<div class="rounded-lg border border-blue-300 bg-blue-50 p-4"><strong>ผลลัพธ์ผ่านการตรวจสอบ</strong><p class="mt-2">คะแนนและเหตุผลพร้อมให้ HR ตรวจสอบ</p></div>', '<button data-close class="rounded-lg border border-slate-300 px-4 py-2">ส่งให้ HR ตรวจสอบ</button><button data-invalid class="rounded-lg bg-red-600 px-4 py-2 text-white">จำลองผลลัพธ์ไม่ถูกต้อง</button>'); return; }
     if (target.matches("[data-invalid]")) { target.closest("[role=dialog]").innerHTML = '<div class="rounded-lg border border-red-300 bg-red-50 p-4 text-red-800"><strong>AI_OUTPUT_INVALID</strong><p class="mt-2">Schema validation ไม่ผ่าน และยังไม่บันทึกคะแนน</p><button data-retry class="mt-4 rounded-lg border border-red-300 px-4 py-2">ลองใหม่</button></div>'; return; }
-    if (label.includes("บันทึกข้อความ")) { const field = document.querySelector("textarea"); if (!field?.value.trim()) { field?.setCustomValidity("กรุณาระบุเหตุผล"); field?.reportValidity(); return; } field.setCustomValidity(""); modal("บันทึกการแก้ไข", '<div class="rounded-lg bg-green-50 p-4 text-green-800">แก้ไขผล AI พร้อมเหตุผลแล้ว ต้องเก็บประวัติการตัดสินใจของ HR</div>'); return; }
+    if (label.includes("บันทึกข้อความ")) { const field = document.querySelector("textarea"); if (!field?.value.trim()) { field?.setCustomValidity("กรุณาระบุเหตุผล"); field?.reportValidity(); toast("กรุณาระบุเหตุผลก่อนบันทึก"); return; } field.setCustomValidity(""); modal("บันทึกการแก้ไข", '<div class="rounded-lg bg-green-50 p-4 text-green-800">แก้ไขผล AI พร้อมเหตุผลแล้ว ต้องเก็บประวัติการตัดสินใจของ HR</div>'); return; }
     if (label.includes("เปลี่ยนสถานะ")) { modal("ย้ายขั้นตอน", '<label class="block text-sm font-bold">ขั้นตอนใหม่<select class="mt-2 w-full rounded-lg border border-slate-300 p-3"><option>คัดกรองเบื้องต้น</option><option>สัมภาษณ์</option><option>เสนอข้อเสนอ</option><option>รับเข้าทำงาน</option></select></label>', '<button data-close class="rounded-lg border border-slate-300 px-4 py-2">ยกเลิก</button><button data-close class="rounded-lg bg-gradient-to-r from-[#0062FF] to-[#38BDF8] px-4 py-2 text-white">บันทึกขั้นตอน</button>'); return; }
     if (label.includes("เลื่อนเวลา")) { modal("เลื่อนนัดหมาย", '<div class="rounded-lg border border-red-300 bg-red-50 p-4 text-red-800">เวลาที่เลือกชนกับนัดหมายเดิม กรุณาเลือกเวลาใหม่</div>', '<button data-close class="rounded-lg border border-slate-300 px-4 py-2">ปิด</button>'); return; }
     if (label.includes("ดูรายละเอียด")) { modal("รายละเอียดการสัมภาษณ์", '<div class="space-y-2"><p><strong>ผู้สมัคร:</strong> Narin Chaiyapruk</p><p><strong>สถานะ:</strong> ยืนยันแล้ว</p><p><strong>เวลา:</strong> Thu 14 Aug · 10:00–10:30</p></div>'); return; }
-    if (label.includes("รีเซ็ตสถานะ")) { location.reload(); return; }
+    if (label.includes("รีเซ็ตสถานะ")) { toast("รีเซ็ตสถานะแล้ว"); document.body.dataset.resetState = "true"; return; }
     if (label.includes("ตรวจสอบทันที")) { go("screening.html"); return; }
     if (label.includes("รอการตรวจสอบ")) { modal("ตรวจสอบผู้สมัครซ้ำ", '<div class="rounded-lg bg-amber-50 p-4">ระบบจะพักผลลัพธ์ไว้ให้ HR เปรียบเทียบข้อมูลก่อนอนุมัติ</div>', '<button data-close class="rounded-lg border border-slate-300 px-4 py-2">เก็บไว้ตรวจสอบ</button><button data-close class="rounded-lg bg-gradient-to-r from-[#0062FF] to-[#38BDF8] px-4 py-2 text-white">เชื่อมกับผู้สมัครเดิม</button>'); return; }
     if (label.includes("จำลองข้อมูลถูกแก้ไขแล้ว")) { modal("409 Conflict", '<div class="rounded-lg border border-red-300 bg-red-50 p-4 text-red-800">ใบสมัครถูกแก้ไขโดยผู้ใช้อื่น กรุณารีเฟรชก่อนบันทึก</div>', '<button data-close class="rounded-lg border border-slate-300 px-4 py-2">รีเฟรชข้อมูล</button>'); return; }
-    if (target.querySelector("[data-icon=close]") || label === "close") { target.closest("aside")?.remove(); return; }
+    if (target.querySelector("[data-icon=close]") || label === "close") { target.closest("aside")?.remove(); toast("ปิดรายละเอียดแล้ว"); return; }
+    if (!target.matches("[data-close], [data-save], [data-provider-fail], [data-retry], [data-schedule], [data-sync-fail], [data-sync-retry], [data-invalid]")) toast("ดำเนินการแล้ว");
   });
   document.querySelectorAll("form").forEach((form) => form.addEventListener("submit", (event) => { event.preventDefault(); if (form.reportValidity()) modal("บันทึกสำเร็จ", '<div class="rounded-lg bg-green-50 p-4 text-green-800">ข้อมูลถูกตรวจสอบและบันทึกแล้ว</div>'); }));
   document.querySelectorAll("select").forEach((select) => select.addEventListener("change", () => {

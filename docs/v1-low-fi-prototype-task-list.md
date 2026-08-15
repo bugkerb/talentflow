@@ -209,6 +209,7 @@ Prototype is not complete while any criterion is pending, unverified, flaky, or 
 - [x] Shared navigation and interaction bridge
 - [x] Implement deterministic flow states for UX-001..UX-015
 - [x] Deterministic UX-001..UX-017 browser rerun on Stitch baseline
+- [x] E2E dead-click sweep across all Stitch buttons and primary links
 - [x] Write Stitch clickable verification evidence
 
 ### UX audit correction (2026-08-16)
