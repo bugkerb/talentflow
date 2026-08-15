@@ -1,0 +1,6 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+:root { color-scheme: light; }
+body { margin: 0; background: #f7f8fb; color: #172033; font-family: Arial, sans-serif; }
+button, input { font: inherit; }

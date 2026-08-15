@@ -10,50 +10,50 @@
 
 - [ ] Confirm clean working tree scope
 - [ ] Preserve untracked PDF and `.DS_Store`
-- [ ] Confirm Node/npm versions
-- [ ] Create baseline command report
-- [ ] Record initial failures/limitations
+- [x] Confirm Node/npm versions
+- [x] Create baseline command report
+- [x] Record initial failures/limitations
 
 ### Phase 1: Project foundation
 
-- [ ] Bootstrap Next.js App Router
-- [ ] Enable strict TypeScript
-- [ ] Add Tailwind + shadcn/ui
-- [ ] Add npm scripts
-- [ ] Create module directories
+- [x] Bootstrap Next.js App Router
+- [x] Enable strict TypeScript
+- [x] Add Tailwind + shadcn/ui
+- [x] Add npm scripts
+- [x] Create module directories
 - [ ] Add server/browser boundary
 - [ ] Add environment schema validation
-- [ ] Add `.env.example`
-- [ ] Verify production build
+- [x] Add `.env.example`
+- [x] Verify production build
 
 ### Phase 2: Shared platform code
 
-- [ ] Add domain enums
-- [ ] Add Zod schemas
-- [ ] Add typed error codes
-- [ ] Add central error handler
-- [ ] Add request ID propagation
-- [ ] Add structured logger
-- [ ] Add secret/PII redaction
-- [ ] Add service/repository interfaces
-- [ ] Add unit tests for shared code
+- [x] Add domain enums
+- [x] Add Zod schemas
+- [x] Add typed error codes
+- [x] Add central error handler
+- [x] Add request ID propagation
+- [x] Add structured logger
+- [x] Add secret/PII redaction
+- [x] Add service/repository interfaces
+- [x] Add unit tests for shared code
 
 ### Phase 3: Supabase schema
 
-- [ ] Add migration for enums
-- [ ] Add `profiles`
-- [ ] Add `jobs`
-- [ ] Add `candidates`
-- [ ] Add `applications`
-- [ ] Add `pipeline_events`
-- [ ] Add `idempotency_keys`
-- [ ] Add explicit FK delete policies
-- [ ] Add soft-delete constraints
-- [ ] Add unique constraints
-- [ ] Add optimistic-lock fields
-- [ ] Add indexes
-- [ ] Add RLS policies
-- [ ] Add immutable pipeline-event policy
+- [x] Add migration for enums
+- [x] Add `profiles`
+- [x] Add `jobs`
+- [x] Add `candidates`
+- [x] Add `applications`
+- [x] Add `pipeline_events`
+- [x] Add `idempotency_keys`
+- [x] Add explicit FK delete policies
+- [x] Add soft-delete constraints
+- [x] Add unique constraints
+- [x] Add optimistic-lock fields
+- [x] Add indexes
+- [x] Add RLS policies
+- [x] Add immutable pipeline-event policy
 - [ ] Add migration tests
 
 ### Phase 4: Seed and local data
@@ -97,12 +97,12 @@
 
 ### Phase 7: CI/CD
 
-- [ ] Add GitHub Actions workflow
-- [ ] Run `npm ci`
-- [ ] Run lint
-- [ ] Run typecheck
-- [ ] Run unit tests
-- [ ] Enforce coverage
+- [x] Add GitHub Actions workflow
+- [x] Run `npm ci`
+- [x] Run lint
+- [x] Run typecheck
+- [x] Run unit tests
+- [x] Enforce coverage
 - [ ] Run integration tests
 - [ ] Run build
 - [ ] Add secrets scan
@@ -283,4 +283,3 @@ AND clean-checkout verification passes
 AND evidence record exists
 AND no acceptance criterion is marked by assumption
 ```
-
