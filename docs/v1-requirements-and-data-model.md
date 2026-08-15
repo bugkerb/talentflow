@@ -444,7 +444,121 @@ Do not require identical exact scores across providers. Require the same safety,
 - README: setup, architecture, data model, security decisions, AI decisions, tradeoffs, demo instructions.
 - Cowork Log: prompt iterations, output, corrections, edge cases, and productivity evidence.
 
-## 9. Remaining V1 assumptions
+## 9. Error handling and maintenance observability
+
+All server handlers use one error boundary. Internal exceptions are mapped to stable, client-safe error codes. Clients must not receive stack traces, provider responses, SQL details, or secrets.
+
+### Error response contract
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "INTERVIEW_CONFLICT",
+    "message": "Interview time conflicts with another appointment.",
+    "request_id": "req_01...",
+    "details": null
+  }
+}
+```
+
+`details` contains only safe field-level validation information. `request_id` is safe to show to HR for support.
+
+### Stable error codes
+
+| Code | HTTP | Retry | Meaning |
+|---|---:|---:|---|
+| `VALIDATION_ERROR` | 400 | No | Request schema invalid |
+| `UNAUTHORIZED` | 401 | No | No valid session |
+| `FORBIDDEN` | 403 | No | RLS/role permission denied |
+| `NOT_FOUND` | 404 | No | Resource not found or not visible |
+| `CONFLICT` | 409 | After refresh | Generic optimistic-lock conflict |
+| `DUPLICATE_APPLICATION` | 409 | No | Candidate already applied to job |
+| `INTERVIEW_CONFLICT` | 409 | After rescheduling | Overlapping appointment |
+| `IDEMPOTENCY_KEY_REUSED` | 409 | No | Same key used with different request |
+| `AI_OUTPUT_INVALID` | 422 | Bounded retry | Provider output failed schema/business validation |
+| `FILE_TYPE_NOT_ALLOWED` | 415 | No | Unsupported CV type |
+| `FILE_TOO_LARGE` | 413 | No | CV exceeds size limit |
+| `AI_PROVIDER_TIMEOUT` | 504 | Yes | Provider timeout |
+| `AI_PROVIDER_RATE_LIMITED` | 429 | Yes | Provider rate limit |
+| `AI_PROVIDER_UNAVAILABLE` | 503 | Yes | Provider unavailable |
+| `CALENDAR_PROVIDER_ERROR` | 502 | Depends | Google Calendar API failure |
+| `STORAGE_ERROR` | 502 | Depends | Supabase Storage failure |
+| `DATABASE_ERROR` | 500 | Depends | Unexpected database failure |
+| `INTERNAL_ERROR` | 500 | No | Unclassified internal failure |
+
+Error mapping rules:
+
+- Domain errors map to stable codes and expected HTTP status.
+- Unknown errors map to `INTERNAL_ERROR`.
+- Transient provider errors include `retryable: true` only when safe.
+- Retry limits are enforced server-side; clients must not retry indefinitely.
+- Error codes are part of the API contract and require tests.
+
+### Structured logger
+
+Use JSON logs with one event per line.
+
+Required fields:
+
+```json
+{
+  "timestamp": "2026-08-15T12:00:00.000Z",
+  "level": "error",
+  "service": "recruiting-pipeline",
+  "environment": "production",
+  "event": "ai_screening_failed",
+  "request_id": "req_01...",
+  "user_id": "uuid-or-null",
+  "route": "/api/screenings",
+  "method": "POST",
+  "resource_type": "screening",
+  "resource_id": "uuid-or-null",
+  "provider": "openrouter",
+  "model": "anthropic/claude-sonnet-4",
+  "error_code": "AI_PROVIDER_TIMEOUT",
+  "retryable": true,
+  "duration_ms": 1200
+}
+```
+
+Logging rules:
+
+- Generate or propagate `request_id` at the server boundary.
+- Use `user_id`, never email/phone, for actor correlation.
+- Redact API keys, access tokens, CV text, prompts containing PII, raw provider payloads, and signed URLs.
+- Log error class and stable code, not stack traces to the client.
+- Keep stack traces server-side only, with controlled access.
+- Use `info` for lifecycle events, `warn` for retries/conflicts, `error` for failed operations.
+- Never log full request bodies by default.
+- Include duration and provider/model metadata for maintenance diagnosis.
+
+### Maintenance events
+
+Minimum events:
+
+- `request_completed`
+- `request_failed`
+- `database_conflict`
+- `ai_provider_retry`
+- `ai_screening_failed`
+- `calendar_sync_failed`
+- `interview_conflict_detected`
+- `storage_upload_failed`
+- `rls_denied`
+
+Operational metrics:
+
+- request error rate by `error_code`
+- AI latency, retry count, invalid-output rate
+- Google Calendar failure rate
+- interview conflict count
+- storage/parser failure count
+- optimistic-lock conflict count
+
+Every alert must link to `request_id`, `error_code`, and a short runbook action. Logs are for diagnosis; `pipeline_events` and domain audit fields remain the source of truth for business history.
+
+## 10. Remaining V1 assumptions
 
 - Single tenant; no `organization_id`.
 - One Google Calendar account.
