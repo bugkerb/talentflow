@@ -47,8 +47,15 @@
     if (label.includes("เปลี่ยนสถานะ")) { modal("ย้ายขั้นตอน", '<label class="block text-sm font-bold">ขั้นตอนใหม่<select class="mt-2 w-full rounded-lg border border-slate-300 p-3"><option>คัดกรองเบื้องต้น</option><option>สัมภาษณ์</option><option>เสนอข้อเสนอ</option><option>รับเข้าทำงาน</option></select></label>', '<button data-close class="rounded-lg border border-slate-300 px-4 py-2">ยกเลิก</button><button data-close class="rounded-lg bg-gradient-to-r from-[#0062FF] to-[#38BDF8] px-4 py-2 text-white">บันทึกขั้นตอน</button>'); return; }
     if (label.includes("เลื่อนเวลา")) { modal("เลื่อนนัดหมาย", '<div class="rounded-lg border border-red-300 bg-red-50 p-4 text-red-800">เวลาที่เลือกชนกับนัดหมายเดิม กรุณาเลือกเวลาใหม่</div>', '<button data-close class="rounded-lg border border-slate-300 px-4 py-2">ปิด</button>'); return; }
     if (label.includes("ดูรายละเอียด")) { modal("รายละเอียดการสัมภาษณ์", '<div class="space-y-2"><p><strong>ผู้สมัคร:</strong> Narin Chaiyapruk</p><p><strong>สถานะ:</strong> ยืนยันแล้ว</p><p><strong>เวลา:</strong> Thu 14 Aug · 10:00–10:30</p></div>'); return; }
+    if (label.includes("รีเซ็ตสถานะ")) { location.reload(); return; }
+    if (label.includes("ตรวจสอบทันที")) { go("screening.html"); return; }
     if (target.querySelector("[data-icon=close]") || label === "close") { target.closest("aside")?.remove(); return; }
   });
   document.querySelectorAll("form").forEach((form) => form.addEventListener("submit", (event) => { event.preventDefault(); if (form.reportValidity()) modal("บันทึกสำเร็จ", '<div class="rounded-lg bg-green-50 p-4 text-green-800">ข้อมูลถูกตรวจสอบและบันทึกแล้ว</div>'); }));
-  document.querySelectorAll("select").forEach((select) => select.addEventListener("change", () => { select.classList.add("ring-2", "ring-primary"); setTimeout(() => select.classList.remove("ring-2", "ring-primary"), 500); }));
+  document.querySelectorAll("select").forEach((select) => select.addEventListener("change", () => {
+    select.classList.add("ring-2", "ring-primary");
+    setTimeout(() => select.classList.remove("ring-2", "ring-primary"), 500);
+    if (select.value === "ปฏิเสธ") modal("เหตุผลที่ปฏิเสธ", '<textarea required class="h-28 w-full rounded-lg border border-slate-300 p-3" placeholder="ระบุเหตุผล..."></textarea>', '<button data-close class="rounded-lg border border-slate-300 px-4 py-2">ยกเลิก</button><button data-close class="rounded-lg bg-red-600 px-4 py-2 text-white">บันทึกเหตุผล</button>');
+    else if (select.value && select.value !== "เปลี่ยนสถานะ") modal("ย้ายขั้นตอน", '<div class="rounded-lg bg-green-50 p-4 text-green-800">ตรวจสอบ transition แล้ว พร้อมบันทึกประวัติการเปลี่ยนขั้นตอน</div>');
+  }));
 })();

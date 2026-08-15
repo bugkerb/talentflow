@@ -6,7 +6,7 @@ Updated: 2026-08-15
 
 - `[x]` Implemented and locally checked
 - `[ ]` Pending or not yet evidenced
-- Overall status: **Verified — design and Thai localization checks passed**
+- Overall status: **Stitch baseline audit in progress — UX-001..UX-017 not yet fully evidenced**
 
 ## Design and localization update
 
@@ -210,3 +210,10 @@ Prototype is not complete while any criterion is pending, unverified, flaky, or 
 - [x] Implement deterministic flow states for UX-001..UX-015
 - [ ] Deterministic UX-001..UX-017 browser rerun on Stitch baseline
 - [x] Write Stitch clickable verification evidence
+
+### UX audit correction (2026-08-16)
+
+- [x] Add explicit HTML links for all six primary routes
+- [x] Add select transition feedback and rejection-reason state
+- [x] Add reset-state and dashboard review shortcuts
+- [ ] Verify every acceptance criterion in a real browser
