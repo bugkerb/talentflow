@@ -1,5 +1,13 @@
 # V1 Low-Fi Clickable Prototype Task List
 
+## Current status
+
+Updated: 2026-08-15
+
+- `[x]` Implemented and locally checked
+- `[ ]` Pending or not yet evidenced
+- Overall status: **Verification pending**
+
 ## Goal
 
 Validate information architecture, HR interaction flows, state transitions, and failure/retry behavior before production UI implementation.
@@ -16,77 +24,77 @@ Validate information architecture, HR interaction flows, state transitions, and 
 
 ### Foundation
 
-- [ ] Create prototype shell
-- [ ] Add local fixture state
-- [ ] Add reset-state action
-- [ ] Add navigation
-- [ ] Add responsive layout
-- [ ] Add shared modal, toast, loading, error, and retry states
-- [ ] Add keyboard focus styles
+- [x] Create prototype shell
+- [x] Add local fixture state
+- [x] Add reset-state action
+- [x] Add navigation
+- [x] Add responsive layout
+- [x] Add shared modal, toast, loading, error, and retry states
+- [x] Add keyboard focus styles
 
 ### Dashboard
 
-- [ ] Add job metric
-- [ ] Add pipeline metric
-- [ ] Add pending AI review metric
-- [ ] Add upcoming interviews metric
-- [ ] Add failed integrations metric
-- [ ] Link metrics to filtered destinations
+- [x] Add job metric
+- [x] Add pipeline metric
+- [x] Add pending AI review metric
+- [x] Add upcoming interviews metric
+- [x] Add failed integrations metric
+- [x] Link metrics to filtered destinations
 
 ### Jobs
 
-- [ ] Add job list
-- [ ] Add create-job form
-- [ ] Validate required title/JD
-- [ ] Add criteria preview/edit
-- [ ] Add draft/open flow
-- [ ] Add close flow with reason
-- [ ] Add job detail tabs
+- [x] Add job list
+- [x] Add create-job form
+- [x] Validate required title/JD
+- [x] Add criteria preview/edit
+- [x] Add draft/open flow
+- [x] Add close flow with reason
+- [x] Add job detail tabs
 
 ### Candidate discovery
 
-- [ ] Add criteria review
-- [ ] Add query preview
-- [ ] Add deterministic fixture results
-- [ ] Show source, score, evidence, missing evidence, risks
-- [ ] Add duplicate warning/manual resolution
-- [ ] Add approve/reject flows
-- [ ] Add provider failure/retry state
+- [x] Add criteria review
+- [x] Add query preview
+- [x] Add deterministic fixture results
+- [x] Show source, score, evidence, missing evidence, risks
+- [x] Add duplicate warning/manual resolution
+- [x] Add approve/reject flows
+- [x] Add provider failure/retry state
 
 ### Resume screening
 
-- [ ] Add upload/paste CV UI
-- [ ] Add parse and processing states
-- [ ] Add three-score scorecard
-- [ ] Add evidence, strengths, risks, questions
-- [ ] Add AI metadata
-- [ ] Add invalid-output/timeout states
-- [ ] Add accept/review/override actions
-- [ ] Require override reason
+- [x] Add upload/paste CV UI
+- [x] Add parse and processing states
+- [x] Add three-score scorecard
+- [x] Add evidence, strengths, risks, questions
+- [x] Add AI metadata
+- [x] Add invalid-output/timeout states
+- [x] Add accept/review/override actions
+- [x] Require override reason
 
 ### Applicant tracker
 
-- [ ] Add Kanban view
-- [ ] Add table view
-- [ ] Add view toggle
-- [ ] Add stage/job/source filters
-- [ ] Add candidate drawer
-- [ ] Add dropdown stage transition
-- [ ] Add stale-version conflict state
-- [ ] Add rejection reason flow
-- [ ] Add activity view
+- [x] Add Kanban view
+- [x] Add table view
+- [x] Add view toggle
+- [x] Add stage/job/source filters
+- [x] Add candidate drawer
+- [x] Add dropdown stage transition
+- [x] Add stale-version conflict state
+- [x] Add rejection reason flow
+- [x] Add activity view
 
 ### Interview scheduler
 
-- [ ] Add schedule form
-- [ ] Add date/time/timezone/interviewer fields
-- [ ] Add conflict fixture
-- [ ] Add alternative times
-- [ ] Add event preview
-- [ ] Add sync success/failure states
-- [ ] Add retry state
-- [ ] Add reschedule flow
-- [ ] Add cancel flow with reason
+- [x] Add schedule form
+- [x] Add date/time/timezone/interviewer fields
+- [x] Add conflict fixture
+- [x] Add alternative times
+- [x] Add event preview
+- [x] Add sync success/failure states
+- [x] Add retry state
+- [x] Add reschedule flow
+- [x] Add cancel flow with reason
 
 ### Verification
 
@@ -136,3 +144,26 @@ Reset state
 ```
 
 Prototype is not complete while any criterion is pending, unverified, flaky, or accepted by assumption.
+
+## Implementation log
+
+| Commit | Scope | Status |
+|---|---|---|
+| `4fd746d` | Task list | Complete |
+| `5d9827c` | Prototype foundation | Complete |
+| `d2b467b` | Dashboard and job flow | Complete |
+| `2f766e3` | Candidate discovery flow | Complete |
+| `5043345` | Resume screening flow | Complete |
+| `78314c2` | Applicant tracker flow | Complete |
+| `c228049` | Interview scheduler flow | Complete |
+
+## Verification status
+
+- `node --check prototype/app.js`: PASS
+- `git diff --check`: PASS for feature commits
+- Local HTTP server: PASS
+- Browser opens prototype: PASS
+- Browser console after favicon fix: PASS, 0 errors / 0 warnings
+- Full UX-001..UX-017 matrix: **PENDING**
+- Verification evidence commit: **NOT CREATED**
+- Definition of done: **NOT REACHED**
