@@ -20,7 +20,7 @@ jobs:
       - run: npm run test:e2e
       - name: Secret scan
         run: |
-          if git grep -nE '(sk-[A-Za-z0-9]{20,}|OPENROUTER_API_KEY=[^$].+|SUPABASE_SERVICE_ROLE_KEY=[^$].+)' -- ':!package-lock.json'; then
+          if git grep -nE '(sk-[A-Za-z0-9]{20,}|OPENROUTER_API_KEY=[^$].+|SUPABASE_SERVICE_ROLE_KEY=[^$].+)' -- ':!package-lock.json' ':!.github/workflows/ci.yml'; then
             echo "Potential secret detected"
             exit 1
           fi

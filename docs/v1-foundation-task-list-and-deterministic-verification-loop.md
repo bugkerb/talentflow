@@ -107,7 +107,7 @@
 - [x] Run build
 - [x] Add secrets scan
 - [x] Add Playwright smoke job
-- [ ] Verify CI from clean checkout
+- [x] Verify CI from clean checkout
 
 ### Phase 8: Documentation
 
