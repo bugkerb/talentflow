@@ -86,9 +86,4 @@
     const toolbar = document.querySelector("main");
     const stale = document.createElement("button"); stale.textContent = "จำลองข้อมูลถูกแก้ไขแล้ว"; stale.className = "rounded-lg border border-red-300 px-3 py-2 text-sm text-red-700"; toolbar?.prepend(stale);
   }
-  if (document.title.includes("Dashboard")) {
-    const toolbar = document.querySelector("main");
-    const empty = document.createElement("button"); empty.textContent = "จำลองหน้าว่าง"; empty.className = "rounded-lg border border-slate-300 px-3 py-2 text-sm"; toolbar?.prepend(empty);
-    empty.addEventListener("click", () => modal("ยังไม่มีผู้สมัคร", '<div class="rounded-lg bg-blue-50 p-4">เริ่มค้นหาผู้สมัครหรือเพิ่มผู้สมัครด้วยตนเองเพื่อเริ่ม Pipeline</div>', '<button data-close class="rounded-lg border border-slate-300 px-4 py-2">ปิด</button><button data-close class="rounded-lg bg-gradient-to-r from-[#0062FF] to-[#38BDF8] px-4 py-2 text-white">เริ่มค้นหา</button>'));
-  }
 })();
