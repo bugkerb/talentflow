@@ -35,6 +35,27 @@ select:focus-visible,
 input:focus-visible,
 textarea:focus-visible { outline: 3px solid rgba(0, 98, 255, .35); outline-offset: 2px; }
 
+/* Dashboard first viewport: keep the decision surface visible on a 900px desktop viewport. */
+.dashboard-page main > .p-margin-mobile {
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+.dashboard-page main > .p-margin-mobile > section { gap: 16px; }
+.dashboard-page main > .p-margin-mobile section[aria-labelledby="action-heading"] { padding: 20px; }
+.dashboard-page main > .p-margin-mobile section[aria-labelledby="action-heading"] .mt-5 { margin-top: 12px; }
+.dashboard-page main > .p-margin-mobile section[aria-labelledby="action-heading"] .p-4 { padding: 12px; }
+.dashboard-page main > .p-margin-mobile section[aria-labelledby="overview-heading"] .mb-3 { margin-bottom: 8px; }
+.dashboard-page main > .p-margin-mobile section[aria-labelledby="health-heading"] { padding: 20px; }
+
+@media (max-height: 820px) and (min-width: 1280px) {
+  .dashboard-page header { height: 56px; }
+  .dashboard-page main > .p-margin-mobile { padding-top: 12px; padding-bottom: 12px; }
+  .dashboard-page main > .p-margin-mobile > section { gap: 12px; }
+  .dashboard-page main > .p-margin-mobile section[aria-labelledby="action-heading"] { padding: 14px 16px; }
+  .dashboard-page main > .p-margin-mobile section[aria-labelledby="action-heading"] .p-4 { padding: 8px 12px; }
+  .dashboard-page main > .p-margin-mobile section[aria-labelledby="health-heading"] { padding: 14px 16px; }
+}
+
 @media (max-width: 1279px) {
   .tf-sidebar { display: none; }
 }
