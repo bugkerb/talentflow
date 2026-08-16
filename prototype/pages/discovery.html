@@ -245,12 +245,12 @@
 <span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
 <span class="">ตารางนัดสัมภาษณ์</span>
 </a>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary-fixed-dim hover:text-on-primary hover:bg-white/5 transition-all rounded-lg" href="reports.html">
+<span class="material-symbols-outlined">analytics</span>
+<span>รายงาน</span>
+</a>
 </div>
 <div class="mt-auto space-y-2 pt-6 border-t border-outline-variant/10">
-<button class="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg bg-surface/10 text-on-primary hover:bg-surface/20 transition-colors border border-outline-variant/20 mb-4">
-<span class="material-symbols-outlined text-sm">refresh</span>
-<span class="text-sm font-medium">Reset State</span>
-</button>
 <a class="flex items-center gap-3 px-4 py-3 text-secondary-fixed-dim hover:text-on-primary hover:bg-white/5 transition-all rounded-lg" href="settings.html">
 <span class="material-symbols-outlined" data-icon="settings">settings</span>
 <span class="">ตั้งค่า</span>
@@ -276,9 +276,6 @@
 </div>
 <div class="flex items-center gap-6">
 <nav class="hidden lg:flex items-center gap-6 font-body-sm text-body-sm">
-<a class="text-secondary hover:text-primary transition-colors py-5" href="dashboard.html">ภาพรวม</a>
-<a class="text-primary font-bold border-b-2 border-primary py-5" href="reports.html">รายงาน</a>
-<a class="text-secondary hover:text-primary transition-colors py-5" href="help.html">ความช่วยเหลือ</a>
 </nav>
 <div class="flex items-center gap-3 border-l border-surface-container-highest pl-6 ml-2">
 <button class="p-2 text-secondary hover:bg-surface-container-low transition-all rounded-full relative">
@@ -288,10 +285,6 @@
 <button class="p-2 text-secondary hover:bg-surface-container-low transition-all rounded-full">
 <span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
 </button>
-<button class="hidden sm:flex bg-gradient-primary text-white px-4 py-2 rounded-lg font-medium text-sm hover-lift items-center gap-2">
-<span class="material-symbols-outlined text-sm">add</span>
-                            สร้างตำแหน่งงาน
-                        </button>
 <div class="w-9 h-9 rounded-full bg-surface-variant overflow-hidden border border-outline-variant/30 cursor-pointer hover:ring-2 hover:ring-primary/50 transition-all ml-2">
 <img alt="User Avatar" class="w-full h-full object-cover" data-alt="A professional headshot of a corporate HR executive with a slight smile, wearing a dark navy blazer, set against a clean, softly lit modern office background. High resolution, bright, modern lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCne0aCuMa_C4AQA15rcSqsM7OPXtwtcFt1ed3KTULSJW01DqPWqsD1z-E2qe2f05He0bgegwXq3VTYh2P-SiIYYxz30Vqy3PCi0K97qOFtwtV16NrwDMoYrwM5jyaeK1XZF3aDl-Jz-YAuSFroB_cb4IJQ8aRXluMQdY9h9H_33aE54PzW94zk_niMVRfqj-gUnjWLzYzU6rpM0CGojycV1_JJ-lpC7lwDq2aBz-isd7MxumX625WIJg">
 </div>
@@ -304,7 +297,7 @@
 <!-- Header Section -->
 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8">
 <div>
-<h2 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mb-2">Candidate Discovery</h2>
+<h2 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mb-2">ค้นหาผู้สมัคร</h2>
 <p class="text-secondary">ค้นหาและประเมินผู้สมัครสำหรับตำแหน่ง <strong>Senior Frontend Engineer</strong></p>
 </div>
 <div class="flex gap-3">
@@ -312,7 +305,7 @@
 <span class="material-symbols-outlined text-sm">tune</span>
                         ตัวกรอง
                     </button>
-<button class="px-4 py-2 bg-gradient-primary text-white rounded-lg hover-lift font-medium text-sm flex items-center gap-2"><span class="material-symbols-outlined text-sm">refresh</span> รันโมเดล</button>
+<button class="px-4 py-2 bg-gradient-primary text-white rounded-lg hover-lift font-medium text-sm flex items-center gap-2"><span class="material-symbols-outlined text-sm">refresh</span> เริ่มค้นหา</button>
 </div>
 </div>
 <!-- Discovery Results - Bento Grid Layout -->
@@ -342,7 +335,7 @@
 <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-primary/10 border-2 border-primary text-primary font-bold text-xl">
                                 94
                             </div>
-<p class="text-xs text-secondary mt-1 font-medium">Match Score</p>
+<p class="text-xs text-secondary mt-1 font-medium">คะแนนความเหมาะสม</p>
 </div>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-3 gap-0">
@@ -350,7 +343,7 @@
 <div class="p-6 border-b md:border-b-0 md:border-r border-outline-variant/50">
 <h4 class="text-sm font-bold text-on-surface mb-4 flex items-center gap-2">
 <span class="material-symbols-outlined text-primary text-base">fact_check</span>
-                                หลักฐานที่พบ (Evidence)
+                                หลักฐานที่พบ
                             </h4>
 <ul class="space-y-3">
 <li class="flex items-start gap-2 text-sm">
@@ -371,7 +364,7 @@
 <div class="p-6 border-b md:border-b-0 md:border-r border-outline-variant/50">
 <h4 class="text-sm font-bold text-on-surface mb-4 flex items-center gap-2">
 <span class="material-symbols-outlined text-error-alert text-base">warning</span>
-                                ความเสี่ยง (Risks)
+                                ข้อควรตรวจสอบ
                             </h4>
 <ul class="space-y-3">
 <li class="flex items-start gap-2 text-sm">
@@ -414,7 +407,7 @@
 <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-surface-variant border-2 border-outline-variant text-on-surface-variant font-bold text-xl">
                                 78
                             </div>
-<p class="text-xs text-secondary mt-1 font-medium">Match Score</p>
+<p class="text-xs text-secondary mt-1 font-medium">คะแนนความเหมาะสม</p>
 </div>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-3 gap-0">
@@ -422,7 +415,7 @@
 <div class="p-6 border-b md:border-b-0 md:border-r border-outline-variant/50">
 <h4 class="text-sm font-bold text-on-surface mb-4 flex items-center gap-2">
 <span class="material-symbols-outlined text-primary text-base">fact_check</span>
-                                หลักฐานที่พบ (Evidence)
+                                หลักฐานที่พบ
                             </h4>
 <ul class="space-y-3">
 <li class="flex items-start gap-2 text-sm">
@@ -439,7 +432,7 @@
 <div class="p-6 border-b md:border-b-0 md:border-r border-outline-variant/50 bg-error-container/10">
 <h4 class="text-sm font-bold text-on-surface mb-4 flex items-center gap-2">
 <span class="material-symbols-outlined text-error-alert text-base">warning</span>
-                                ความเสี่ยง (Risks)
+                                ข้อควรตรวจสอบ
                             </h4>
 <ul class="space-y-3">
 <li class="flex items-start gap-2 text-sm">
