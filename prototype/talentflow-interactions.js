@@ -41,6 +41,16 @@
   document.addEventListener("click", (event) => {
     const target = event.target.closest("button");
     if (!target) return;
+    if (target.matches("[data-dashboard-notifications]")) { modal("การแจ้งเตือน", '<div class="space-y-3"><a href="screening.html?status=pending" class="block rounded-lg bg-blue-50 p-3 text-blue-900">มีเรซูเม่รอตรวจสอบ 8 รายการ</a><a href="interviews.html?date=today" class="block rounded-lg bg-amber-50 p-3 text-amber-900">วันนี้มีนัดสัมภาษณ์ 2 รายการ</a></div>'); return; }
+    if (target.matches("[data-dashboard-help]")) { go("help.html"); return; }
+    if (target.matches("[data-dashboard-action=integration]")) {
+      modal("ตรวจสอบการเชื่อมต่อ", '<div class="rounded-lg bg-amber-50 p-4 text-amber-900"><strong>ยังเชื่อมต่อ Payroll ไม่สำเร็จ</strong><p class="mt-2">ข้อมูลการสรรหายังใช้งานได้ และระบบจะไม่ส่งรายการซ้ำ</p></div>', '<button data-close class="rounded-lg border border-slate-300 px-4 py-2">ปิด</button><button data-dashboard-retry class="rounded-lg bg-gradient-to-r from-[#0062FF] to-[#38BDF8] px-4 py-2 font-bold text-white">ลองเชื่อมต่อใหม่</button>');
+      return;
+    }
+    if (target.matches("[data-dashboard-retry]")) {
+      target.closest("[role=dialog]").innerHTML = '<div class="rounded-lg border border-green-300 bg-green-50 p-4 text-green-800"><strong>ส่งคำขอเชื่อมต่อแล้ว</strong><p class="mt-2">ระบบจะตรวจสอบสถานะอีกครั้งโดยไม่สร้างข้อมูลซ้ำ</p><button data-close class="mt-4 rounded-lg border border-green-300 px-4 py-2">ปิด</button></div>';
+      return;
+    }
     if (target.matches("[data-close]")) { target.closest("[role=dialog], .fixed")?.remove(); return; }
     if (target.matches("[data-save]")) { const dialog = target.closest("[role=dialog]"); const fields = [...dialog.querySelectorAll("input, textarea")]; if (fields.every((field) => field.value.trim())) { dialog.innerHTML = '<div class="rounded-lg border border-green-300 bg-green-50 p-4 text-green-800"><strong>บันทึกฉบับร่างแล้ว</strong><button data-close class="mt-4 rounded-lg border border-green-300 px-4 py-2">ปิด</button></div>'; } return; }
     if (target.matches("[data-provider-fail]")) { target.closest("[role=dialog]").innerHTML = '<div class="rounded-lg border border-red-300 bg-red-50 p-4 text-red-800"><strong>ผู้ให้บริการไม่พร้อมใช้งาน</strong><p class="mt-2">DISCOVERY_PROVIDER_UNAVAILABLE</p><button data-retry class="mt-4 rounded-lg border border-red-300 px-4 py-2">ลองใหม่</button></div>'; return; }

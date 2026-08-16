@@ -184,10 +184,10 @@
                         สร้างตำแหน่งงาน
                     </button>
 <div class="flex items-center gap-2 text-secondary">
-<button class="p-2 hover:bg-surface-container-low rounded-full transition-all active:opacity-80">
+<button type="button" data-dashboard-notifications aria-label="เปิดการแจ้งเตือน" class="p-2 hover:bg-surface-container-low rounded-full transition-all active:opacity-80">
 <span class="material-symbols-outlined">notifications</span>
 </button>
-<button class="p-2 hover:bg-surface-container-low rounded-full transition-all active:opacity-80">
+<button type="button" data-dashboard-help aria-label="เปิดศูนย์ช่วยเหลือ" class="p-2 hover:bg-surface-container-low rounded-full transition-all active:opacity-80">
 <span class="material-symbols-outlined">help_outline</span>
 </button>
 </div>
@@ -197,6 +197,64 @@
 </header>
 <!-- Dashboard Canvas -->
 <div class="p-margin-mobile md:p-gutter flex-1 space-y-6 max-w-7xl mx-auto w-full">
+<section aria-labelledby="dashboard-heading" class="space-y-6">
+<div class="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+<div>
+<p class="font-label-caps text-label-caps text-primary">ศูนย์ควบคุมการสรรหา</p>
+<h2 id="dashboard-heading" class="mt-2 font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">วันนี้ต้องจัดการอะไรบ้าง</h2>
+<p class="font-body-md text-body-md text-secondary mt-1">เริ่มจากรายการที่ต้องตัดสินใจก่อน แล้วติดตามภาพรวมของงานสรรหา</p>
+</div>
+<a href="jobs.html?create=1" class="self-start bg-gradient-to-r from-electric-gradient-start to-electric-gradient-end text-on-primary px-4 py-2 rounded-lg font-body-sm text-body-sm hover:brightness-110 hover:-translate-y-[2px] transition-all shadow-md">สร้างตำแหน่งงาน</a>
+</div>
+
+<section aria-labelledby="action-heading" class="bg-surface-container-lowest border border-surface-variant rounded-xl p-6 shadow-sm">
+<div class="flex items-center justify-between gap-4">
+<div>
+<h3 id="action-heading" class="font-body-lg text-body-lg text-on-surface font-medium">รายการที่ต้องทำ</h3>
+<p class="font-body-sm text-body-sm text-secondary mt-1">จัดการรายการเร่งด่วนก่อน เพื่อไม่ให้ผู้สมัครค้างในกระบวนการ</p>
+</div>
+<span class="bg-error-container text-on-error-container font-label-caps text-label-caps px-2 py-1 rounded-full">3 รายการ</span>
+</div>
+<div class="mt-5 grid gap-3 md:grid-cols-3">
+<a href="screening.html?status=pending" class="group flex items-center justify-between gap-4 rounded-lg border border-surface-variant p-4 hover:border-primary hover:bg-primary-fixed/30 transition-colors">
+<span class="flex items-center gap-3"><span class="rounded-lg bg-primary-fixed p-2 text-primary material-symbols-outlined">description</span><span><strong class="block font-body-sm text-body-sm text-on-surface">เรซูเม่รอตรวจสอบ</strong><span class="font-body-sm text-body-sm text-secondary">ต้องตัดสินใจ 8 รายการ</span></span></span><span class="material-symbols-outlined text-primary group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</a>
+<a href="applications.html?status=new" class="group flex items-center justify-between gap-4 rounded-lg border border-surface-variant p-4 hover:border-primary hover:bg-primary-fixed/30 transition-colors">
+<span class="flex items-center gap-3"><span class="rounded-lg bg-secondary-fixed p-2 text-on-secondary-fixed material-symbols-outlined">group</span><span><strong class="block font-body-sm text-body-sm text-on-surface">ผู้สมัครใหม่</strong><span class="font-body-sm text-body-sm text-secondary">รอคัดกรอง 3 รายการ</span></span></span><span class="material-symbols-outlined text-primary group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</a>
+<a href="interviews.html?date=today" class="group flex items-center justify-between gap-4 rounded-lg border border-surface-variant p-4 hover:border-primary hover:bg-primary-fixed/30 transition-colors">
+<span class="flex items-center gap-3"><span class="rounded-lg bg-tertiary-fixed p-2 text-tertiary material-symbols-outlined">event</span><span><strong class="block font-body-sm text-body-sm text-on-surface">สัมภาษณ์วันนี้</strong><span class="font-body-sm text-body-sm text-secondary">มีนัดหมาย 2 รายการ</span></span></span><span class="material-symbols-outlined text-primary group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</a>
+</div>
+</section>
+
+<div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
+<section aria-labelledby="overview-heading" class="lg:col-span-2">
+<div class="mb-3 flex items-center justify-between"><h3 id="overview-heading" class="font-body-lg text-body-lg text-on-surface font-medium">ภาพรวมการสรรหา</h3><span class="font-body-sm text-body-sm text-secondary">อัปเดตวันนี้ 09:42</span></div>
+<div class="grid grid-cols-2 gap-4 md:grid-cols-4">
+<a href="jobs.html?status=open" class="bg-surface-container-lowest border border-surface-variant rounded-xl p-5 shadow-sm hover-lift transition-all"><span class="font-body-sm text-body-sm text-secondary">ตำแหน่งเปิดอยู่</span><strong class="mt-2 block font-headline-md text-headline-md text-on-surface">6</strong></a>
+<a href="applications.html?status=new" class="bg-surface-container-lowest border border-surface-variant rounded-xl p-5 shadow-sm hover-lift transition-all"><span class="font-body-sm text-body-sm text-secondary">ผู้สมัครใหม่</span><strong class="mt-2 block font-headline-md text-headline-md text-on-surface">3</strong></a>
+<a href="applications.html?stage=interview" class="bg-surface-container-lowest border border-surface-variant rounded-xl p-5 shadow-sm hover-lift transition-all"><span class="font-body-sm text-body-sm text-secondary">อยู่ระหว่างสัมภาษณ์</span><strong class="mt-2 block font-headline-md text-headline-md text-on-surface">8</strong></a>
+<a href="interviews.html?date=week" class="bg-surface-container-lowest border border-surface-variant rounded-xl p-5 shadow-sm hover-lift transition-all"><span class="font-body-sm text-body-sm text-secondary">นัดสัปดาห์นี้</span><strong class="mt-2 block font-headline-md text-headline-md text-on-surface">4</strong></a>
+</div>
+</section>
+<section aria-labelledby="health-heading" class="bg-error/5 border border-error/20 rounded-xl p-6 shadow-sm">
+<h3 id="health-heading" class="font-body-lg text-body-lg text-error font-medium flex items-center gap-2"><span class="material-symbols-outlined">sync_problem</span>ระบบที่ต้องตรวจสอบ</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-2">การซิงค์กับระบบ Payroll ภายนอกล้มเหลว ระบบยังไม่ส่งข้อมูลซ้ำ</p>
+<button data-dashboard-action="integration" class="mt-4 font-label-caps text-label-caps text-error border border-error px-4 py-2 rounded hover:bg-error hover:text-white transition-colors">ตรวจสอบการเชื่อมต่อ</button>
+</section>
+</div>
+
+<section aria-labelledby="pipeline-heading" class="bg-surface-container-lowest border border-surface-variant rounded-xl p-6 shadow-sm">
+<div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between"><div><h3 id="pipeline-heading" class="font-body-lg text-body-lg text-on-surface font-medium">Pipeline ที่ต้องติดตาม</h3><p class="font-body-sm text-body-sm text-secondary mt-1">ดูจำนวนผู้สมัครและขั้นตอนที่มีงานค้าง</p></div><a href="applications.html" class="text-primary font-body-sm text-body-sm hover:underline">ดูผู้สมัครทั้งหมด <span class="material-symbols-outlined align-middle text-sm">arrow_forward</span></a></div>
+<div class="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
+<a href="applications.html?stage=screening" class="rounded-lg bg-surface-container p-4 hover:bg-primary-fixed/40 transition-colors"><span class="font-body-sm text-body-sm text-secondary">คัดกรอง</span><strong class="mt-1 block font-headline-md text-headline-md">12</strong><span class="font-body-sm text-body-sm text-error">ค้างเกิน 3 วัน 2 รายการ</span></a>
+<a href="applications.html?stage=interview" class="rounded-lg bg-surface-container p-4 hover:bg-primary-fixed/40 transition-colors"><span class="font-body-sm text-body-sm text-secondary">สัมภาษณ์</span><strong class="mt-1 block font-headline-md text-headline-md">8</strong><span class="font-body-sm text-body-sm text-secondary">ติดตามตามนัดหมาย</span></a>
+<a href="applications.html?stage=offer" class="rounded-lg bg-surface-container p-4 hover:bg-primary-fixed/40 transition-colors"><span class="font-body-sm text-body-sm text-secondary">เสนอข้อเสนอ</span><strong class="mt-1 block font-headline-md text-headline-md">2</strong><span class="font-body-sm text-body-sm text-secondary">รอการตอบรับ</span></a>
+<a href="applications.html?stage=hired" class="rounded-lg bg-surface-container p-4 hover:bg-primary-fixed/40 transition-colors"><span class="font-body-sm text-body-sm text-secondary">รับเข้าทำงาน</span><strong class="mt-1 block font-headline-md text-headline-md">5</strong><span class="font-body-sm text-body-sm text-secondary">เดือนนี้</span></a>
+</div>
+</section>
+</section>
 <div class="flex justify-between items-end">
 <div>
 <h2 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">ภาพรวมระบบ</h2>
@@ -211,7 +269,7 @@
 </div>
 </div>
 <!-- Bento Grid Layout -->
-<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+<div class="hidden grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6" aria-hidden="true">
 <!-- Metric 1: Pending AI Review -->
 <div class="bg-surface-container-lowest border border-surface-variant rounded-xl p-6 hover-lift transition-all col-span-1 shadow-sm">
 <div class="flex justify-between items-start mb-4">
