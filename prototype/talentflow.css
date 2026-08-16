@@ -1,0 +1,40 @@
+/* TalentFlow UI foundation.
+ * Visual values are extracted from the approved Stitch reference; pages own markup.
+ */
+:root {
+  --tf-background: #f7f9fb;
+  --tf-surface: #ffffff;
+  --tf-surface-low: #f2f4f6;
+  --tf-surface-high: #e6e8ea;
+  --tf-ink: #191c1e;
+  --tf-muted: #565e74;
+  --tf-outline: #c2c6d9;
+  --tf-primary: #004cca;
+  --tf-primary-container: #0062ff;
+  --tf-nav: #020617;
+  --tf-accent-end: #38bdf8;
+  --tf-success: #22c55e;
+  --tf-error: #ba1a1a;
+  --tf-radius: 0.5rem;
+  --tf-radius-lg: 0.75rem;
+  --tf-sidebar-width: 260px;
+  --tf-gutter: 24px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body { background: var(--tf-background); color: var(--tf-ink); }
+
+.tf-shell { min-height: 100vh; background: var(--tf-background); }
+.tf-sidebar { width: var(--tf-sidebar-width); background: var(--tf-nav); }
+.tf-surface { background: var(--tf-surface); }
+.tf-muted { color: var(--tf-muted); }
+.tf-focus:focus-visible,
+button:focus-visible,
+a:focus-visible,
+select:focus-visible,
+input:focus-visible,
+textarea:focus-visible { outline: 3px solid rgba(0, 98, 255, .35); outline-offset: 2px; }
+
+@media (max-width: 1279px) {
+  .tf-sidebar { display: none; }
+}

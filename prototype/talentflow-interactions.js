@@ -7,7 +7,7 @@
     "ระบบติดตามผู้สมัคร": "applications.html",
     "ตารางนัดสัมภาษณ์": "interviews.html"
   };
-  const root = location.pathname.includes("/stitch-pages/") ? "" : "stitch-pages/";
+  const root = location.pathname.includes("/pages/") ? "" : "pages/";
   const go = (page) => { location.href = `${root}${page}`; };
   const toast = (message) => { const node = document.createElement("div"); node.textContent = message; node.className = "fixed bottom-5 right-5 z-[120] rounded-lg bg-slate-900 px-4 py-3 text-sm font-bold text-white shadow-xl"; node.setAttribute("role", "status"); document.body.append(node); setTimeout(() => node.remove(), 1600); };
   const modal = (title, body, actions = "") => {

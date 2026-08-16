@@ -116,7 +116,7 @@
             box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.1), 0 4px 6px -4px rgba(15, 23, 42, 0.1);
         }
     </style>
-<link rel="icon" href="favicon.svg" type="image/svg+xml"></head>
+<link rel="icon" href="favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="talentflow.css"></head>
 <body class="bg-background text-on-background font-body-md min-h-screen flex">
 <!-- SideNavBar -->
 <aside class="fixed left-0 top-0 h-screen w-[260px] bg-nav-bg border-r border-outline-variant/10 shadow-xl hidden xl:flex flex-col z-50">
@@ -127,34 +127,34 @@
 </div>
 <nav class="flex-1 space-y-2">
 <!-- Active: Dashboard -->
-<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container bg-primary-container rounded-lg font-body-md text-body-md active:scale-95 transition-all duration-150" href="stitch-pages/dashboard.html">
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container bg-primary-container rounded-lg font-body-md text-body-md active:scale-95 transition-all duration-150" href="pages/dashboard.html">
 <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
                     แดชบอร์ด
                 </a>
 <!-- Inactive tabs -->
-<a class="flex items-center gap-3 px-4 py-3 text-secondary-fixed-dim hover:text-on-primary hover:bg-white/5 transition-all font-body-md text-body-md rounded-lg hover:translate-y-[-2px] hover:brightness-110 transition-transform duration-200" href="stitch-pages/jobs.html">
+<a class="flex items-center gap-3 px-4 py-3 text-secondary-fixed-dim hover:text-on-primary hover:bg-white/5 transition-all font-body-md text-body-md rounded-lg hover:translate-y-[-2px] hover:brightness-110 transition-transform duration-200" href="pages/jobs.html">
 <span class="material-symbols-outlined">work</span>
                     ตำแหน่งงาน
                 </a>
-<a class="flex items-center gap-3 px-4 py-3 text-secondary-fixed-dim hover:text-on-primary hover:bg-white/5 transition-all font-body-md text-body-md rounded-lg hover:translate-y-[-2px] hover:brightness-110 transition-transform duration-200" href="stitch-pages/discovery.html">
+<a class="flex items-center gap-3 px-4 py-3 text-secondary-fixed-dim hover:text-on-primary hover:bg-white/5 transition-all font-body-md text-body-md rounded-lg hover:translate-y-[-2px] hover:brightness-110 transition-transform duration-200" href="pages/discovery.html">
 <span class="material-symbols-outlined">person_search</span>
                     ค้นหาผู้สมัคร
                 </a>
-<a class="flex items-center gap-3 px-4 py-3 text-secondary-fixed-dim hover:text-on-primary hover:bg-white/5 transition-all font-body-md text-body-md rounded-lg hover:translate-y-[-2px] hover:brightness-110 transition-transform duration-200" href="stitch-pages/screening.html">
+<a class="flex items-center gap-3 px-4 py-3 text-secondary-fixed-dim hover:text-on-primary hover:bg-white/5 transition-all font-body-md text-body-md rounded-lg hover:translate-y-[-2px] hover:brightness-110 transition-transform duration-200" href="pages/screening.html">
 <span class="material-symbols-outlined">description</span>
                     คัดกรองเรซูเม่
                 </a>
-<a class="flex items-center gap-3 px-4 py-3 text-secondary-fixed-dim hover:text-on-primary hover:bg-white/5 transition-all font-body-md text-body-md rounded-lg hover:translate-y-[-2px] hover:brightness-110 transition-transform duration-200" href="stitch-pages/applications.html">
+<a class="flex items-center gap-3 px-4 py-3 text-secondary-fixed-dim hover:text-on-primary hover:bg-white/5 transition-all font-body-md text-body-md rounded-lg hover:translate-y-[-2px] hover:brightness-110 transition-transform duration-200" href="pages/applications.html">
 <span class="material-symbols-outlined">group</span>
                     ระบบติดตามผู้สมัคร
                 </a>
-<a class="flex items-center gap-3 px-4 py-3 text-secondary-fixed-dim hover:text-on-primary hover:bg-white/5 transition-all font-body-md text-body-md rounded-lg hover:translate-y-[-2px] hover:brightness-110 transition-transform duration-200" href="stitch-pages/interviews.html">
+<a class="flex items-center gap-3 px-4 py-3 text-secondary-fixed-dim hover:text-on-primary hover:bg-white/5 transition-all font-body-md text-body-md rounded-lg hover:translate-y-[-2px] hover:brightness-110 transition-transform duration-200" href="pages/interviews.html">
 <span class="material-symbols-outlined">calendar_today</span>
                     ตารางนัดสัมภาษณ์
                 </a>
 </nav>
 <div class="mt-auto space-y-2 pt-6 border-t border-white/10">
-<a class="flex items-center gap-3 px-4 py-3 text-secondary-fixed-dim hover:text-on-primary hover:bg-white/5 transition-all font-body-md text-body-md rounded-lg hover:translate-y-[-2px] hover:brightness-110 transition-transform duration-200" href="stitch-pages/settings.html">
+<a class="flex items-center gap-3 px-4 py-3 text-secondary-fixed-dim hover:text-on-primary hover:bg-white/5 transition-all font-body-md text-body-md rounded-lg hover:translate-y-[-2px] hover:brightness-110 transition-transform duration-200" href="pages/settings.html">
 <span class="material-symbols-outlined">settings</span>
                     ตั้งค่า
                 </a>
@@ -174,9 +174,9 @@
 <div class="font-headline-md text-headline-md text-on-surface font-black md:hidden">HR Tech</div>
 <nav class="hidden md:flex gap-6">
 <!-- Active: ภาพรวม (Dashboard context) -->
-<a class="text-primary font-bold border-b-2 border-primary pb-1 font-body-sm text-body-sm" href="stitch-pages/dashboard.html">ภาพรวม</a>
-<a class="text-secondary hover:text-primary transition-colors font-body-sm text-body-sm hover:bg-surface-container-low transition-all px-2 py-1 rounded" href="stitch-pages/reports.html">รายงาน</a>
-<a class="text-secondary hover:text-primary transition-colors font-body-sm text-body-sm hover:bg-surface-container-low transition-all px-2 py-1 rounded" href="stitch-pages/help.html">ความช่วยเหลือ</a>
+<a class="text-primary font-bold border-b-2 border-primary pb-1 font-body-sm text-body-sm" href="pages/dashboard.html">ภาพรวม</a>
+<a class="text-secondary hover:text-primary transition-colors font-body-sm text-body-sm hover:bg-surface-container-low transition-all px-2 py-1 rounded" href="pages/reports.html">รายงาน</a>
+<a class="text-secondary hover:text-primary transition-colors font-body-sm text-body-sm hover:bg-surface-container-low transition-all px-2 py-1 rounded" href="pages/help.html">ความช่วยเหลือ</a>
 </nav>
 </div>
 <div class="flex items-center gap-4">
@@ -269,4 +269,4 @@
 </main>
 
 
-<script src="stitch-interactions.js"></script></body></html>
+<script src="talentflow-interactions.js"></script></body></html>
