@@ -1,32 +1,272 @@
-<!doctype html>
-<html lang="th">
-<head>
-  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>แดชบอร์ด - TalentFlow</title>
-  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Calistoga&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined&display=swap" rel="stylesheet">
-  <style>
-    :root{--ink:#172033;--muted:#667085;--line:#e4e7ec;--blue:#155eef;--soft:#f7f9fc;--nav:#111827}*{box-sizing:border-box}body{margin:0;background:var(--soft);color:var(--ink);font-family:Inter,system-ui,sans-serif}.brand{font-family:Calistoga,serif}.material-symbols-outlined{font-size:21px;vertical-align:middle}.shell{display:flex;min-height:100vh}.side{background:var(--nav);color:#dbe3f4;width:248px;flex:none;padding:28px 16px;display:flex;flex-direction:column}.side a{color:#b8c3d9;text-decoration:none;border-radius:9px;display:flex;gap:11px;align-items:center;padding:11px 12px;margin:4px 0;font-size:14px}.side a:hover,.side a[aria-current=page]{background:#253b73;color:white}.main{flex:1;min-width:0}.top{height:70px;background:white;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;padding:0 clamp(20px,4vw,48px);position:sticky;top:0;z-index:4}.top nav{display:flex;gap:22px}.top nav a{color:var(--muted);text-decoration:none;font-size:14px}.top nav a:hover,.top nav a[aria-current=page]{color:var(--blue);font-weight:700}.content{max-width:1260px;margin:auto;padding:38px clamp(20px,4vw,48px) 60px}.eyebrow{color:var(--blue);font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase}.intro{display:flex;justify-content:space-between;align-items:end;gap:24px;margin-bottom:28px}.intro h1{font-family:Calistoga,serif;font-size:38px;font-weight:400;line-height:1.15;margin:8px 0}.muted{color:var(--muted);font-size:14px;margin:0}.primary{background:var(--blue);color:#fff;border:0;border-radius:8px;padding:12px 18px;font-weight:700;cursor:pointer}.primary:hover{background:#004fc4}.ghost{background:#fff;color:var(--ink);border:1px solid #cdd4df;border-radius:8px;padding:10px 14px;font-weight:600;cursor:pointer}.ghost:hover{border-color:var(--blue);color:var(--blue)}.stats{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#fff;margin-bottom:28px}.stat{padding:20px 22px;border-right:1px solid var(--line)}.stat:last-child{border:0}.stat strong{display:block;font-family:Calistoga,serif;font-size:34px;font-weight:400;margin-top:8px}.stat span{font-size:13px;color:var(--muted)}.workspace{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(280px,.8fr);gap:20px}.panel{background:#fff;border:1px solid var(--line);border-radius:12px;padding:22px}.panel h2{font-size:18px;margin:0 0 5px}.panel-head{display:flex;justify-content:space-between;align-items:start;gap:16px;margin-bottom:18px}.queue{display:grid;gap:10px}.queue-item{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0;border-top:1px solid var(--line)}.queue-item:first-child{border-top:0;padding-top:0}.queue-title{font-weight:600;font-size:14px;margin:0 0 4px}.queue-meta{color:var(--muted);font-size:12px;margin:0}.badge{border-radius:999px;padding:5px 9px;font-size:11px;font-weight:700;white-space:nowrap}.badge.red{background:#fff0ed;color:#c4320a}.badge.blue{background:#edf4ff;color:#155eef}.pipeline{grid-column:1/-1}.pipeline-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}.stage{background:var(--soft);border-radius:8px;padding:14px;min-height:105px}.stage span{color:var(--muted);font-size:12px}.stage strong{display:block;font-family:Calistoga,serif;font-size:28px;font-weight:400;margin-top:10px}.activity{display:grid;gap:0}.activity div{border-top:1px solid var(--line);padding:12px 0;font-size:13px}.activity div:first-child{border:0;padding-top:0}.activity small{display:block;color:var(--muted);margin-top:4px}.toast{position:fixed;right:24px;bottom:24px;background:#172033;color:white;border-radius:8px;padding:13px 16px;font-size:13px;box-shadow:0 8px 20px #17203330;z-index:20}.mobile-menu{display:none}@media(max-width:900px){.side{display:none}.mobile-menu{display:inline-flex}.workspace{grid-template-columns:1fr}.pipeline{grid-column:auto}.pipeline-grid{grid-template-columns:repeat(2,1fr)}.stats{grid-template-columns:repeat(2,1fr)}.stat:nth-child(2){border-right:0}.stat:nth-child(-n+2){border-bottom:1px solid var(--line)}}@media(max-width:560px){.top nav{display:none}.intro{display:block}.intro .primary{margin-top:18px;width:100%}.intro h1{font-size:30px}.stats{grid-template-columns:1fr}.stat{border-right:0;border-bottom:1px solid var(--line)!important}.stat:last-child{border:0!important}.pipeline-grid{grid-template-columns:1fr}.content{padding-top:26px}}
-  </style>
-</head>
-<body>
-<div class="shell">
-  <aside class="side"><div style="padding:0 12px 30px"><div class="brand" style="font-size:27px;color:#fff">TalentFlow</div><div style="font-size:12px;color:#9aa8c0;margin-top:4px">ระบบสรรหาสำหรับทีม HR</div></div><nav style="flex:1"><a aria-current="page" href="dashboard.html"><span class="material-symbols-outlined">dashboard</span>แดชบอร์ด</a><a href="jobs.html"><span class="material-symbols-outlined">work</span>ตำแหน่งงาน</a><a href="discovery.html"><span class="material-symbols-outlined">person_search</span>ค้นหาผู้สมัคร</a><a href="screening.html"><span class="material-symbols-outlined">description</span>คัดกรองเรซูเม่</a><a href="applications.html"><span class="material-symbols-outlined">group</span>ติดตามผู้สมัคร</a><a href="interviews.html"><span class="material-symbols-outlined">calendar_today</span>นัดสัมภาษณ์</a></nav><div style="border-top:1px solid #293449;padding-top:18px"><a href="settings.html"><span class="material-symbols-outlined">settings</span>ตั้งค่า</a><a href="../index.html?logged_out=1"><span class="material-symbols-outlined">logout</span>ออกจากระบบ</a></div></aside>
-  <main class="main"><header class="top"><button class="ghost mobile-menu" aria-label="เปิดเมนู"><span class="material-symbols-outlined">menu</span></button><nav><a aria-current="page" href="dashboard.html">ภาพรวม</a><a href="reports.html">รายงาน</a><a href="help.html">ความช่วยเหลือ</a></nav><div style="display:flex;align-items:center;gap:12px"><button class="ghost" id="notification" aria-label="การแจ้งเตือน"><span class="material-symbols-outlined">notifications</span></button><button class="primary" id="create-job">สร้างตำแหน่งงาน</button></div></header>
-    <div class="content"><div class="intro"><div><div class="eyebrow">ภาพรวมวันนี้ · 16 สิงหาคม 2569</div><h1>งานสรรหาของคุณ</h1><p class="muted">ดูงานที่ต้องจัดการและสถานะผู้สมัครได้จากหน้านี้</p></div><button class="primary" id="review-first">ตรวจงานค้าง 12 รายการ</button></div>
-      <section class="stats" aria-label="ตัวชี้วัดการสรรหา"><div class="stat"><span>ตำแหน่งที่เปิดอยู่</span><strong>3</strong></div><div class="stat"><span>ผู้สมัครทั้งหมด</span><strong>48</strong></div><div class="stat"><span>รอการคัดกรอง</span><strong>12</strong></div><div class="stat"><span>สัมภาษณ์วันนี้</span><strong>5</strong></div></section>
-      <div class="workspace"><section class="panel"><div class="panel-head"><div><h2>งานที่ต้องทำต่อ</h2><p class="muted">รายการที่ควรจัดการก่อนวันนี้จบ</p></div><a href="applications.html" style="color:var(--blue);font-size:13px;font-weight:700;text-decoration:none">ดูทั้งหมด</a></div><div class="queue"><div class="queue-item"><div><p class="queue-title">ตรวจเรซูเม่ของผู้สมัคร 12 คน</p><p class="queue-meta">ตำแหน่ง Tech Lead / Senior Developer</p></div><span class="badge red">เร่งด่วน</span></div><div class="queue-item"><div><p class="queue-title">ยืนยันเวลาสัมภาษณ์ 3 รายการ</p><p class="queue-meta">มีนัดหมายภายใน 24 ชั่วโมง</p></div><span class="badge blue">วันนี้</span></div><div class="queue-item"><div><p class="queue-title">ตรวจผลการค้นหาผู้สมัคร 8 คน</p><p class="queue-meta">รอการอนุมัติเข้าสู่ระบบติดตาม</p></div><span class="badge blue">รอตรวจ</span></div></div></section>
-        <section class="panel"><div class="panel-head"><div><h2>กิจกรรมล่าสุด</h2><p class="muted">อัปเดตจากทีม HR</p></div></div><div class="activity"><div>เพิ่ม Narin Chaiyapruk เข้าระบบ<small>เมื่อ 12 นาทีที่แล้ว · โดยคุณ</small></div><div>เลื่อนผู้สมัคร 2 คนไปขั้นสัมภาษณ์<small>เมื่อ 1 ชั่วโมงที่แล้ว</small></div><div>ระบบตรวจเรซูเม่เสร็จ 6 รายการ<small>วันนี้ เวลา 09:42 น.</small></div></div></section>
-        <section class="panel pipeline"><div class="panel-head"><div><h2>สถานะผู้สมัครตามขั้นตอน</h2><p class="muted">ตำแหน่ง Tech Lead / Senior Developer</p></div><a href="applications.html" style="color:var(--blue);font-size:13px;font-weight:700;text-decoration:none">เปิดระบบติดตาม</a></div><div class="pipeline-grid"><div class="stage"><span>คัดกรอง</span><strong>12</strong></div><div class="stage"><span>โทรคุยเบื้องต้น</span><strong>7</strong></div><div class="stage"><span>สัมภาษณ์</span><strong>5</strong></div><div class="stage"><span>ข้อเสนอ</span><strong>2</strong></div><div class="stage"><span>รับเข้าทำงาน</span><strong>1</strong></div></div></section>
-      </div>
-    </div>
-  </main>
+<!DOCTYPE html><html lang="th"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Dashboard - HR Command</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Calistoga&amp;family=Inter:wght@400;500;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary-fixed-variant": "#004c69",
+                        "background": "#f7f9fb",
+                        "error": "#ba1a1a",
+                        "electric-gradient-end": "#38BDF8",
+                        "tertiary-fixed": "#c4e7ff",
+                        "surface-container": "#eceef0",
+                        "secondary-fixed": "#dae2fd",
+                        "on-secondary-fixed": "#131b2e",
+                        "on-background": "#191c1e",
+                        "secondary-fixed-dim": "#bec6e0",
+                        "primary-container": "#0062ff",
+                        "nav-bg": "#020617",
+                        "tertiary-fixed-dim": "#7bd0ff",
+                        "secondary": "#565e74",
+                        "electric-gradient-start": "#0062FF",
+                        "on-primary-fixed-variant": "#003ea8",
+                        "on-tertiary-container": "#ebf6ff",
+                        "surface-bright": "#f7f9fb",
+                        "on-primary-fixed": "#00174b",
+                        "on-primary-container": "#f3f3ff",
+                        "secondary-container": "#dae2fd",
+                        "on-secondary-fixed-variant": "#3f465c",
+                        "on-primary": "#ffffff",
+                        "surface-dim": "#d8dadc",
+                        "outline-variant": "#c2c6d9",
+                        "error-container": "#ffdad6",
+                        "tertiary": "#005e80",
+                        "surface-tint": "#0053da",
+                        "primary": "#004cca",
+                        "inverse-primary": "#b4c5ff",
+                        "on-surface": "#191c1e",
+                        "surface-container-highest": "#e0e3e5",
+                        "on-tertiary": "#ffffff",
+                        "surface-container-low": "#f2f4f6",
+                        "on-error-container": "#93000a",
+                        "surface-container-lowest": "#ffffff",
+                        "on-error": "#ffffff",
+                        "tertiary-container": "#0078a2",
+                        "on-secondary-container": "#5c647a",
+                        "surface-container-high": "#e6e8ea",
+                        "primary-fixed": "#dbe1ff",
+                        "surface-variant": "#e0e3e5",
+                        "error-alert": "#EF4444",
+                        "primary-fixed-dim": "#b4c5ff",
+                        "on-secondary": "#ffffff",
+                        "surface": "#f7f9fb",
+                        "on-tertiary-fixed": "#001e2c",
+                        "outline": "#737687",
+                        "inverse-surface": "#2d3133",
+                        "status-pulse": "#22C55E",
+                        "on-surface-variant": "#424656",
+                        "inverse-on-surface": "#eff1f3"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-desktop": "32px",
+                        "sidebar-width": "260px",
+                        "unit": "4px",
+                        "gutter": "24px",
+                        "margin-mobile": "16px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Calistoga"],
+                        "headline-lg-mobile": ["Calistoga"],
+                        "data-mono": ["JetBrains Mono"],
+                        "headline-lg": ["Calistoga"],
+                        "body-lg": ["Inter"],
+                        "body-md": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "body-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["28px", { "lineHeight": "36px", "fontWeight": "400" }],
+                        "headline-lg-mobile": ["30px", { "lineHeight": "38px", "fontWeight": "400" }],
+                        "data-mono": ["14px", { "lineHeight": "20px", "letterSpacing": "-0.02em", "fontWeight": "500" }],
+                        "headline-lg": ["40px", { "lineHeight": "52px", "letterSpacing": "-0.01em", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "label-caps": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "400" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+        }
+        .hover-lift:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.1), 0 4px 6px -4px rgba(15, 23, 42, 0.1);
+        }
+    </style>
+<link rel="icon" href="../favicon.svg" type="image/svg+xml"></head>
+<body class="bg-background text-on-background font-body-md min-h-screen flex">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-screen w-[260px] bg-nav-bg border-r border-outline-variant/10 shadow-xl hidden xl:flex flex-col z-50">
+<div class="flex flex-col h-full py-6 px-4">
+<div class="mb-8 px-4">
+<h1 class="font-headline-md text-headline-md font-bold text-on-primary">TalentFlow</h1>
+<p class="font-body-sm text-body-sm text-secondary-fixed-dim">Executive Precision</p>
 </div>
-<script src="../stitch-interactions.js"></script><script>
-  const toast=(text)=>{const old=document.querySelector('.toast');old?.remove();const el=document.createElement('div');el.className='toast';el.textContent=text;document.body.append(el);setTimeout(()=>el.remove(),2400)};
-  document.querySelector('#create-job')?.addEventListener('click',()=>location.href='jobs.html');
-  document.querySelector('#review-first')?.addEventListener('click',()=>location.href='applications.html');
-  document.querySelector('#notification')?.addEventListener('click',()=>toast('ไม่มีการแจ้งเตือนใหม่'));
-  document.querySelector('.mobile-menu')?.addEventListener('click',()=>toast('เมนูพร้อมใช้งานบนหน้าจอขนาดเล็ก'));
-</script></body></html>
+<nav class="flex-1 space-y-2">
+<!-- Active: Dashboard -->
+<a class="flex items-center gap-3 px-4 py-3 text-on-primary-container bg-primary-container rounded-lg font-body-md text-body-md active:scale-95 transition-all duration-150" href="dashboard.html">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+                    แดชบอร์ด
+                </a>
+<!-- Inactive tabs -->
+<a class="flex items-center gap-3 px-4 py-3 text-secondary-fixed-dim hover:text-on-primary hover:bg-white/5 transition-all font-body-md text-body-md rounded-lg hover:translate-y-[-2px] hover:brightness-110 transition-transform duration-200" href="jobs.html">
+<span class="material-symbols-outlined">work</span>
+                    ตำแหน่งงาน
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary-fixed-dim hover:text-on-primary hover:bg-white/5 transition-all font-body-md text-body-md rounded-lg hover:translate-y-[-2px] hover:brightness-110 transition-transform duration-200" href="discovery.html">
+<span class="material-symbols-outlined">person_search</span>
+                    ค้นหาผู้สมัคร
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary-fixed-dim hover:text-on-primary hover:bg-white/5 transition-all font-body-md text-body-md rounded-lg hover:translate-y-[-2px] hover:brightness-110 transition-transform duration-200" href="screening.html">
+<span class="material-symbols-outlined">description</span>
+                    คัดกรองเรซูเม่
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary-fixed-dim hover:text-on-primary hover:bg-white/5 transition-all font-body-md text-body-md rounded-lg hover:translate-y-[-2px] hover:brightness-110 transition-transform duration-200" href="applications.html">
+<span class="material-symbols-outlined">group</span>
+                    ระบบติดตามผู้สมัคร
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary-fixed-dim hover:text-on-primary hover:bg-white/5 transition-all font-body-md text-body-md rounded-lg hover:translate-y-[-2px] hover:brightness-110 transition-transform duration-200" href="interviews.html">
+<span class="material-symbols-outlined">calendar_today</span>
+                    ตารางนัดสัมภาษณ์
+                </a>
+</nav>
+<div class="mt-auto space-y-2 pt-6 border-t border-white/10">
+<a class="flex items-center gap-3 px-4 py-3 text-secondary-fixed-dim hover:text-on-primary hover:bg-white/5 transition-all font-body-md text-body-md rounded-lg hover:translate-y-[-2px] hover:brightness-110 transition-transform duration-200" href="settings.html">
+<span class="material-symbols-outlined">settings</span>
+                    ตั้งค่า
+                </a>
+<a class="flex items-center gap-3 px-4 py-3 text-secondary-fixed-dim hover:text-on-primary hover:bg-white/5 transition-all font-body-md text-body-md rounded-lg hover:translate-y-[-2px] hover:brightness-110 transition-transform duration-200" href="../index.html?logged_out=1">
+<span class="material-symbols-outlined">logout</span>
+                    ออกจากระบบ
+                </a>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 xl:ml-[260px] min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="docked full-width top-0 sticky z-40 bg-surface dark:bg-background border-b border-surface-container-highest">
+<div class="flex justify-between items-center h-16 px-margin-desktop">
+<div class="flex items-center gap-8">
+<div class="font-headline-md text-headline-md text-on-surface font-black md:hidden">HR Tech</div>
+<nav class="hidden md:flex gap-6">
+<!-- Active: ภาพรวม (Dashboard context) -->
+<a class="text-primary font-bold border-b-2 border-primary pb-1 font-body-sm text-body-sm" href="dashboard.html">ภาพรวม</a>
+<a class="text-secondary hover:text-primary transition-colors font-body-sm text-body-sm hover:bg-surface-container-low transition-all px-2 py-1 rounded" href="reports.html">รายงาน</a>
+<a class="text-secondary hover:text-primary transition-colors font-body-sm text-body-sm hover:bg-surface-container-low transition-all px-2 py-1 rounded" href="help.html">ความช่วยเหลือ</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="bg-gradient-to-r from-electric-gradient-start to-electric-gradient-end text-on-primary px-4 py-2 rounded-lg font-body-sm text-body-sm hover:brightness-110 hover:-translate-y-[2px] transition-all shadow-md active:opacity-80">
+                        สร้างตำแหน่งงาน
+                    </button>
+<div class="flex items-center gap-2 text-secondary">
+<button class="p-2 hover:bg-surface-container-low rounded-full transition-all active:opacity-80">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 hover:bg-surface-container-low rounded-full transition-all active:opacity-80">
+<span class="material-symbols-outlined">help_outline</span>
+</button>
+</div>
+<img alt="User Avatar" class="w-8 h-8 rounded-full border border-outline-variant object-cover" data-alt="A professional corporate headshot of an HR executive in a modern office setting. High key lighting, clean background, sharp focus. The individual exudes confidence and modern professionalism." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0MuHGtwKdg0VwoJCxaaSgvmxYbUoAAl17xBdLNMhadQdi8cz_5CkzNG2ZM1cEptThKOh91RZ_ixdm-igDCg4Hp7yQlQmhECjAZuaX8pGx5EeQW6JiO050PyDwg4i3sm0LzPrfua3K6GsE5Ct-BNFxRRVOW57N_Cfb064rLmyGf0Rr4G6E_gZeHCosBEEOJr19-WeMCMqCbNR1eA2oldkVcbGTwiIjFzMNsyxKNwv7CLQ7GEaoai0DMA">
+</div>
+</div>
+</header>
+<!-- Dashboard Canvas -->
+<div class="p-margin-mobile md:p-gutter flex-1 space-y-6 max-w-7xl mx-auto w-full">
+<div class="flex justify-between items-end">
+<div>
+<h2 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface">ภาพรวมระบบ</h2>
+<p class="font-body-md text-body-md text-secondary mt-1">ข้อมูลสถานะประจำวันและตัวชี้วัดประสิทธิภาพ</p>
+</div>
+<div class="flex items-center gap-2">
+<span class="flex h-3 w-3">
+<span class="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-status-pulse opacity-75"></span>
+<span class="relative inline-flex rounded-full h-3 w-3 bg-status-pulse"></span>
+</span>
+<span class="font-data-mono text-data-mono text-secondary">Live Data Sync</span>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+<!-- Metric 1: Pending AI Review -->
+<div class="bg-surface-container-lowest border border-surface-variant rounded-xl p-6 hover-lift transition-all col-span-1 shadow-sm">
+<div class="flex justify-between items-start mb-4">
+<div class="p-3 bg-primary-fixed rounded-lg text-primary">
+<span class="material-symbols-outlined">smart_toy</span>
+</div>
+<span class="bg-error-container text-on-error-container font-label-caps text-label-caps px-2 py-1 rounded-full">ด่วน</span>
+</div>
+<h3 class="font-body-md text-body-md text-secondary mb-1">รอ AI ตรวจสอบ</h3>
+<div class="font-headline-md text-headline-md text-on-surface">142<span class="font-body-sm text-body-sm text-secondary ml-2">เรซูเม่</span></div>
+</div>
+<!-- Metric 2: Upcoming Interviews -->
+<div class="bg-surface-container-lowest border border-surface-variant rounded-xl p-6 hover-lift transition-all col-span-1 shadow-sm">
+<div class="flex justify-between items-start mb-4">
+<div class="p-3 bg-secondary-fixed rounded-lg text-on-secondary-fixed">
+<span class="material-symbols-outlined">event</span>
+</div>
+<span class="bg-surface-container-highest text-on-surface-variant font-label-caps text-label-caps px-2 py-1 rounded-full">วันนี้</span>
+</div>
+<h3 class="font-body-md text-body-md text-secondary mb-1">สัมภาษณ์ที่กำลังจะมาถึง</h3>
+<div class="font-headline-md text-headline-md text-on-surface">8<span class="font-body-sm text-body-sm text-secondary ml-2">คิว</span></div>
+</div>
+<!-- Failed Integrations Alert -->
+<div class="bg-error/5 border border-error/20 rounded-xl p-6 hover-lift transition-all col-span-1 md:col-span-2 lg:col-span-2 shadow-sm flex flex-col justify-center">
+<div class="flex items-center gap-4 mb-2">
+<span class="material-symbols-outlined text-error text-3xl">sync_problem</span>
+<div>
+<h3 class="font-body-lg text-body-lg text-error font-medium">การเชื่อมต่อล้มเหลว</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">พบปัญหาการซิงค์ข้อมูลกับระบบ Payroll ภายนอก</p>
+</div>
+</div>
+<button class="mt-4 self-start font-label-caps text-label-caps text-error border border-error px-4 py-2 rounded hover:bg-error hover:text-white transition-colors">
+                        ตรวจสอบทันที
+                    </button>
+</div>
+<!-- Pipeline Chart Area -->
+<div class="bg-surface-container-lowest border border-surface-variant rounded-xl p-6 hover-lift transition-all col-span-1 md:col-span-3 lg:col-span-4 shadow-sm min-h-[300px] flex flex-col">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-body-lg text-body-lg text-on-surface font-medium">ภาพรวมขั้นตอนการสรรหา (Pipeline)</h3>
+<button class="text-primary font-body-sm text-body-sm flex items-center gap-1 hover:underline">
+                            ดูรายงานเต็ม <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+<!-- Placeholder for Chart -->
+<div class="flex-1 bg-surface-container rounded-lg border border-dashed border-outline-variant flex items-center justify-center relative overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-tr from-surface-container-lowest/50 to-transparent"></div>
+<div class="text-secondary font-data-mono text-data-mono flex flex-col items-center">
+<span class="material-symbols-outlined text-4xl mb-2 opacity-50">bar_chart</span>
+                            [พื้นที่สำหรับกราฟ Pipeline]
+                        </div>
+</div>
+</div>
+</div>
+</div>
+</main>
+
+
+<script src="../stitch-interactions.js"></script></body></html>
