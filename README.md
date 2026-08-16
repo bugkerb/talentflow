@@ -63,3 +63,7 @@ Business logic coverage ถูก enforce ที่ 100% lines/branches/function
 ## Known limitations
 
 Vertical slice ปัจจุบันใช้ in-memory application repository สำหรับ UI prototype; Supabase repository adapter, authentication screens, AI Harness/provider adapters, discovery, resume screening และ interview scheduling ยังเป็นงานถัดไปของ V1 plan. ห้ามถือว่า foundation เสร็จ 100% จนกว่า task list และ acceptance evidence ทุกข้อจะถูกติ๊กครบ
+
+## Production grading handoff
+
+ดู [docs/production-readiness.md](docs/production-readiness.md) สำหรับหลักฐานที่ผ่านแล้วและ blocker ที่ยังไม่ควรนำเสนอเป็น production capability. `/api/health` ใช้ตรวจ readiness ของ Supabase configuration และคืน `503` เมื่อยังไม่ได้ตั้งค่า database client.
