@@ -2,7 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 :root { color-scheme: light; }
-body { margin: 0; background: #f7f8fb; color: #172033; font-family: Arial, sans-serif; }
+body { margin: 0; background: #f7f9fb; color: #191c1e; font-family: Inter, Arial, sans-serif; }
+button, a, input, select { transition: all 150ms ease; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid rgba(0, 98, 255, .35); outline-offset: 2px; }
 button, input { font: inherit; }
 label { display: grid; gap: 8px; margin-bottom: 14px; font-weight: 600; }
 input, select { border: 1px solid #cbd2e1; border-radius: 8px; padding: 10px 12px; background: white; color: #172033; }
