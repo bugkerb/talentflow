@@ -33,6 +33,7 @@
     else link.addEventListener("click", (event) => { event.preventDefault(); toast("เปิดฟังก์ชันนี้ในเวอร์ชันถัดไป"); });
   });
   document.querySelectorAll("button").forEach((button) => {
+    if (button.matches("[data-discovery-search]")) return;
     const label = button.textContent.trim();
     if (label.includes("สร้างตำแหน่งงาน")) button.addEventListener("click", () => modal("สร้างตำแหน่งงาน", '<label class="block text-sm font-bold">ชื่อตำแหน่ง<input required class="mt-2 w-full rounded-lg border border-slate-300 p-3" placeholder="เช่น Senior Developer"></label><label class="mt-4 block text-sm font-bold">รายละเอียดงาน<textarea required class="mt-2 h-28 w-full rounded-lg border border-slate-300 p-3"></textarea></label>', '<button data-close class="rounded-lg border border-slate-300 px-4 py-2">ยกเลิก</button><button data-save class="rounded-lg bg-gradient-to-r from-[#0062FF] to-[#38BDF8] px-4 py-2 font-bold text-white">บันทึกฉบับร่าง</button>'));
     if (label.includes("ค้นหา") || label.includes("Discovery")) button.addEventListener("click", () => modal("ค้นหาผู้สมัคร", '<div class="rounded-lg bg-blue-50 p-4">ระบบจะแสดงผลลัพธ์พร้อมหลักฐานให้ HR ตรวจสอบก่อนเพิ่มเข้าสู่ Pipeline</div>', '<button data-close class="rounded-lg border border-slate-300 px-4 py-2">ยกเลิก</button><button data-provider-fail class="rounded-lg bg-gradient-to-r from-[#0062FF] to-[#38BDF8] px-4 py-2 font-bold text-white">เริ่มค้นหา</button>'));
@@ -87,6 +88,19 @@
     card.addEventListener("click", open);
     card.addEventListener("keydown", (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); open(); } });
   });
+  const discoveryJob = document.querySelector("#discovery-job");
+  const discoverySearch = document.querySelector("[data-discovery-search]");
+  if (discoveryJob && discoverySearch) {
+    discoveryJob.addEventListener("change", () => {
+      discoverySearch.disabled = !discoveryJob.value;
+      discoverySearch.setAttribute("aria-disabled", String(!discoveryJob.value));
+      if (discoveryJob.value) toast(`เลือกตำแหน่ง ${discoveryJob.options[discoveryJob.selectedIndex].text} แล้ว`);
+    });
+    discoverySearch.addEventListener("click", () => {
+      if (!discoveryJob.value) { toast("กรุณาเลือกตำแหน่งงานก่อนเริ่มค้นหา"); return; }
+      modal("เริ่มค้นหาผู้สมัคร", `<div class="rounded-lg bg-blue-50 p-4 text-blue-900">ระบบจะค้นหาผู้สมัครสำหรับตำแหน่ง <strong>${discoveryJob.options[discoveryJob.selectedIndex].text}</strong> และแสดงหลักฐานให้ HR ตรวจสอบ</div>`, '<button data-close class="rounded-lg border border-slate-300 px-4 py-2">ยกเลิก</button><button data-provider-fail class="rounded-lg bg-gradient-to-r from-[#0062FF] to-[#38BDF8] px-4 py-2 font-bold text-white">ยืนยันการค้นหา</button>');
+    });
+  }
   if (location.pathname.endsWith("applications.html")) {
     const toolbar = document.querySelector("main");
     const stale = document.createElement("button"); stale.textContent = "จำลองข้อมูลถูกแก้ไขแล้ว"; stale.className = "rounded-lg border border-red-300 px-3 py-2 text-sm text-red-700"; toolbar?.prepend(stale);

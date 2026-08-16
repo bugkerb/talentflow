@@ -298,14 +298,22 @@
 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8">
 <div>
 <h2 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-surface mb-2">ค้นหาผู้สมัคร</h2>
-<p class="text-secondary">ค้นหาและประเมินผู้สมัครสำหรับตำแหน่ง <strong>Senior Frontend Engineer</strong></p>
+<p class="text-secondary">เลือกตำแหน่งงานก่อนเริ่มค้นหาและประเมินผู้สมัคร</p>
+<label class="mt-4 block max-w-xl font-label-caps text-label-caps text-on-surface-variant">ตำแหน่งงาน
+<select id="discovery-job" class="mt-2 w-full rounded-lg border border-outline-variant bg-white px-4 py-2.5 font-body-sm text-body-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary">
+<option value="" selected>เลือกตำแหน่งงานที่เปิดรับ</option>
+<option value="senior-frontend">Senior Frontend Engineer</option>
+<option value="product-designer">Product Designer</option>
+<option value="tech-lead">Tech Lead</option>
+</select>
+</label>
 </div>
 <div class="flex gap-3">
 <button class="px-4 py-2 border border-outline-variant rounded-lg bg-white text-on-surface hover:bg-surface-container-low transition-colors font-medium text-sm flex items-center gap-2">
 <span class="material-symbols-outlined text-sm">tune</span>
                         ตัวกรอง
                     </button>
-<button class="px-4 py-2 bg-gradient-primary text-white rounded-lg hover-lift font-medium text-sm flex items-center gap-2"><span class="material-symbols-outlined text-sm">refresh</span> เริ่มค้นหา</button>
+<button data-discovery-search disabled class="px-4 py-2 bg-gradient-primary text-white rounded-lg hover-lift font-medium text-sm flex items-center gap-2 disabled:cursor-not-allowed disabled:opacity-50"><span class="material-symbols-outlined text-sm">refresh</span> เริ่มค้นหา</button>
 </div>
 </div>
 <!-- Discovery Results - Bento Grid Layout -->
