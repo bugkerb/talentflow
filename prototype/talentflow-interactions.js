@@ -82,6 +82,11 @@
     if (select.value === "ปฏิเสธ") modal("เหตุผลที่ปฏิเสธ", '<textarea required class="h-28 w-full rounded-lg border border-slate-300 p-3" placeholder="ระบุเหตุผล..."></textarea>', '<button data-close class="rounded-lg border border-slate-300 px-4 py-2">ยกเลิก</button><button data-close class="rounded-lg bg-red-600 px-4 py-2 text-white">บันทึกเหตุผล</button>');
     else if (select.value && select.value !== "เปลี่ยนสถานะ") modal("ย้ายขั้นตอน", '<div class="rounded-lg bg-green-50 p-4 text-green-800">ตรวจสอบ transition แล้ว พร้อมบันทึกประวัติการเปลี่ยนขั้นตอน</div>');
   }));
+  document.querySelectorAll("[data-job-card]").forEach((card) => {
+    const open = () => modal("รายละเอียดตำแหน่งงาน", `<div class="space-y-2"><p><strong>ตำแหน่ง:</strong> ${card.dataset.jobCard}</p><p>ดูผู้สมัคร แก้ไขประกาศ หรือเปลี่ยนสถานะงานได้จากหน้านี้</p></div>`, '<button data-close class="rounded-lg border border-slate-300 px-4 py-2">ปิด</button><button data-close class="rounded-lg bg-gradient-to-r from-[#0062FF] to-[#38BDF8] px-4 py-2 font-bold text-white">ดูรายละเอียด</button>');
+    card.addEventListener("click", open);
+    card.addEventListener("keydown", (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); open(); } });
+  });
   if (location.pathname.endsWith("applications.html")) {
     const toolbar = document.querySelector("main");
     const stale = document.createElement("button"); stale.textContent = "จำลองข้อมูลถูกแก้ไขแล้ว"; stale.className = "rounded-lg border border-red-300 px-3 py-2 text-sm text-red-700"; toolbar?.prepend(stale);
