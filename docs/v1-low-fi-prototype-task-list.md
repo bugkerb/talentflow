@@ -7,6 +7,7 @@ Updated: 2026-08-15
 - `[x]` Implemented and locally checked
 - `[ ]` Pending or not yet evidenced
 - Overall status: **Verified — UX-001..UX-017 passed on Stitch baseline**
+- Reports is intentionally excluded from the v1 product surface pending a useful decision-support design.
 
 ## Design and localization update
 
