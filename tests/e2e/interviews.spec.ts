@@ -6,8 +6,9 @@ test("HR can inspect a conflict and reschedule the interview view", async ({ pag
   await page.goto("/interviews");
   await expect(page.getByRole("heading", { name: "พบตารางซ้อนทับกัน" })).toBeVisible();
   await page.getByRole("button", { name: "เลื่อนเวลา" }).click();
-  await expect(page.getByLabel("เวลา")).toBeFocused();
-  await page.getByLabel("เวลา").fill("12:00");
+  const timeInput = page.getByRole("textbox", { name: "เวลา" });
+  await expect(timeInput).toBeFocused();
+  await timeInput.fill("12:00");
   await page.getByRole("button", { name: "เลื่อนนัดหมาย" }).click();
   await expect(page.getByRole("status")).toContainText("เลื่อนนัดหมายแล้ว");
   await page.getByRole("button", { name: "ดูรายละเอียด" }).click();
