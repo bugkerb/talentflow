@@ -28,16 +28,16 @@
 
 | Gate | Acceptance criteria | Verification | Status |
 |---|---|---|---|
-| G-01 | Clean install สำเร็จ | `npm ci` exit 0 | NOT RUN |
+| G-01 | Clean install สำเร็จ | `npm ci` exit 0 | PASS (GitHub CI run 32423393794) |
 | G-02 | Static analysis ผ่าน | `npm run lint` และ `npm run typecheck` exit 0 | PASS (current worktree) |
 | G-03 | Business logic coverage 100% | `npm run test:coverage` แสดง 100% statements/branches/functions/lines | PASS (26 tests, 100% all metrics) |
-| G-04 | Database behavior ผ่าน | `npm run test:integration` exit 0 จาก isolated Supabase | NOT RUN |
-| G-05 | Critical HR journey ผ่าน | `npm run test:e2e` exit 0 โดยไม่มี required test ถูก skip | BLOCKED (local Supabase CLI telemetry permission; Cloud mode requires reachable test project) |
+| G-04 | Database behavior ผ่าน | `npm run test:integration` exit 0 จาก isolated Supabase | PASS (GitHub CI run 32423393794) |
+| G-05 | Critical HR journey ผ่าน | `npm run test:e2e` exit 0 โดยไม่มี required test ถูก skip | PASS (GitHub CI run 32423393794; auth + dashboard smoke) |
 | G-06 | Production build ผ่าน | `npm run build` exit 0 | PASS (current worktree) |
-| G-07 | OWASP Top 10 gate ผ่าน | Security tests/audit ของ #9 ไม่มี unresolved Critical/High | NOT RUN |
+| G-07 | OWASP Top 10 gate ผ่าน | Security tests/audit ของ #9 ไม่มี unresolved Critical/High | NOT RUN (security smoke passed; full OWASP/dependency/deployment review remains) |
 | G-08 | Idempotency/race gates ผ่าน | DB concurrency assertions ของ #4, #7, #8 ผ่าน | NOT RUN |
 | G-09 | AI release gate ผ่าน | Deterministic Harness ของ #6 ผ่านทุก fixture | NOT RUN |
-| G-10 | Deployment recovery ผ่าน | Deploy, rollback และ restore evidence ของ #12 ผ่าน | NOT RUN (no authorized target host) |
+| G-10 | Deployment recovery ผ่าน | Deploy, rollback และ restore evidence ของ #12 ผ่าน | BLOCKED (no authorized target host/deploy credentials) |
 
 ## GitHub issue delivery status
 
@@ -69,28 +69,28 @@
 - [ ] A2-07 RED→GREEN: wrong/inactive role ได้ 403 และทำ mutation ไม่ได้
 - [x] A2-08 เพิ่ม server authorization helper ที่ fail closed และคืน stable error code/request ID
 - [x] A2-09 เพิ่ม middleware optimistic route guard โดยไม่ใช้แทน service authorization
-- [ ] A2-10 เปลี่ยน broad RLS write policies เป็น role-scoped policies ผ่าน migrationใหม่ (implementation มีแล้ว; รอ integration PASS)
-- [ ] A2-11 Integration: allowed/denied read/write ต่อ protected table — BLOCKED: Cloud migration/DB credentials and network health are not available in this environment; migration remains unapplied/unverified.
+- [x] A2-10 เปลี่ยน broad RLS write policies เป็น role-scoped policies ผ่าน migrationใหม่ (migration 0002; isolated CI ผ่าน)
+- [x] A2-11 Integration: allowed/denied read/write ต่อ protected table — isolated Supabase CI ผ่าน; Cloud test project ยังรอ DB connection เพื่อ apply/verify
 - [ ] A2-12 Security: session cookie, CSRF/origin, cache, redirect และ secret-boundary assertions
-- [ ] A2-13 E2E: unauthenticated redirect → login → protected workspace → logout — NOT RUN: runner now supports explicit Cloud mode, but Cloud health check/test credentials are unavailable.
-- [ ] A2-14 รัน global gates G-02 ถึง G-06 — G-02/G-03/G-06 PASS; G-04/G-05 blocked/not run
+- [x] A2-13 E2E: unauthenticated redirect → login → protected workspace → logout — GitHub CI run 32423393794 ผ่าน
+- [x] A2-14 รัน global gates G-02 ถึง G-06 — G-02 ถึง G-06 ผ่านใน GitHub CI run 32423393794
 - [ ] A2-15 แนบ verification evidence ใน issue #2 และปิดได้เมื่อทุก gate PASS
 
 ### Acceptance matrix
 
 | ID | Expected deterministic result | Status | Evidence |
 |---|---|---|---|
-| AC2-01 | Request protected page โดยไม่มี session ถูก redirect ไป `/login` และ preserve เฉพาะ safe relative return path | NOT RUN | — |
-| AC2-02 | Request protected API โดยไม่มี session ได้ `401 UNAUTHENTICATED` พร้อม request ID และ `Cache-Control: no-store` | NOT RUN | — |
-| AC2-03 | HR credentials ที่ถูกต้องสร้าง session และเปิด protected workspace ได้ | NOT RUN | — |
+| AC2-01 | Request protected page โดยไม่มี session ถูก redirect ไป `/login` และ preserve เฉพาะ safe relative return path | PASS | GitHub CI run 32423393794, auth.spec.ts |
+| AC2-02 | Request protected API โดยไม่มี session ได้ `401 UNAUTHENTICATED` พร้อม request ID และ `Cache-Control: no-store` | PASS | GitHub CI run 32423393794, auth.spec.ts |
+| AC2-03 | HR credentials ที่ถูกต้องสร้าง session และเปิด protected workspace ได้ | PASS | GitHub CI run 32423393794, auth.spec.ts |
 | AC2-04 | Invalid credentials แสดงข้อความทั่วไป ไม่ leak provider/internal details | NOT RUN | — |
-| AC2-05 | Authenticated profile ที่ role ไม่ใช่ active HR ได้ `403 FORBIDDEN` | IN PROGRESS | RED exit 1 → GREEN exit 0, 7 unit tests; รอ server/RLS integration |
+| AC2-05 | Authenticated profile ที่ role ไม่ใช่ active HR ได้ `403 FORBIDDEN` | PASS | 12 authorization unit tests + isolated CI |
 | AC2-06 | ทุก protected mutation เรียก server authorization boundary; UI-only guard ไม่ทำให้ test ผ่าน | IN PROGRESS | `requireActiveHr` และ `/api/auth/session` เพิ่มแล้ว; ยังไม่มี business mutation route ใน #2 |
-| AC2-07 | RLS allowed test ผ่านสำหรับ active HR และ denied test ผ่านสำหรับ anon/non-HR | NOT RUN | — |
+| AC2-07 | RLS allowed test ผ่านสำหรับ active HR และ denied test ผ่านสำหรับ anon/non-HR | PASS | GitHub CI run 32423393794, supabase/verify.sql |
 | AC2-08 | Session response ไม่ถูก shared-cache และ secret/service-role key ไม่อยู่ใน client bundle/log | NOT RUN | — |
 | AC2-09 | Cookie-authenticated mutation ปฏิเสธ cross-origin request หรือใช้ framework CSRF protection ที่ทดสอบได้ | NOT RUN | — |
 | AC2-10 | Auth/session/authorization business logic coverage เท่ากับ 100% ทุก metric | PASS | `npm run test:coverage` exit 0: 26 tests, 100% statements/branches/functions/lines |
-| AC2-11 | Lint, typecheck, integration, E2E และ production build exit 0 | IN PROGRESS | lint/typecheck/coverage/build PASS; integration/E2E NOT RUN; local runner fail-closed and explicit Cloud mode added |
+| AC2-11 | Lint, typecheck, integration, E2E และ production build exit 0 | PASS | GitHub CI run 32423393794; all commands exit 0 |
 
 ## Evidence rule
 

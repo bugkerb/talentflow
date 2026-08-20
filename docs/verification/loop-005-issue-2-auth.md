@@ -16,8 +16,8 @@ GitHub issue [#2](https://github.com/bugkerb/talentflow/issues/2): Supabase Auth
 | Static | `npm run typecheck` | PASS | exit 0 หลังแก้ cookie callback types |
 | Coverage | `npm run test:coverage` | PASS | 26 tests; 100% statements/branches/functions/lines |
 | Build | `npm run build` | PASS | exit 0; `/login`, `/api/auth/session` และ middleware compile สำเร็จ |
-| Database | `npm run test:integration` | BLOCKED | Docker/Supabase local ไม่ตอบ; ห้ามถือว่า RLS PASS |
-| E2E | `npm run test:e2e` | BLOCKED | runner fail-closed; local Supabase CLI exits with EPERM writing `/Users/bugkerb/.supabase/telemetry.json`, then reports local stack unavailable; Cloud mode exists but no verified Cloud health/credentials |
+| Database | `npm run test:integration` | PASS | GitHub CI run `32423393794`; isolated Supabase migration/RLS assertions exit 0 |
+| E2E | `npm run test:e2e` | PASS | GitHub CI run `32423393794`; auth and foundation journeys exit 0, required tests not skipped |
 
 ## Security evidence
 
@@ -25,6 +25,7 @@ GitHub issue [#2](https://github.com/bugkerb/talentflow/issues/2): Supabase Auth
 - Worktree ปัจจุบัน: migration `0002_auth_role_security.sql` เปลี่ยนเป็น active HR/admin predicate และเพิ่ม viewer/inactive deny assertions
 - สถานะ migration: IMPLEMENTED, NOT VERIFIED เนื่องจาก local Supabase ยังไม่พร้อม
 - Cloud test mode: `E2E_SUPABASE_MODE=cloud` ต้องระบุ `E2E_SUPABASE_URL` และ `E2E_SUPABASE_ANON_KEY`; runner ตรวจ HTTPS Supabase URL และไม่ทำ reset schema
+- Cloud test project remains a separate gate: schema apply/verification requires `SUPABASE_DB_URL`; no hosted migration claim is made by this local-CI evidence.
 - Middleware เป็น optimistic page guard เท่านั้น; `/api/auth/session` ใช้ server authorization helper แยกต่างหาก
 - Return path ยอมรับเฉพาะ safe relative path และ reject absolute/protocol-relative/backslash path
 
