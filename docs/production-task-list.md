@@ -30,13 +30,13 @@
 |---|---|---|---|
 | G-01 | Clean install สำเร็จ | `npm ci` exit 0 | PASS (GitHub CI run 32423393794) |
 | G-02 | Static analysis ผ่าน | `npm run lint` และ `npm run typecheck` exit 0 | PASS (current worktree) |
-| G-03 | Business logic coverage 100% | `npm run test:coverage` แสดง 100% statements/branches/functions/lines | PASS (26 tests, 100% all metrics) |
+| G-03 | Business logic coverage 100% | `npm run test:coverage` แสดง 100% statements/branches/functions/lines | PASS (43 tests, 100% all metrics; current worktree) |
 | G-04 | Database behavior ผ่าน | `npm run test:integration` exit 0 จาก isolated Supabase | PASS (GitHub CI run 32423393794) |
 | G-05 | Critical HR journey ผ่าน | `npm run test:e2e` exit 0 โดยไม่มี required test ถูก skip | PASS (GitHub CI run 32423393794; auth + dashboard smoke) |
 | G-06 | Production build ผ่าน | `npm run build` exit 0 | PASS (current worktree) |
 | G-07 | OWASP Top 10 gate ผ่าน | Security tests/audit ของ #9 ไม่มี unresolved Critical/High | PARTIAL PASS (dependency audit + secret/security smoke passed in CI `32425278483`; runtime OWASP controls remain) |
-| G-08 | Idempotency/race gates ผ่าน | DB concurrency assertions ของ #4, #7, #8 ผ่าน | NOT RUN |
-| G-09 | AI release gate ผ่าน | Deterministic Harness ของ #6 ผ่านทุก fixture | NOT RUN (AI provider slice not implemented) |
+| G-08 | Idempotency/race gates ผ่าน | DB concurrency assertions ของ #4, #7, #8 ผ่าน | PARTIAL PASS (#7 atomic transition implemented and unit-covered; Cloud DB and #4/#8 assertions pending) |
+| G-09 | AI release gate ผ่าน | Deterministic Harness ของ #6 ผ่านทุก fixture | PASS (provider-agnostic Harness: 9 deterministic tests; 100% business-logic coverage) |
 | G-10 | Deployment recovery ผ่าน | Deploy, rollback และ restore evidence ของ #12 ผ่าน | BLOCKED (no authorized target host/deploy credentials) |
 
 ## GitHub issue delivery status
@@ -48,7 +48,7 @@
 | [#4](https://github.com/bugkerb/talentflow/issues/4) | Manual/referral candidates and applications | IN PROGRESS: authenticated persistence actions and active-email uniqueness added; UI/idempotency/readback E2E pending |
 | [#5](https://github.com/bugkerb/talentflow/issues/5) | Private resume Storage | IN PROGRESS: private bucket/policies and strict upload boundary added; malware scanner and runtime integration pending |
 | [#6](https://github.com/bugkerb/talentflow/issues/6) | Anthropic/OpenRouter + AI Harness | IN PROGRESS: provider-agnostic core/Harness implemented; persistence, runtime screening route, and release fixtures integration pending |
-| [#7](https://github.com/bugkerb/talentflow/issues/7) | Applicant tracker concurrency | BLOCKED by #2, #3, #4 |
+| [#7](https://github.com/bugkerb/talentflow/issues/7) | Applicant tracker concurrency | IN PROGRESS: atomic transition RPC, HR/actor guards, version lock, and transactional pipeline event added; Cloud verification pending |
 | [#8](https://github.com/bugkerb/talentflow/issues/8) | Interview scheduling race/idempotency | BLOCKED by #2, #7 |
 | [#9](https://github.com/bugkerb/talentflow/issues/9) | OWASP production verification | IN PROGRESS: threat model and CI dependency gate added; runtime abuse/Storage/AI/provider controls pending |
 | [#10](https://github.com/bugkerb/talentflow/issues/10) | UI maintainability/accessibility | IN PROGRESS (3 parallel slices) |
