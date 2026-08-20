@@ -1,6 +1,8 @@
 import { test, expect } from "@playwright/test";
+import { loginAsDemoHr } from "./support/auth";
 
 test("HR can inspect a conflict and reschedule the interview view", async ({ page }) => {
+  await loginAsDemoHr(page);
   await page.goto("/interviews");
   await expect(page.getByRole("heading", { name: "พบตารางซ้อนทับกัน" })).toBeVisible();
   await page.getByRole("button", { name: "เลื่อนเวลา" }).click();
