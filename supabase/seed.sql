@@ -1,7 +1,7 @@
 -- Repeatable demo seed. Business IDs are fixed so rerunning this file is idempotent.
 -- In hosted Supabase, create the auth user first; profile upsert then remains deterministic.
-insert into auth.users (id, aud, role, email, encrypted_password, email_confirmed_at, created_at, updated_at)
-values ('00000000-0000-0000-0000-000000000001', 'authenticated', 'authenticated', 'demo.hr@talentflow.local', crypt('demo-password-not-for-production', gen_salt('bf')), now(), now(), now())
+insert into auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, confirmation_token, created_at, updated_at)
+values ('00000000-0000-0000-0000-000000000000', '00000000-0000-0000-0000-000000000001', 'authenticated', 'authenticated', 'demo.hr@talentflow.local', crypt('demo-password-not-for-production', gen_salt('bf')), now(), '{"provider":"email","providers":["email"]}'::jsonb, '{}'::jsonb, '', now(), now())
 on conflict (id) do nothing;
 insert into auth.identities (provider_id, user_id, identity_data, provider)
 values ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', '{"sub":"00000000-0000-0000-0000-000000000001","email":"demo.hr@talentflow.local"}'::jsonb, 'email')
