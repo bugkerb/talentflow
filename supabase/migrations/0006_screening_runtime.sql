@@ -2,6 +2,8 @@ alter table public.profiles
   add column if not exists is_active boolean not null default true;
 
 drop policy if exists screenings_authenticated_read on public.screenings;
+drop policy if exists screenings_active_hr_read on public.screenings;
+drop policy if exists screenings_authenticated_insert on public.screenings;
 
 create policy screenings_active_hr_read
 on public.screenings
