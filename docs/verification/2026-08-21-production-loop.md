@@ -23,5 +23,4 @@ Evidence is recorded from the current worktree/branch, not inferred from histori
 
 ## Current commit
 
-`44f2b7f test: make cloud verification repeatable`
-
+`24ad35e feat: add clickable interview scheduling flow`
