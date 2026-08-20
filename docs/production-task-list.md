@@ -46,7 +46,7 @@
 | [#2](https://github.com/bugkerb/talentflow/issues/2) | Auth/session/role authorization/RLS | IN PROGRESS |
 | [#3](https://github.com/bugkerb/talentflow/issues/3) | Supabase job lifecycle | IN PROGRESS: draft create/list persistence implemented; edit/publish/close/version conflict pending |
 | [#4](https://github.com/bugkerb/talentflow/issues/4) | Manual/referral candidates and applications | IN PROGRESS: authenticated persistence actions and active-email uniqueness added; UI/idempotency/readback E2E pending |
-| [#5](https://github.com/bugkerb/talentflow/issues/5) | Private resume Storage | BLOCKED by #2, #4 |
+| [#5](https://github.com/bugkerb/talentflow/issues/5) | Private resume Storage | IN PROGRESS: private bucket/policies and strict upload boundary added; malware scanner and runtime integration pending |
 | [#6](https://github.com/bugkerb/talentflow/issues/6) | Anthropic/OpenRouter + AI Harness | BLOCKED by #3, #5 |
 | [#7](https://github.com/bugkerb/talentflow/issues/7) | Applicant tracker concurrency | BLOCKED by #2, #3, #4 |
 | [#8](https://github.com/bugkerb/talentflow/issues/8) | Interview scheduling race/idempotency | BLOCKED by #2, #7 |
