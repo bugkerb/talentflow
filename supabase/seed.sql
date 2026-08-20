@@ -3,6 +3,9 @@
 insert into auth.users (id, aud, role, email, encrypted_password, email_confirmed_at, created_at, updated_at)
 values ('00000000-0000-0000-0000-000000000001', 'authenticated', 'authenticated', 'demo.hr@talentflow.local', crypt('demo-password-not-for-production', gen_salt('bf')), now(), now(), now())
 on conflict (id) do nothing;
+insert into auth.identities (provider_id, user_id, identity_data, provider)
+values ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0000-000000000001', '{"sub":"00000000-0000-0000-0000-000000000001","email":"demo.hr@talentflow.local"}'::jsonb, 'email')
+on conflict (provider_id, provider) do nothing;
 insert into public.profiles (id, full_name, role) values ('00000000-0000-0000-0000-000000000001', 'Demo HR', 'hr') on conflict (id) do update set full_name = excluded.full_name, role = excluded.role, updated_at = now();
 insert into public.jobs (id, title, description, criteria, employment_type, status, created_by) values ('00000000-0000-0000-0000-000000000010', 'Tech Lead / Senior Developer', 'นำทีมพัฒนาระบบสรรหา', '{"required_skills":["TypeScript","PostgreSQL"]}', 'full_time', 'open', '00000000-0000-0000-0000-000000000001') on conflict (id) do nothing;
 insert into public.candidates (id, full_name, email, source, referrer_name, consent_status, created_by, created_by_type) values ('00000000-0000-0000-0000-000000000020', 'Narin Chaiyapruk', 'narin@example.com', 'referral', 'ทีม Engineering', 'pending', '00000000-0000-0000-0000-000000000001', 'user') on conflict (id) do nothing;
