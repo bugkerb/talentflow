@@ -109,6 +109,7 @@ revoke all privileges on table
 from public, anon, authenticated;
 
 grant select on table public.profiles to authenticated;
+grant all on table public.profiles to service_role;
 grant select, insert, update, delete on table
   public.jobs,
   public.candidates,
@@ -116,6 +117,17 @@ grant select, insert, update, delete on table
   public.interviews,
   public.interview_participants
 to authenticated;
+grant all on table
+  public.jobs,
+  public.candidates,
+  public.applications,
+  public.resumes,
+  public.screenings,
+  public.interviews,
+  public.interview_participants,
+  public.pipeline_events,
+  public.idempotency_keys
+to service_role;
 grant select on table
   public.resumes,
   public.screenings,
