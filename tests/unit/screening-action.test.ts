@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AppError } from "@/server/errors";
 
+vi.mock("server-only", () => ({}));
+
 const auth = vi.hoisted(() => ({ requireActiveHr: vi.fn() }));
 const repository = vi.hoisted(() => ({ insert: vi.fn(async (record: unknown) => record) }));
 
@@ -23,14 +25,14 @@ describe("runScreening server action", () => {
   it("requires the authenticated HR boundary and persists a completed result", async () => {
     const response = await runScreening(request);
     expect(auth.requireActiveHr).toHaveBeenCalledOnce();
-    expect(response.data?.screening.status).toBe("completed");
+    expect("data" in response && response.data.screening.status).toBe("completed");
     expect(repository.insert).toHaveBeenCalledOnce();
   });
 
   it("returns a stable unauthorized error without provider details", async () => {
     auth.requireActiveHr.mockRejectedValueOnce(new AppError("UNAUTHORIZED", "กรุณาเข้าสู่ระบบ", 401));
     const response = await runScreening(request);
-    expect(response.error).toMatchObject({ code: "UNAUTHORIZED", message: "กรุณาเข้าสู่ระบบ" });
-    expect(response.error?.message).not.toContain("api");
+    expect("error" in response && response.error).toMatchObject({ code: "UNAUTHORIZED", message: "กรุณาเข้าสู่ระบบ" });
+    expect("error" in response && response.error?.message).not.toContain("api");
   });
 });
