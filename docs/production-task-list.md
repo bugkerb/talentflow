@@ -47,7 +47,7 @@
 | [#3](https://github.com/bugkerb/talentflow/issues/3) | Supabase job lifecycle | IN PROGRESS: draft create/list persistence implemented; edit/publish/close/version conflict pending |
 | [#4](https://github.com/bugkerb/talentflow/issues/4) | Manual/referral candidates and applications | IN PROGRESS: authenticated persistence actions and active-email uniqueness added; UI/idempotency/readback E2E pending |
 | [#5](https://github.com/bugkerb/talentflow/issues/5) | Private resume Storage | IN PROGRESS: private bucket/policies and strict upload boundary added; malware scanner and runtime integration pending |
-| [#6](https://github.com/bugkerb/talentflow/issues/6) | Anthropic/OpenRouter + AI Harness | BLOCKED by #3, #5 |
+| [#6](https://github.com/bugkerb/talentflow/issues/6) | Anthropic/OpenRouter + AI Harness | IN PROGRESS: provider-agnostic core/Harness implemented; persistence, runtime screening route, and release fixtures integration pending |
 | [#7](https://github.com/bugkerb/talentflow/issues/7) | Applicant tracker concurrency | BLOCKED by #2, #3, #4 |
 | [#8](https://github.com/bugkerb/talentflow/issues/8) | Interview scheduling race/idempotency | BLOCKED by #2, #7 |
 | [#9](https://github.com/bugkerb/talentflow/issues/9) | OWASP production verification | IN PROGRESS: threat model and CI dependency gate added; runtime abuse/Storage/AI/provider controls pending |

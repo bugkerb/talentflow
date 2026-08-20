@@ -21,7 +21,7 @@
 - [ ] Replace remaining in-memory UI repositories with Supabase-backed repositories and authenticated server routes (jobs draft create/list slice implemented)
 - [ ] Add Supabase Auth login/session middleware and role authorization tests
 - [ ] Implement the four assignment modules end-to-end: discovery, resume screening, tracker persistence, interview scheduler
-- [ ] Add AI provider interface, Anthropic/OpenRouter adapters, prompt versioning, strict output schema and deterministic Harness fixtures
+- [x] Add AI provider interface, Anthropic/OpenRouter adapters, prompt versioning, strict output schema and deterministic Harness fixtures — 9 AI unit tests and 100% business-logic coverage
 - [ ] Add private Storage upload/signed URL flow with file type, size and malware scanning policy
 - [ ] Add real database concurrency tests: same-version update, interview overlap, idempotency side effect transaction
 - [ ] Configure deployment secrets, migration job, health check and rollback procedure in the target host
