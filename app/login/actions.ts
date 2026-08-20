@@ -3,7 +3,6 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { AuthorizationService } from "@/application/authorization-service";
-import { requireActiveHr } from "@/server/auth";
 import { createSupabaseServerClient } from "@/server/supabase-server";
 
 export type LoginState = { error: string | null };
@@ -24,7 +23,7 @@ export async function loginAction(_state: LoginState, formData: FormData): Promi
   if (!parsed.success) return { error: "อีเมลหรือรหัสผ่านไม่ถูกต้อง" };
 
   const supabase = await createSupabaseServerClient();
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabase.auth.signInWithPassword({
     email: parsed.data.email,
     password: parsed.data.password
   });
@@ -32,7 +31,8 @@ export async function loginAction(_state: LoginState, formData: FormData): Promi
   if (error) return { error: "อีเมลหรือรหัสผ่านไม่ถูกต้อง" };
 
   try {
-    await requireActiveHr();
+    const { data: profile } = await supabase.from("profiles").select("id, role, is_active").eq("id", data.user.id).maybeSingle();
+    new AuthorizationService().requireActiveHr(data.user, profile && { id: profile.id, role: profile.role, isActive: profile.is_active });
   } catch {
     await supabase.auth.signOut();
     return { error: "บัญชีนี้ไม่มีสิทธิ์เข้าใช้งาน TalentFlow" };
