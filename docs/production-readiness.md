@@ -10,15 +10,15 @@
 - [x] Server-only Supabase client boundary; browser ไม่ได้รับ provider/service-role secret (static inspection)
 - [x] `/api/health` readiness endpoint: no-store, request ID propagation, safe degraded response
 - [x] Static checks: lint, typecheck, 26 unit tests with 100% business-logic coverage, and production build
-- [ ] Isolated Supabase migration/seed reset จากฐานข้อมูลว่าง — NOT VERIFIED in current environment
-- [ ] RLS allow/deny assertion และ immutable pipeline event trigger — migration implemented, Cloud/local runtime NOT VERIFIED
-- [ ] Idempotency replay/hash-conflict behavior และ deterministic E2E smoke — unit coverage exists, E2E NOT RUN
+- [x] Isolated Supabase migration/seed reset จากฐานข้อมูลว่าง — GitHub CI run `32423393794` verified auth/RLS integration
+- [x] RLS allow/deny assertion และ immutable pipeline event trigger — GitHub CI run `32423393794` passed
+- [x] Idempotency replay/hash-conflict behavior และ deterministic E2E smoke — CI unit/E2E gates passed; full feature journeys remain open
 - [ ] Security response headers: HSTS, frame denial, nosniff, referrer policy, permissions policy — inspect/verify runtime before PASS
-- [ ] CI workflow: clean install, static checks, coverage, Supabase integration, build, Playwright, secret scan — CI not executed in this environment
+- [x] CI workflow: clean install, static checks, coverage, Supabase integration, build, Playwright, secret scan — GitHub CI run `32423393794` passed; dependency audit gate added afterward and awaits new run
 
 ## Blocker ก่อนเรียก production-ready
 
-- [ ] Replace in-memory UI repository with Supabase-backed repositories and authenticated server routes
+- [ ] Replace remaining in-memory UI repositories with Supabase-backed repositories and authenticated server routes (jobs draft create/list slice implemented)
 - [ ] Add Supabase Auth login/session middleware and role authorization tests
 - [ ] Implement the four assignment modules end-to-end: discovery, resume screening, tracker persistence, interview scheduler
 - [ ] Add AI provider interface, Anthropic/OpenRouter adapters, prompt versioning, strict output schema and deterministic Harness fixtures

@@ -44,13 +44,13 @@
 | Issue | Scope | Status |
 |---|---|---|
 | [#2](https://github.com/bugkerb/talentflow/issues/2) | Auth/session/role authorization/RLS | IN PROGRESS |
-| [#3](https://github.com/bugkerb/talentflow/issues/3) | Supabase job lifecycle | BLOCKED by #2 |
+| [#3](https://github.com/bugkerb/talentflow/issues/3) | Supabase job lifecycle | IN PROGRESS: draft create/list persistence implemented; edit/publish/close/version conflict pending |
 | [#4](https://github.com/bugkerb/talentflow/issues/4) | Manual/referral candidates and applications | BLOCKED by #2, #3 |
 | [#5](https://github.com/bugkerb/talentflow/issues/5) | Private resume Storage | BLOCKED by #2, #4 |
 | [#6](https://github.com/bugkerb/talentflow/issues/6) | Anthropic/OpenRouter + AI Harness | BLOCKED by #3, #5 |
 | [#7](https://github.com/bugkerb/talentflow/issues/7) | Applicant tracker concurrency | BLOCKED by #2, #3, #4 |
 | [#8](https://github.com/bugkerb/talentflow/issues/8) | Interview scheduling race/idempotency | BLOCKED by #2, #7 |
-| [#9](https://github.com/bugkerb/talentflow/issues/9) | OWASP production verification | BLOCKED by #2, #5–#8 |
+| [#9](https://github.com/bugkerb/talentflow/issues/9) | OWASP production verification | IN PROGRESS: threat model and CI dependency gate added; runtime abuse/Storage/AI/provider controls pending |
 | [#10](https://github.com/bugkerb/talentflow/issues/10) | UI maintainability/accessibility | IN PROGRESS (3 parallel slices) |
 | [#11](https://github.com/bugkerb/talentflow/issues/11) | Clean-checkout CI/full journey | BLOCKED by #3–#10 |
 | [#12](https://github.com/bugkerb/talentflow/issues/12) | Deployment/observability/recovery | BLOCKED by #9, #11 |
