@@ -45,6 +45,39 @@ end $$;
 select 'atomic_application_transition=PASS';
 rollback;
 
+begin;
+do $$
+declare scheduled public.interviews;
+declare replayed public.interviews;
+begin
+  select * into scheduled from public.schedule_interview(
+    '00000000-0000-0000-0000-000000000040',
+    '00000000-0000-0000-0000-000000000030',
+    'technical', '2030-01-10 03:00:00+00', '2030-01-10 03:30:00+00',
+    'Asia/Bangkok', '00000000-0000-0000-0000-000000000001', '',
+    'verify-interview-1', repeat('a', 64), '00000000-0000-0000-0000-000000000001');
+  select * into replayed from public.schedule_interview(
+    '00000000-0000-0000-0000-000000000041',
+    '00000000-0000-0000-0000-000000000030',
+    'technical', '2030-01-10 03:00:00+00', '2030-01-10 03:30:00+00',
+    'Asia/Bangkok', '00000000-0000-0000-0000-000000000001', '',
+    'verify-interview-1', repeat('a', 64), '00000000-0000-0000-0000-000000000001');
+  if scheduled.id <> replayed.id then raise exception 'interview idempotency replay returned another resource'; end if;
+  begin
+    perform public.schedule_interview(
+      '00000000-0000-0000-0000-000000000041',
+      '00000000-0000-0000-0000-000000000030',
+      'technical', '2030-01-10 03:15:00+00', '2030-01-10 03:45:00+00',
+      'Asia/Bangkok', '00000000-0000-0000-0000-000000000001', '',
+      'verify-interview-2', repeat('b', 64), '00000000-0000-0000-0000-000000000001');
+    raise exception 'interview overlap was accepted';
+  exception when others then
+    if position('interview time conflict' in sqlerrm) = 0 then raise; end if;
+  end;
+end $$;
+select 'interview_idempotency_and_overlap=PASS';
+rollback;
+
 do $$ begin
   if (select role from public.profiles where id = '00000000-0000-0000-0000-000000000001') <> 'hr' then
     raise exception 'seeded profile role changed unexpectedly';

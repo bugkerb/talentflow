@@ -45,6 +45,7 @@ declare
   created public.interviews;
   alternatives jsonb;
 begin
+  if auth.uid() is not null and not private.is_active_hr() then raise exception 'active HR role required'; end if;
   if auth.uid() is not null and auth.uid() <> p_actor_id then raise exception 'actor does not match authenticated user'; end if;
   perform pg_advisory_xact_lock(hashtextextended('interview-idempotency:' || p_idempotency_key, 0));
   select i.* into existing
@@ -105,6 +106,7 @@ declare
   interviewer uuid;
   alternatives jsonb;
 begin
+  if auth.uid() is not null and not private.is_active_hr() then raise exception 'active HR role required'; end if;
   if auth.uid() is not null and auth.uid() <> p_actor_id then raise exception 'actor does not match authenticated user'; end if;
   select * into current_interview from public.interviews where id = p_interview_id and version = p_expected_version and status = 'scheduled' for update;
   if not found then return null; end if;
@@ -143,6 +145,7 @@ language plpgsql security definer set search_path = public
 as $$
 declare updated_interview public.interviews;
 begin
+  if auth.uid() is not null and not private.is_active_hr() then raise exception 'active HR role required'; end if;
   if auth.uid() is not null and auth.uid() <> p_actor_id then raise exception 'actor does not match authenticated user'; end if;
   update public.interviews set status = 'cancelled', version = version + 1, updated_by = p_actor_id, cancelled_by = p_actor_id, cancelled_at = now(), updated_at = now()
   where id = p_interview_id and version = p_expected_version and status = 'scheduled' returning * into updated_interview;
