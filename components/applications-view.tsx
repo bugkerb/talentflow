@@ -38,7 +38,7 @@ function Drawer({ onClose }: { onClose: () => void }) {
     return () => { document.removeEventListener("keydown", handleKeyDown); previousFocus?.focus(); };
   }, [onClose]);
 
-  return <aside ref={drawerRef} role="dialog" aria-modal="true" aria-labelledby={titleId} className="fixed right-0 top-16 z-50 flex h-[calc(100vh-4rem)] w-full max-w-[400px] flex-col border-l border-[#e1e4ea] bg-white shadow-2xl">
+  return <aside ref={drawerRef} role="dialog" aria-modal="true" aria-labelledby={titleId} className="fixed inset-y-0 right-0 z-50 flex h-screen w-full max-w-[400px] flex-col border-l border-[#e1e4ea] bg-white shadow-2xl">
     <header className="flex items-center justify-between border-b border-[#e1e4ea] px-6 py-6"><h2 id={titleId} className="text-xl font-bold">รายละเอียดผู้สมัคร</h2><button ref={closeRef} type="button" onClick={onClose} aria-label="ปิดรายละเอียดผู้สมัคร"><span aria-hidden="true" className="material-symbols-outlined text-2xl">close</span></button></header>
     <div className="flex-1 overflow-y-auto p-6">
       <div className="mb-6 flex gap-4"><div aria-hidden="true" className="flex h-16 w-16 items-center justify-center rounded-xl bg-[#dbe3ff] text-xl font-bold text-[#163b92]">ส</div><div><h3 className="text-2xl font-bold">สมชาย ใจดี</h3><p>Senior React Developer</p><p className="mt-1 text-sm text-[#7c8292]"><span aria-hidden="true" className="material-symbols-outlined mr-1 align-middle text-[14px]">location_on</span>กรุงเทพมหานคร, ประเทศไทย</p></div></div>
@@ -59,11 +59,9 @@ export function ApplicationsView() {
   const [drawer, setDrawer] = useState(true);
   const [showFilters, setShowFilters] = useState(false);
   const [query, setQuery] = useState("");
-  const searchId = useId();
   const filtersId = useId();
   const visibleCandidates = candidates.filter((item) => item.some((value) => value.toLowerCase().includes(query.trim().toLowerCase())));
-  return <AppShell><Sidebar activePath="/applications" /><Header /><main className="min-h-screen bg-[#f8f9fb] md:ml-[260px]">
-    <div className="border-b border-[#e1e4ea] bg-white px-6 py-5"><div className="relative max-w-md"><label htmlFor={searchId} className="sr-only">ค้นหาผู้สมัครหรือตำแหน่ง</label><span aria-hidden="true" className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-2xl text-[#7c8292]">search</span><input id={searchId} type="search" value={query} onChange={(event) => setQuery(event.target.value)} className="w-full rounded-full border border-[#bec5d8] bg-[#fbfcff] py-2 pl-10 pr-4 text-sm" placeholder="ค้นหาผู้สมัคร, ตำแหน่ง..." /></div></div>
+  return <AppShell><Sidebar activePath="/applications" /><Header showSearch searchValue={query} onSearch={setQuery} /><main className="min-h-screen bg-[#f8f9fb] md:ml-[260px]">
     <div className="px-6 py-6"><div className="mb-6 flex flex-wrap items-center justify-between gap-4"><div><h1 className="font-serif text-3xl font-bold">ติดตามผู้สมัคร</h1><p className="mt-1 text-sm text-[#565e74]">ตรวจสอบผู้สมัคร เปลี่ยนขั้นตอน และบันทึกการตัดสินใจของ HR</p></div><div className="flex flex-wrap gap-3"><div role="group" aria-label="รูปแบบการแสดงผู้สมัคร" className="flex rounded-lg bg-[#e6e8ec] p-1">
       <button type="button" aria-pressed={view === "board"} onClick={() => setView("board")} className={`flex items-center gap-1 rounded-md px-3 py-2 text-sm ${view === "board" ? "bg-white font-semibold text-[#0057d9] shadow-sm" : "text-[#565e74]"}`}><span aria-hidden="true" className="material-symbols-outlined text-[18px]">dashboard</span>บอร์ด</button>
       <button type="button" aria-pressed={view === "list"} onClick={() => setView("list")} className={`flex items-center gap-1 rounded-md px-3 py-2 text-sm ${view === "list" ? "bg-white font-semibold text-[#0057d9] shadow-sm" : "text-[#565e74]"}`}><span aria-hidden="true" className="material-symbols-outlined text-[18px]">format_list_bulleted</span>รายการ</button>
