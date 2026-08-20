@@ -1,15 +1,11 @@
 import { test, expect } from "@playwright/test";
 import { loginAsDemoHr } from "./support/auth";
 
-test("HR can create referral candidate and move application stage", async ({ page }) => {
+test("HR can follow the dashboard action queue", async ({ page }) => {
   await loginAsDemoHr(page);
   await expect(page.getByRole("heading", { name: "ภาพรวมการสรรหา" })).toBeVisible();
-  await page.getByRole("button", { name: "สร้างผู้สมัครและใบสมัคร" }).click();
-  await expect(page.getByRole("status")).toHaveText("บันทึกผู้สมัครและสร้างใบสมัครแล้ว");
-  await page.getByLabel("ย้าย Narin Chaiyapruk").selectOption({ label: "โทรคุยเบื้องต้น" });
-  await expect(page.getByRole("status")).toHaveText("ย้ายผู้สมัครไปขั้นตอนโทรคุยเบื้องต้นแล้ว");
-  await page.getByRole("button", { name: "ตาราง" }).click();
-  await expect(page.getByRole("cell", { name: "โทรคุยเบื้องต้น" })).toBeVisible();
-  await page.getByRole("button", { name: "จำลองข้อมูลชนกัน" }).click();
-  await expect(page.getByRole("status")).toContainText("ข้อขัดแย้ง");
+  await page.getByRole("button", { name: "ตรวจสอบการเชื่อมต่อ" }).click();
+  await expect(page.getByRole("status")).toHaveText("ส่งคำขอเชื่อมต่อใหม่แล้ว");
+  await expect(page.getByRole("link", { name: /ตรวจเรซูเม่ที่รอการตัดสินใจ/ })).toHaveAttribute("href", "#screening");
+  await expect(page.getByRole("link", { name: /เตรียมสัมภาษณ์วันนี้/ })).toHaveAttribute("href", "#interviews");
 });

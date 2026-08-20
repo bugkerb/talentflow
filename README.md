@@ -59,7 +59,7 @@ npm run test:e2e
 npm run build
 ```
 
-Business logic coverage ถูก enforce ที่ 100% lines/branches/functions/statements ใน Vitest. E2E ครอบคลุม dashboard → referral candidate/application → move stage → table view → stale conflict. Evidence อยู่ใน `docs/verification/` และ task state อยู่ใน `docs/v1-foundation-task-list-and-deterministic-verification-loop.md`
+Business logic coverage ถูก enforce ที่ 100% lines/branches/functions/statements ใน Vitest. E2E ปัจจุบันครอบคลุม anonymous redirect, HR login/session refresh/logout และ dashboard action queue; persistence-backed referral/application/stale-conflict journey ยังเป็น blocker ของ production scope. Evidence อยู่ใน `docs/verification/` และ task state อยู่ใน `docs/production-task-list.md`
 
 ## Security decisions
 
