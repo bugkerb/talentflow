@@ -25,6 +25,11 @@ select 'seed_and_constraints=PASS';
 do $$
 declare transitioned public.applications;
 begin
+  update public.applications
+  set stage = 'screening', version = 1, updated_at = now(), stage_changed_at = now()
+  where id = '00000000-0000-0000-0000-000000000030';
+  delete from public.pipeline_events
+  where application_id = '00000000-0000-0000-0000-000000000030';
   select * into transitioned from public.transition_application_stage(
     '00000000-0000-0000-0000-000000000030', 1, 'phone_screen',
     '00000000-0000-0000-0000-000000000001', 'verification transition');
