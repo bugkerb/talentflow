@@ -18,6 +18,9 @@ jobs:
       - run: npm run build
       - run: npx playwright install --with-deps chromium
       - name: Run auth and foundation E2E against local Supabase
+        env:
+          # Local-only fixture; never reused for hosted or production environments.
+          E2E_HR_PASSWORD: demo-password-not-for-production
         run: npm run test:e2e
       - name: Secret scan
         run: |
