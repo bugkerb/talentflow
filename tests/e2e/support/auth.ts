@@ -1,7 +1,7 @@
 import { expect, type BrowserContext, type Cookie, type Page } from "@playwright/test";
 
 export const DEMO_HR = {
-  email: "demo.hr@talentflow.local",
+  email: process.env.E2E_HR_EMAIL ?? "demo.hr@talentflow.local",
   password: process.env.E2E_HR_PASSWORD ?? ""
 } as const;
 
