@@ -1,8 +1,9 @@
 import { AuthorizationService } from "@/application/authorization-service";
 import { LoginForm } from "./login-form";
 
-export default function LoginPage({ searchParams }: { searchParams?: { next?: string } }) {
-  const next = new AuthorizationService().safeReturnPath(searchParams?.next);
+export default async function LoginPage({ searchParams }: { searchParams?: Promise<{ next?: string }> }) {
+  const params = await searchParams;
+  const next = new AuthorizationService().safeReturnPath(params?.next);
   return <main className="flex min-h-screen items-center justify-center bg-[#f7f9fb] px-4">
     <section className="w-full max-w-md rounded-2xl border border-[#e0e3e5] bg-white p-8 shadow-xl">
       <div className="mb-8 flex items-center gap-3">
