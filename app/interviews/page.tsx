@@ -1,2 +1,5 @@
-import { WorkspacePage } from "../../components/workspace";
-export default function InterviewsPage() { return <WorkspacePage page="interviews" />; }
+import { InterviewsView } from "../../components/interviews-view";
+
+export default function InterviewsPage() {
+  return <InterviewsView />;
+}
