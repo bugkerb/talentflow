@@ -13,7 +13,7 @@ declare
   current_application public.applications;
   updated_application public.applications;
 begin
-  if not private.is_active_hr() then
+  if auth.uid() is not null and not private.is_active_hr() then
     raise exception 'active HR role required';
   end if;
   if auth.uid() is not null and p_actor_id <> auth.uid() then
