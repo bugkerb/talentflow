@@ -22,6 +22,18 @@ test("protected session API rejects anonymous requests without caching", async (
   });
 });
 
+test("public responses include the restrictive security header baseline", async ({ request }) => {
+  const response = await request.get("/login");
+  const headers = response.headers();
+
+  expect(response.ok()).toBe(true);
+  expect(headers["content-security-policy"]).toContain("object-src 'none'");
+  expect(headers["content-security-policy"]).toContain("frame-ancestors 'none'");
+  expect(headers["x-content-type-options"]).toBe("nosniff");
+  expect(headers["x-frame-options"]).toBe("DENY");
+  expect(headers["referrer-policy"]).toBe("strict-origin-when-cross-origin");
+});
+
 test("demo HR can log in, refresh the session, and log out", async ({ context, page }) => {
   await loginAsDemoHr(page);
 

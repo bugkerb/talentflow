@@ -1,4 +1,4 @@
-export const errorCodes = ["VALIDATION_ERROR", "NOT_FOUND", "CONFLICT", "IDEMPOTENCY_CONFLICT", "UNAUTHORIZED", "FORBIDDEN", "INTERNAL_ERROR"] as const;
+export const errorCodes = ["VALIDATION_ERROR", "NOT_FOUND", "CONFLICT", "IDEMPOTENCY_CONFLICT", "UNAUTHORIZED", "FORBIDDEN", "RATE_LIMITED", "INTERNAL_ERROR"] as const;
 export type ErrorCode = (typeof errorCodes)[number];
 const defaultStatusByCode: Record<ErrorCode, number> = {
   VALIDATION_ERROR: 400,
@@ -7,6 +7,7 @@ const defaultStatusByCode: Record<ErrorCode, number> = {
   NOT_FOUND: 404,
   CONFLICT: 409,
   IDEMPOTENCY_CONFLICT: 409,
+  RATE_LIMITED: 429,
   INTERNAL_ERROR: 500
 };
 export class AppError extends Error {

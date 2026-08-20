@@ -1,9 +1,11 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { z } from "zod";
 import { AuthorizationService } from "@/application/authorization-service";
 import { createSupabaseServerClient } from "@/server/supabase-server";
+import { clientAddressFromHeaders, createAuthRateLimiter } from "@/server/auth-abuse";
 
 export type LoginState = { error: string | null };
 
@@ -13,6 +15,9 @@ const loginSchema = z.object({
   next: z.string().max(2048).optional()
 });
 
+const loginRateLimiter = createAuthRateLimiter();
+const genericLoginError = "อีเมลหรือรหัสผ่านไม่ถูกต้อง";
+
 export async function loginAction(_state: LoginState, formData: FormData): Promise<LoginState> {
   const parsed = loginSchema.safeParse({
     email: formData.get("email"),
@@ -20,7 +25,10 @@ export async function loginAction(_state: LoginState, formData: FormData): Promi
     next: formData.get("next") || undefined
   });
 
-  if (!parsed.success) return { error: "อีเมลหรือรหัสผ่านไม่ถูกต้อง" };
+  if (!parsed.success) return { error: genericLoginError };
+
+  const requestHeaders = await headers();
+  if (!loginRateLimiter.check(parsed.data.email, clientAddressFromHeaders(requestHeaders)).allowed) return { error: genericLoginError };
 
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase.auth.signInWithPassword({
@@ -28,7 +36,7 @@ export async function loginAction(_state: LoginState, formData: FormData): Promi
     password: parsed.data.password
   });
 
-  if (error) return { error: "อีเมลหรือรหัสผ่านไม่ถูกต้อง" };
+  if (error) return { error: genericLoginError };
 
   try {
     const { data: profile } = await supabase.from("profiles").select("id, role, is_active").eq("id", data.user.id).maybeSingle();
