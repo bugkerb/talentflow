@@ -22,6 +22,24 @@ do $$ begin
 end $$;
 select 'seed_and_constraints=PASS';
 
+do $$
+declare transitioned public.applications;
+begin
+  select * into transitioned from public.transition_application_stage(
+    '00000000-0000-0000-0000-000000000030', 1, 'phone_screen',
+    '00000000-0000-0000-0000-000000000001', 'verification transition');
+  if transitioned.version <> 2 or transitioned.stage <> 'phone_screen' then
+    raise exception 'atomic application transition failed';
+  end if;
+  if (select count(*) from public.pipeline_events where application_id = transitioned.id) <> 2 then
+    raise exception 'atomic application transition event missing';
+  end if;
+  if public.transition_application_stage(transitioned.id, 1, 'interview', '00000000-0000-0000-0000-000000000001') is not null then
+    raise exception 'stale application transition was accepted';
+  end if;
+end $$;
+select 'atomic_application_transition=PASS';
+
 do $$ begin
   if (select role from public.profiles where id = '00000000-0000-0000-0000-000000000001') <> 'hr' then
     raise exception 'seeded profile role changed unexpectedly';

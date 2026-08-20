@@ -10,4 +10,20 @@ describe("ApplicationService", () => {
   it("rejects stale and invalid transitions", async () => { const r = repo({ id: "a", candidateId: "c", jobId: "j", stage: "screening", version: 2, updatedBy: null }); const s = new ApplicationService(r); await expect(s.move("a", "phone_screen", 1, "u")).rejects.toMatchObject({ code: "CONFLICT" }); await expect(s.move("a", "hired", 2, "u")).rejects.toMatchObject({ code: "VALIDATION_ERROR" }); });
   it("returns not found", async () => { await expect(new ApplicationService(repo()).move("missing", "phone_screen", 1, "u")).rejects.toBeInstanceOf(AppError); });
   it("converts a repository race into conflict", async () => { await expect(new ApplicationService(repo({ id: "a", candidateId: "c", jobId: "j", stage: "screening", version: 1, updatedBy: null }, true)).move("a", "phone_screen", 1, "u")).rejects.toMatchObject({ code: "CONFLICT" }); });
+  it("uses an atomic repository transition and records the event once", async () => {
+    const base = repo({ id: "a", candidateId: "c", jobId: "j", stage: "screening", version: 1, updatedBy: null });
+    let transitionCalls = 0;
+    const atomic = {
+      ...base,
+      async transitionStage(id: string, version: number, stage: Application["stage"], actorId: string, reason?: string) {
+        transitionCalls += 1;
+        const updated = await base.updateStage(id, version, stage, actorId);
+        if (updated) await base.addPipelineEvent({ applicationId: id, fromStage: "screening", toStage: stage, actorId, reason });
+        return updated;
+      }
+    };
+    await new ApplicationService(atomic).move("a", "phone_screen", 1, "u", "ready");
+    expect(transitionCalls).toBe(1);
+    expect(base.events).toHaveLength(1);
+  });
 });

@@ -13,9 +13,14 @@ export class ApplicationService {
     if (!current) throw new AppError("NOT_FOUND", "Application not found");
     if (current.version !== expectedVersion) throw new AppError("CONFLICT", "Application was updated by another user");
     if (!isValidStageTransition(current.stage, toStage)) throw new AppError("VALIDATION_ERROR", "Invalid stage transition");
-    const updated = await this.repository.updateStage(id, expectedVersion, toStage, actorId);
+    const transition = (this.repository as ApplicationRepository & {
+      transitionStage?: (id: string, expectedVersion: number, stage: Parameters<ApplicationRepository["updateStage"]>[2], actorId: string, reason?: string) => Promise<Awaited<ReturnType<ApplicationRepository["updateStage"]>>>;
+    }).transitionStage;
+    const updated = transition
+      ? await transition.call(this.repository, id, expectedVersion, toStage, actorId, reason)
+      : await this.repository.updateStage(id, expectedVersion, toStage, actorId);
     if (!updated) throw new AppError("CONFLICT", "Application was updated by another user");
-    await this.repository.addPipelineEvent({ applicationId: id, fromStage: current.stage, toStage, actorId, reason });
+    if (!transition) await this.repository.addPipelineEvent({ applicationId: id, fromStage: current.stage, toStage, actorId, reason });
     return updated;
   }
 }
