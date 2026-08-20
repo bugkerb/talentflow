@@ -25,7 +25,7 @@
 - [ ] Add private Storage upload/signed URL flow with file type, size and malware scanning policy
 - [ ] Add real database concurrency tests: same-version update, interview overlap, idempotency side effect transaction
 - [ ] Configure deployment secrets, migration job, health check and rollback procedure in the target host
-- [ ] Resolve or explicitly approve dependency audit findings before production deployment
+- [x] Resolve dependency audit findings before production deployment — `npm audit --omit=dev --audit-level=high` passed in GitHub CI run `32425278483`
 
 ## Required reviewer commands
 

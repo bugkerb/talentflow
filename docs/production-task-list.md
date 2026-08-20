@@ -34,9 +34,9 @@
 | G-04 | Database behavior ผ่าน | `npm run test:integration` exit 0 จาก isolated Supabase | PASS (GitHub CI run 32423393794) |
 | G-05 | Critical HR journey ผ่าน | `npm run test:e2e` exit 0 โดยไม่มี required test ถูก skip | PASS (GitHub CI run 32423393794; auth + dashboard smoke) |
 | G-06 | Production build ผ่าน | `npm run build` exit 0 | PASS (current worktree) |
-| G-07 | OWASP Top 10 gate ผ่าน | Security tests/audit ของ #9 ไม่มี unresolved Critical/High | NOT RUN (security smoke passed; full OWASP/dependency/deployment review remains) |
+| G-07 | OWASP Top 10 gate ผ่าน | Security tests/audit ของ #9 ไม่มี unresolved Critical/High | PARTIAL PASS (dependency audit + secret/security smoke passed in CI `32425278483`; runtime OWASP controls remain) |
 | G-08 | Idempotency/race gates ผ่าน | DB concurrency assertions ของ #4, #7, #8 ผ่าน | NOT RUN |
-| G-09 | AI release gate ผ่าน | Deterministic Harness ของ #6 ผ่านทุก fixture | NOT RUN |
+| G-09 | AI release gate ผ่าน | Deterministic Harness ของ #6 ผ่านทุก fixture | NOT RUN (AI provider slice not implemented) |
 | G-10 | Deployment recovery ผ่าน | Deploy, rollback และ restore evidence ของ #12 ผ่าน | BLOCKED (no authorized target host/deploy credentials) |
 
 ## GitHub issue delivery status
