@@ -1,7 +1,8 @@
 import { test, expect } from "@playwright/test";
+import { loginAsDemoHr } from "./support/auth";
 
 test("HR can create referral candidate and move application stage", async ({ page }) => {
-  await page.goto("/");
+  await loginAsDemoHr(page);
   await expect(page.getByRole("heading", { name: "ภาพรวมการสรรหา" })).toBeVisible();
   await page.getByRole("button", { name: "สร้างผู้สมัครและใบสมัคร" }).click();
   await expect(page.getByRole("status")).toHaveText("บันทึกผู้สมัครและสร้างใบสมัครแล้ว");

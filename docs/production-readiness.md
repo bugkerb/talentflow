@@ -6,14 +6,15 @@
 
 - [x] Strict TypeScript, reproducible `npm ci`, lint, typecheck และ production build
 - [x] Business logic coverage 100% lines/branches/functions/statements
-- [x] Isolated Supabase migration/seed reset จากฐานข้อมูลว่าง
-- [x] FK delete policies, soft-delete checks, unique application, optimistic-lock fields
-- [x] RLS allow/deny assertion และ immutable pipeline event trigger
-- [x] Idempotency replay/hash-conflict behavior และ deterministic E2E smoke
-- [x] Server-only Supabase client boundary; browser ไม่ได้รับ provider/service-role secret
-- [x] Security response headers: HSTS, frame denial, nosniff, referrer policy, permissions policy
+- [x] Schema contains FK delete policies, soft-delete checks, unique application, optimistic-lock fields (static migration inspection)
+- [x] Server-only Supabase client boundary; browser ไม่ได้รับ provider/service-role secret (static inspection)
 - [x] `/api/health` readiness endpoint: no-store, request ID propagation, safe degraded response
-- [x] CI workflow: clean install, static checks, coverage, Supabase integration, build, Playwright, secret scan
+- [x] Static checks: lint, typecheck, 26 unit tests with 100% business-logic coverage, and production build
+- [ ] Isolated Supabase migration/seed reset จากฐานข้อมูลว่าง — NOT VERIFIED in current environment
+- [ ] RLS allow/deny assertion และ immutable pipeline event trigger — migration implemented, Cloud/local runtime NOT VERIFIED
+- [ ] Idempotency replay/hash-conflict behavior และ deterministic E2E smoke — unit coverage exists, E2E NOT RUN
+- [ ] Security response headers: HSTS, frame denial, nosniff, referrer policy, permissions policy — inspect/verify runtime before PASS
+- [ ] CI workflow: clean install, static checks, coverage, Supabase integration, build, Playwright, secret scan — CI not executed in this environment
 
 ## Blocker ก่อนเรียก production-ready
 

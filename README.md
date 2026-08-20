@@ -23,6 +23,14 @@ npm run test:integration
 
 Production ต้องใช้ migration ผ่าน controlled CI job และไม่ใช้ demo seed กับ environment จริง
 
+สำหรับ Cloud test project ใช้ `SUPABASE_DB_URL` ของ project ทดสอบเท่านั้น:
+
+```bash
+npm run test:cloud-db
+```
+
+คำสั่งนี้เป็น forward-only (`supabase db push` แล้วรัน `supabase/verify.sql`) และไม่เรียก `db reset`; ห้ามใช้ connection string ของ production โดยตรง
+
 ## Architecture
 
 ```text
@@ -46,6 +54,7 @@ npm run lint
 npm run typecheck
 npm run test:coverage
 npm run test:integration
+npm run test:cloud-db
 npm run test:e2e
 npm run build
 ```

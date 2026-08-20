@@ -17,7 +17,8 @@ jobs:
       - run: npm run test:integration
       - run: npm run build
       - run: npx playwright install --with-deps chromium
-      - run: npm run test:e2e
+      - name: Run auth and foundation E2E against local Supabase
+        run: npm run test:e2e
       - name: Secret scan
         run: |
           if git grep -nE '(sk-[A-Za-z0-9]{20,}|OPENROUTER_API_KEY=[^$].+|SUPABASE_SERVICE_ROLE_KEY=[^$].+)' -- ':!package-lock.json' ':!.github/workflows/ci.yml'; then
