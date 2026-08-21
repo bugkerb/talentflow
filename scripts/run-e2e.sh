@@ -37,7 +37,8 @@ if [[ "${E2E_SUPABASE_MODE:-}" == "cloud" ]]; then
     https://*.supabase.co) ;;
     *) fail "Cloud E2E URL must be an HTTPS Supabase project URL." ;;
   esac
-  curl --fail --silent --show-error --max-time 10 "$E2E_SUPABASE_URL/auth/v1/health" >/dev/null || \
+  curl --fail --silent --show-error --max-time 10 "$E2E_SUPABASE_URL/auth/v1/health" \
+    -H "apikey: $E2E_SUPABASE_ANON_KEY" >/dev/null || \
     fail "the configured Cloud Supabase Auth service is not healthy."
   export NEXT_PUBLIC_SUPABASE_URL="$E2E_SUPABASE_URL"
   export NEXT_PUBLIC_SUPABASE_ANON_KEY="$E2E_SUPABASE_ANON_KEY"
