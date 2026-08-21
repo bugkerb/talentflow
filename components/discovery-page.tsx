@@ -154,10 +154,12 @@ export function DiscoveryPage({ jobs, initialCandidates }: { jobs: JobRecord[]; 
                 {openJobs.map((job) => <option key={job.id} value={job.id}>{job.title}</option>)}
               </select>
             </label>
-            {selectedJob && <div className="mt-4 grid max-w-3xl gap-3 rounded-xl border border-[#c2c6d9] bg-white p-4 text-sm shadow-sm">
-              <label className="font-semibold">เกณฑ์และรายละเอียดตำแหน่งงาน<textarea value={jobDescription} onChange={(event) => setJobDescription(event.target.value)} className={`${field} min-h-24`} aria-label="รายละเอียดตำแหน่งงาน" /></label>
+            {selectedJob && <div className="mt-4 grid max-w-3xl gap-4 rounded-xl border border-[#c2c6d9] bg-white p-4 text-sm shadow-sm">
+              <div><p className="text-xs font-bold uppercase tracking-[0.05em] text-[#565e74]">กำลังค้นหาสำหรับตำแหน่ง</p><p className="mt-1 text-lg font-bold text-[#191c1e]">{selectedJob.title}</p><p className="mt-1 text-xs text-[#565e74]">เกณฑ์ด้านล่างดึงจากรายละเอียดตำแหน่งงาน เพื่อให้ผลค้นหาผูกกับตำแหน่งนี้โดยตรง</p></div>
+              <label className="font-semibold">เกณฑ์และรายละเอียดตำแหน่งงาน<textarea value={jobDescription} readOnly className={`${field} min-h-24 bg-[#f8f9fb]`} aria-label="รายละเอียดตำแหน่งงาน" /></label>
               <div className="grid gap-3 sm:grid-cols-2"><label className="font-semibold">ทักษะที่ต้องการ<input value={skillsInput} onChange={(event) => setSkillsInput(event.target.value)} className={field} aria-label="ทักษะที่ต้องการ" placeholder="เช่น TypeScript, React" /></label><label className="font-semibold">ประสบการณ์ขั้นต่ำ (ปี)<input type="number" min="0" max="60" value={minimumYears} onChange={(event) => setMinimumYears(event.target.value)} className={field} aria-label="ประสบการณ์ขั้นต่ำ" /></label></div>
-              <p className="text-xs text-[#565e74]">ระบบจะสร้างคำค้นจากรายละเอียดและทักษะ แล้วเรียกแหล่งข้อมูลที่ตั้งค่าไว้จริง</p>
+              <div className="rounded-lg bg-[#f2f4f6] p-3"><p className="font-semibold text-[#191c1e]">แหล่งข้อมูลที่จะค้นหา</p><p className="mt-1 flex items-center gap-2 text-xs text-[#565e74]"><span className="h-2 w-2 rounded-full bg-[#16a34a]" aria-hidden="true" />Facebook Group ที่เชื่อมต่อไว้</p></div>
+              <p className="text-xs text-[#565e74]">ระบบจะให้ AI วิเคราะห์เกณฑ์ → สร้างคำค้น → ค้นหาจาก Facebook → normalize และจัดอันดับก่อนแสดงให้ HR ตรวจสอบ</p>
             </div>}
           </div>
           <div className="flex shrink-0 gap-3">
@@ -177,6 +179,11 @@ export function DiscoveryPage({ jobs, initialCandidates }: { jobs: JobRecord[]; 
             </button>
           </div>
         </section>
+
+        {selectedJob && <section aria-labelledby="discovery-flow-heading" className="rounded-xl border border-[#e0e3e5] bg-white p-4 shadow-sm sm:p-5">
+          <div className="flex items-center justify-between gap-3"><div><h2 id="discovery-flow-heading" className="font-semibold">ขั้นตอนการค้นหาผู้สมัคร</h2><p className="mt-1 text-xs text-[#565e74]">ผลลัพธ์จะถูกนำเสนอให้ HR อนุมัติก่อนเข้าระบบติดตามผู้สมัคร</p></div><span className="text-xs font-semibold text-[#565e74]">{runState === "running" ? "กำลังทำงาน" : runState === "done" ? "พร้อมตรวจสอบ" : "พร้อมเริ่ม"}</span></div>
+          <div className="mt-4 grid gap-2 sm:grid-cols-4">{["วิเคราะห์ JD", "ค้นหา Facebook", "Normalize", "AI จัดอันดับ"].map((label, index) => { const active = runState === "running" || runState === "done"; const complete = runState === "done"; return <div key={label} className={`rounded-lg border p-3 text-xs ${complete || (active && index === 1) ? "border-[#0062ff] bg-[#dbe1ff]/40 text-[#004cca]" : "border-[#e0e3e5] bg-[#f8f9fb] text-[#565e74]"}`}><span className="font-bold">{index + 1}</span><p className="mt-1 font-semibold">{label}</p>{complete && <span className="mt-1 block text-[11px]">เสร็จแล้ว</span>}</div>; })}</div>
+        </section>}
 
         {runState === "done" && <section aria-labelledby="discovery-run-results" className="rounded-xl border border-[#c2c6d9] bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between gap-3"><div><h2 id="discovery-run-results" className="text-xl font-bold">ผลลัพธ์จากแหล่งข้อมูล</h2><p className="mt-1 text-sm text-[#565e74]">ตรวจสอบ evidence ก่อนอนุมัติเข้า Applicant Tracker</p></div><span className="text-sm font-semibold text-[#565e74]">พบ {runResults.length} คน</span></div>
