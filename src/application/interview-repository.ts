@@ -1,5 +1,5 @@
 import { AppError } from "@/server/errors";
-import type { CalendarEvent, InterviewActivityEvent, InterviewRecord, InterviewRepository } from "./interview-ports";
+import type { CalendarEvent, InterviewActivityEvent, InterviewListItem, InterviewRecord, InterviewRepository } from "./interview-ports";
 
 const overlaps = (leftStart: string, leftEnd: string, rightStart: string, rightEnd: string): boolean => new Date(leftStart).getTime() < new Date(rightEnd).getTime() && new Date(rightStart).getTime() < new Date(leftEnd).getTime();
 const clone = (record: InterviewRecord): InterviewRecord => ({ ...record });
@@ -96,5 +96,8 @@ export class InMemoryInterviewRepository implements InterviewRepository {
       this.interviews.set(id, updated);
       return clone(updated);
     });
+  }
+  async list(): Promise<InterviewListItem[]> {
+    return [...this.interviews.values()].map((interview) => ({ ...clone(interview), candidateName: "ผู้สมัคร", jobTitle: "ตำแหน่งงาน", interviewerName: "ผู้สัมภาษณ์" }));
   }
 }

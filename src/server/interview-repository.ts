@@ -1,7 +1,7 @@
 import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { AppError } from "./errors";
-import type { CalendarEvent, InterviewRecord, InterviewRepository } from "@/application/interview-ports";
+import type { CalendarEvent, InterviewListItem, InterviewRecord, InterviewRepository } from "@/application/interview-ports";
 
 type InterviewRow = {
   id: string; application_id: string; interview_type: string; starts_at: string; ends_at: string; timezone: string; interviewer_id?: string;
@@ -23,6 +23,12 @@ const throwDatabaseError = (error: { message: string; code?: string; details?: s
 
 export class SupabaseInterviewRepository implements InterviewRepository {
   constructor(private readonly client: SupabaseClient) {}
+
+  async list(): Promise<InterviewListItem[]> {
+    const { data, error } = await this.client.from("interviews").select(`${columns},interview_participants!inner(profile_id,profiles!inner(full_name)),applications!inner(candidate:candidates!inner(full_name),job:jobs!inner(title))`).order("starts_at", { ascending: true });
+    throwDatabaseError(error);
+    return ((data ?? []) as unknown as Array<InterviewRow & { interview_participants: { profile_id: string; profiles: { full_name: string }[] }[]; applications: { candidate: { full_name: string }[]; job: { title: string }[] }[] }>).map((row) => ({ ...toRecord({ ...row, interviewer_id: row.interview_participants[0]?.profile_id }), candidateName: row.applications[0]?.candidate[0]?.full_name ?? "ไม่ระบุผู้สมัคร", jobTitle: row.applications[0]?.job[0]?.title ?? "ไม่ระบุตำแหน่ง", interviewerName: row.interview_participants[0]?.profiles[0]?.full_name ?? "ไม่ระบุผู้สัมภาษณ์" }));
+  }
 
   async schedule(interview: InterviewRecord, requestHash: string): Promise<InterviewRecord> {
     const { data, error } = await this.client.rpc("schedule_interview", { p_interview_id: interview.id, p_application_id: interview.applicationId, p_interview_type: interview.interviewType, p_starts_at: interview.startsAt, p_ends_at: interview.endsAt, p_timezone: interview.timezone, p_interviewer_id: interview.interviewerId, p_additional_questions: interview.additionalQuestions, p_idempotency_key: interview.idempotencyKey, p_request_hash: requestHash, p_actor_id: interview.createdBy });

@@ -5,7 +5,10 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { JobRecord } from "@/application/job-service";
 
+vi.mock("server-only", () => ({}));
 vi.mock("next/navigation", () => ({ usePathname: () => "/" }));
+vi.mock("../../src/server/auth", () => ({ requireActiveHr: vi.fn().mockResolvedValue({ id: "00000000-0000-0000-0000-000000000001" }) }));
+vi.mock("../../src/server/dashboard-read-model", () => ({ readDashboard: vi.fn().mockResolvedValue({ updatedAt: "2026-08-22T00:00:00.000Z", actions: { pendingScreenings: 0, interviewsToday: 0, newApplications: 0 }, metrics: { openJobs: 0, newCandidates: 0, interviewing: 0, interviewsThisWeek: 0 } }) }));
 vi.mock("../../app/auth/actions", () => ({ logoutAction: vi.fn() }));
 vi.mock("../../app/jobs/actions", () => ({
   closeJob: vi.fn(),
@@ -45,8 +48,8 @@ describe("jobs and shared shell QA regressions", () => {
     expect(screen.queryByRole("link", { name: "สร้างตำแหน่งงาน" })).toBeNull();
   });
 
-  it("uses the sidebar offset at the md breakpoint for dashboard and jobs", () => {
-    const { unmount } = render(createElement(DashboardPage));
+  it("uses the sidebar offset at the md breakpoint for dashboard and jobs", async () => {
+    const { unmount } = render(await DashboardPage());
     expect(screen.getByRole("main").classList.contains("md:ml-[260px]")).toBe(true);
     expect(screen.getByRole("banner").classList.contains("md:ml-[260px]")).toBe(true);
 

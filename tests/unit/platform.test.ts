@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { IdempotencyService } from "@/application/idempotency-service";
 import { readEnv } from "@/server/env";
 import { createLogger } from "@/server/logger";
@@ -9,9 +9,9 @@ describe("platform safeguards", () => {
     expect(readEnv({ AI_PROVIDER: "fixture" }).AI_PROVIDER).toBe("fixture");
     expect(() => readEnv({})).toThrow();
     const original = process.env.NODE_ENV;
-    process.env.NODE_ENV = "production";
+    vi.stubEnv("NODE_ENV", "production");
     expect(() => readEnv({ AI_PROVIDER: "fixture" })).toThrow(/test harness/);
-    process.env.NODE_ENV = original;
+    vi.stubEnv("NODE_ENV", original ?? "test");
   });
   it("validates provider credentials at the server boundary", () => { expect(() => readEnv({ AI_PROVIDER: "openrouter" })).toThrow(); expect(() => readEnv({ AI_PROVIDER: "anthropic" })).toThrow(); });
   it("treats empty optional provider secrets as unset", () => { expect(readEnv({ AI_PROVIDER: "fixture", ANTHROPIC_API_KEY: "", OPENROUTER_API_KEY: "" }).ANTHROPIC_API_KEY).toBeUndefined(); });

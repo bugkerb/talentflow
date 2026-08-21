@@ -20,6 +20,7 @@ export type InterviewRecord = {
   googleEventId: string | null;
   googleMeetUrl: string | null;
 };
+export type InterviewListItem = InterviewRecord & { candidateName: string; jobTitle: string; interviewerName: string };
 export type InterviewActivityEvent = {
   id: string;
   interviewId: string;
@@ -38,6 +39,7 @@ export interface CalendarProvider {
 }
 
 export interface InterviewRepository {
+  list(): Promise<InterviewListItem[]>;
   schedule(interview: InterviewRecord, requestHash: string): Promise<InterviewRecord>;
   findById(id: string): Promise<InterviewRecord | null>;
   reschedule(id: string, expectedVersion: number, startsAt: string, endsAt: string, actorId: string, reason?: string): Promise<InterviewRecord | null>;
