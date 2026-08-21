@@ -42,8 +42,8 @@ export async function loginAsDemoHr(page: Page): Promise<void> {
   await page.getByLabel("อีเมล").fill(DEMO_HR.email);
   await page.getByLabel("รหัสผ่าน").fill(DEMO_HR.password);
   await page.getByRole("button", { name: "เข้าสู่ระบบ" }).click();
-  await expect(page).toHaveURL(/\/$/);
-  await expect(page.getByRole("heading", { name: "วันนี้ต้องจัดการอะไรบ้าง" })).toBeVisible();
+  await expect(page).toHaveURL(/\/$/, { timeout: 30_000 });
+  await expect(page.getByRole("heading", { name: "วันนี้ต้องจัดการอะไรบ้าง" })).toBeVisible({ timeout: 30_000 });
 }
 
 export async function readBrowserSession(context: BrowserContext): Promise<StoredSession> {

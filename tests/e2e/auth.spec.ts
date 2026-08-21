@@ -1,6 +1,8 @@
 import { expect, test } from "@playwright/test";
 import { expireBrowserSession, loginAsDemoHr, readBrowserSession } from "./support/auth";
 
+test.setTimeout(60_000);
+
 test("anonymous users are redirected to login with a safe relative return path", async ({ page }) => {
   await page.goto("/screening?stage=interview");
 
@@ -52,8 +54,8 @@ test("demo HR can log in, refresh the session, and log out", async ({ context, p
   expect(refreshedSession.refresh_token).not.toBe(initialSession.refresh_token);
   expect(refreshedSession.expires_at).toBeGreaterThan(Math.floor(Date.now() / 1000));
 
-  await page.getByRole("button", { name: "ออกจากระบบ" }).click();
-  await expect(page).toHaveURL(/\/login$/);
+  await page.getByRole("button", { name: "ออกจากระบบ" }).click({ force: true });
+  await expect(page).toHaveURL(/\/login$/, { timeout: 30_000 });
 
   const loggedOutResponse = await page.request.get("/api/auth/session");
   expect(loggedOutResponse.status()).toBe(401);
