@@ -33,7 +33,7 @@ export type ScreeningWorkspaceData = {
   loadError: string | null;
 };
 
-type Result = { score: number; summary: string; evidence: string[]; riskFlags: string[] };
+type Result = { score: number; summary: string; evidence: string[]; riskFlags: string[]; scores: { skills: number; experience: number; cultureCommunication: number }; reasoning: { skills: string; experience: string; cultureCommunication: string }; strengths: string[]; prescreenQuestions: string[]; teamInterviewReport: { summary: string; focusAreas: string[]; recommendation: string } };
 
 const panel = "rounded-xl border border-[#e0e3e5] bg-white p-6 shadow-[0_2px_8px_rgba(15,23,42,.06)]";
 const primary = "rounded-lg bg-gradient-to-r from-[#0062ff] to-[#38bdf8] px-4 py-3 text-sm font-bold text-white shadow-sm disabled:cursor-not-allowed disabled:opacity-50";
@@ -84,7 +84,7 @@ export function ScreeningWorkspace({ data }: { data: ScreeningWorkspaceData }) {
       const response = await runScreening({ applicationId: target.applicationId, resumeId: selectedResumeId, jobDescription: target.jobDescription, resumeText });
       if ("error" in response) { setError(response.error.message); return; }
       const screeningResult = response.data.result;
-      setResult({ score: screeningResult.score ?? 0, summary: screeningResult.summary, evidence: screeningResult.evidence ?? [], riskFlags: screeningResult.riskFlags });
+      setResult({ score: screeningResult.score ?? 0, summary: screeningResult.summary, evidence: screeningResult.evidence ?? [], riskFlags: screeningResult.riskFlags, scores: screeningResult.scores, reasoning: screeningResult.reasoning, strengths: screeningResult.strengths, prescreenQuestions: screeningResult.prescreenQuestions, teamInterviewReport: screeningResult.teamInterviewReport });
       setMessage("วิเคราะห์และบันทึกผลเรียบร้อยแล้ว");
     } catch { setError("ไม่สามารถวิเคราะห์เรซูเม่ได้ กรุณาลองใหม่"); }
     finally { setBusy(false); }
