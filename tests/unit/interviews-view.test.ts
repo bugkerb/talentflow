@@ -30,6 +30,7 @@ const interview: InterviewListItem = {
   endsAt: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
   timezone: "Asia/Bangkok",
   interviewerId: "00000000-0000-0000-0000-000000000001",
+  description: "คำถามคัดกรอง",
   additionalQuestions: "",
   status: "scheduled",
   version: 1,

@@ -2,7 +2,6 @@ import { createHash } from "node:crypto";
 import { interviewCancelSchema, interviewRescheduleSchema, interviewScheduleSchema } from "@/domain/schemas";
 import { AppError } from "@/server/errors";
 import type { CalendarProvider, InterviewRecord, InterviewRepository } from "./interview-ports";
-import { InMemoryCalendarProvider } from "./calendar-provider";
 
 const idSchema = (value: string, label: string): string => {
   if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value)) throw new AppError("VALIDATION_ERROR", `${label} must be a UUID`);
@@ -13,7 +12,7 @@ const hashRequest = (value: unknown): string => createHash("sha256").update(JSON
 export class InterviewService {
   private readonly provider: CalendarProvider;
 
-  constructor(private readonly repository: InterviewRepository, provider: CalendarProvider = new InMemoryCalendarProvider()) { this.provider = provider; }
+  constructor(private readonly repository: InterviewRepository, provider: CalendarProvider) { this.provider = provider; }
 
   async schedule(input: unknown, actorId: string, id: string, idempotencyKey: string): Promise<InterviewRecord> {
     const value = interviewScheduleSchema.parse(input);
@@ -22,7 +21,7 @@ export class InterviewService {
     if (!idempotencyKey.trim()) throw new AppError("VALIDATION_ERROR", "Idempotency key is required");
     const record: InterviewRecord = { ...value, id, idempotencyKey, status: "scheduled", version: 1, createdBy: actorId, updatedBy: null, cancelledBy: null, cancelledAt: null, providerStatus: "pending", googleEventId: null, googleMeetUrl: null };
     const stored = await this.repository.schedule(record, hashRequest(value));
-    return this.syncProvider(stored);
+    return this.syncProvider({ ...stored, description: record.description });
   }
 
   async retryProvider(interviewId: string): Promise<InterviewRecord> {
@@ -54,6 +53,7 @@ export class InterviewService {
     if (current.version !== expectedVersion || current.status !== "scheduled") throw new AppError("CONFLICT", "Interview was updated by another user");
     const updated = await this.repository.reschedule(value.interviewId, expectedVersion, value.startsAt, value.endsAt, actorId, value.reason);
     if (!updated) throw new AppError("CONFLICT", "Interview was updated by another user");
+    if (current.googleEventId) await this.provider.updateEvent(current.googleEventId, { ...current, ...updated });
     return updated;
   }
 
@@ -65,6 +65,7 @@ export class InterviewService {
     if (current.version !== expectedVersion || current.status !== "scheduled") throw new AppError("CONFLICT", "Interview was updated by another user");
     const updated = await this.repository.cancel(value.interviewId, expectedVersion, actorId, value.reason);
     if (!updated) throw new AppError("CONFLICT", "Interview was updated by another user");
+    if (current.googleEventId) await this.provider.cancelEvent(current.googleEventId);
     return updated;
   }
 }

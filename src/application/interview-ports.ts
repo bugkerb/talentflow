@@ -8,6 +8,7 @@ export type InterviewRecord = {
   endsAt: string;
   timezone: string;
   interviewerId: string;
+  description: string;
   additionalQuestions: string;
   status: InterviewStatus;
   version: number;
@@ -31,11 +32,13 @@ export type InterviewActivityEvent = {
   endsAt?: string;
   createdAt: string;
 };
-export type CalendarEventInput = Pick<InterviewRecord, "id" | "applicationId" | "interviewType" | "startsAt" | "endsAt" | "timezone" | "interviewerId" | "additionalQuestions">;
+export type CalendarEventInput = Pick<InterviewRecord, "id" | "applicationId" | "interviewType" | "startsAt" | "endsAt" | "timezone" | "interviewerId" | "description" | "additionalQuestions">;
 export type CalendarEvent = { eventId: string; meetUrl: string | null };
 
 export interface CalendarProvider {
   createEvent(input: CalendarEventInput, idempotencyKey: string): Promise<CalendarEvent>;
+  updateEvent(eventId: string, input: CalendarEventInput): Promise<void>;
+  cancelEvent(eventId: string): Promise<void>;
 }
 
 export interface InterviewRepository {

@@ -14,6 +14,7 @@ export const interviewScheduleSchema = z.object({
   endsAt: interviewTimestamp,
   timezone: z.string().trim().min(1).max(64),
   interviewerId: z.string().uuid(),
+  description: z.string().trim().max(5000).default(""),
   additionalQuestions: z.string().trim().max(2000).default("")
 }).superRefine((value, ctx) => {
   if (new Date(value.endsAt).getTime() <= new Date(value.startsAt).getTime()) ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["endsAt"], message: "Interview must end after it starts" });

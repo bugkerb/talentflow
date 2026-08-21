@@ -10,12 +10,13 @@ const input = {
   endsAt: "2026-08-24T03:30:00.000Z",
   timezone: "Asia/Bangkok",
   interviewerId: "00000000-0000-0000-0000-000000000001",
+  description: "Prescreen questions: explain a production incident.",
   additionalQuestions: "Ask about system design ownership."
 };
 
 describe("InterviewService", () => {
   it("schedules an interview with the requested scheduling fields", async () => {
-    const result = await new InterviewService(new InMemoryInterviewRepository()).schedule(input, "00000000-0000-0000-0000-000000000001", "00000000-0000-0000-0000-000000000080", "schedule-1");
+    const result = await new InterviewService(new InMemoryInterviewRepository(), new InMemoryCalendarProvider()).schedule(input, "00000000-0000-0000-0000-000000000001", "00000000-0000-0000-0000-000000000080", "schedule-1");
 
     expect(result).toMatchObject({
       id: "00000000-0000-0000-0000-000000000080",
@@ -45,7 +46,7 @@ describe("InterviewService", () => {
 
   it("allows at most one concurrent booking for an interviewer and returns safe alternatives", async () => {
     const repository = new InMemoryInterviewRepository();
-    const service = new InterviewService(repository);
+    const service = new InterviewService(repository, new InMemoryCalendarProvider());
     const attempts = await Promise.allSettled([
       service.schedule(input, "00000000-0000-0000-0000-000000000001", "00000000-0000-0000-0000-000000000080", "schedule-a"),
       service.schedule({ ...input }, "00000000-0000-0000-0000-000000000001", "00000000-0000-0000-0000-000000000081", "schedule-b")
@@ -60,7 +61,7 @@ describe("InterviewService", () => {
 
   it("reschedules and cancels with optimistic locking and immutable activity", async () => {
     const repository = new InMemoryInterviewRepository();
-    const service = new InterviewService(repository);
+    const service = new InterviewService(repository, new InMemoryCalendarProvider());
     const scheduled = await service.schedule(input, "00000000-0000-0000-0000-000000000001", "00000000-0000-0000-0000-000000000080", "schedule-audit");
     const rescheduled = await service.reschedule({ interviewId: scheduled.id, startsAt: "2026-08-24T04:00:00.000Z", endsAt: "2026-08-24T04:30:00.000Z", reason: "Interviewer requested a later slot" }, "00000000-0000-0000-0000-000000000002", 1);
     const cancelled = await service.cancel({ interviewId: scheduled.id, reason: "Candidate withdrew" }, "00000000-0000-0000-0000-000000000002", 2);
@@ -74,7 +75,7 @@ describe("InterviewService", () => {
   it("retries a failed calendar provider with the original idempotency key", async () => {
     let failures = 1;
     const keys: string[] = [];
-    const provider = { async createEvent(_event: unknown, key: string) { keys.push(key); if (failures-- > 0) throw new Error("temporary outage"); return { eventId: "calendar-80", meetUrl: null }; } };
+    const provider = { async createEvent(_event: unknown, key: string) { keys.push(key); if (failures-- > 0) throw new Error("temporary outage"); return { eventId: "calendar-80", meetUrl: null }; }, async updateEvent() {}, async cancelEvent() {} };
     const service = new InterviewService(new InMemoryInterviewRepository(), provider);
 
     await expect(service.schedule(input, "00000000-0000-0000-0000-000000000001", "00000000-0000-0000-0000-000000000080", "calendar-retry")).rejects.toMatchObject({ code: "CALENDAR_PROVIDER_ERROR" });
@@ -85,7 +86,7 @@ describe("InterviewService", () => {
   });
 
   it("rejects invalid time ranges and missing idempotency keys", async () => {
-    const service = new InterviewService(new InMemoryInterviewRepository());
+    const service = new InterviewService(new InMemoryInterviewRepository(), new InMemoryCalendarProvider());
     await expect(service.retryProvider("not-a-uuid")).rejects.toMatchObject({ code: "VALIDATION_ERROR" });
     await expect(service.schedule(input, "not-a-uuid", "00000000-0000-0000-0000-000000000080", "schedule-invalid")).rejects.toMatchObject({ code: "VALIDATION_ERROR" });
     await expect(service.schedule({ ...input, endsAt: input.startsAt }, "00000000-0000-0000-0000-000000000001", "00000000-0000-0000-0000-000000000080", "schedule-invalid")).rejects.toThrow();
@@ -95,7 +96,7 @@ describe("InterviewService", () => {
 
   it("maps missing interviews and repository races to stable errors", async () => {
     const repository = new InMemoryInterviewRepository();
-    const service = new InterviewService(repository);
+    const service = new InterviewService(repository, new InMemoryCalendarProvider());
     const missingId = "00000000-0000-0000-0000-000000000099";
     await expect(service.retryProvider(missingId)).rejects.toMatchObject({ code: "NOT_FOUND" });
     await expect(service.reschedule({ interviewId: missingId, startsAt: input.startsAt, endsAt: input.endsAt }, "00000000-0000-0000-0000-000000000001", 1)).rejects.toMatchObject({ code: "NOT_FOUND" });
@@ -103,19 +104,19 @@ describe("InterviewService", () => {
 
     const scheduled = await service.schedule(input, "00000000-0000-0000-0000-000000000001", "00000000-0000-0000-0000-000000000080", "race-a");
     const rescheduleRace = new InMemoryInterviewRepository();
-    await new InterviewService(rescheduleRace).schedule({ ...input, startsAt: "2026-08-24T05:00:00.000Z", endsAt: "2026-08-24T05:30:00.000Z" }, "00000000-0000-0000-0000-000000000001", scheduled.id, "race-b");
+    await new InterviewService(rescheduleRace, new InMemoryCalendarProvider()).schedule({ ...input, startsAt: "2026-08-24T05:00:00.000Z", endsAt: "2026-08-24T05:30:00.000Z" }, "00000000-0000-0000-0000-000000000001", scheduled.id, "race-b");
     rescheduleRace.reschedule = async () => null;
     const cancelRace = new InMemoryInterviewRepository();
-    await new InterviewService(cancelRace).schedule({ ...input, startsAt: "2026-08-24T06:00:00.000Z", endsAt: "2026-08-24T06:30:00.000Z" }, "00000000-0000-0000-0000-000000000001", scheduled.id, "race-c");
+    await new InterviewService(cancelRace, new InMemoryCalendarProvider()).schedule({ ...input, startsAt: "2026-08-24T06:00:00.000Z", endsAt: "2026-08-24T06:30:00.000Z" }, "00000000-0000-0000-0000-000000000001", scheduled.id, "race-c");
     cancelRace.cancel = async () => null;
-    await expect(new InterviewService(rescheduleRace).reschedule({ interviewId: scheduled.id, startsAt: "2026-08-24T04:00:00.000Z", endsAt: "2026-08-24T04:30:00.000Z" }, "00000000-0000-0000-0000-000000000001", 1)).rejects.toMatchObject({ code: "CONFLICT" });
-    await expect(new InterviewService(cancelRace).cancel({ interviewId: scheduled.id, reason: "Race" }, "00000000-0000-0000-0000-000000000001", 1)).rejects.toMatchObject({ code: "CONFLICT" });
-    await expect(new InterviewService(repository).cancel({ interviewId: scheduled.id, reason: "Already changed" }, "00000000-0000-0000-0000-000000000001", 2)).rejects.toMatchObject({ code: "CONFLICT" });
+    await expect(new InterviewService(rescheduleRace, new InMemoryCalendarProvider()).reschedule({ interviewId: scheduled.id, startsAt: "2026-08-24T04:00:00.000Z", endsAt: "2026-08-24T04:30:00.000Z" }, "00000000-0000-0000-0000-000000000001", 1)).rejects.toMatchObject({ code: "CONFLICT" });
+    await expect(new InterviewService(cancelRace, new InMemoryCalendarProvider()).cancel({ interviewId: scheduled.id, reason: "Race" }, "00000000-0000-0000-0000-000000000001", 1)).rejects.toMatchObject({ code: "CONFLICT" });
+    await expect(new InterviewService(repository, new InMemoryCalendarProvider()).cancel({ interviewId: scheduled.id, reason: "Already changed" }, "00000000-0000-0000-0000-000000000001", 2)).rejects.toMatchObject({ code: "CONFLICT" });
   });
 
   it("preserves not-found errors when provider persistence loses the interview", async () => {
     const repository = new InMemoryInterviewRepository();
     repository.recordProviderSuccess = async () => null;
-    await expect(new InterviewService(repository).schedule(input, "00000000-0000-0000-0000-000000000001", "00000000-0000-0000-0000-000000000080", "provider-race")).rejects.toMatchObject({ code: "NOT_FOUND" });
+    await expect(new InterviewService(repository, new InMemoryCalendarProvider()).schedule(input, "00000000-0000-0000-0000-000000000001", "00000000-0000-0000-0000-000000000080", "provider-race")).rejects.toMatchObject({ code: "NOT_FOUND" });
   });
 });
