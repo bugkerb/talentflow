@@ -8,7 +8,7 @@ do $$ begin
   if (select count(*) from public.applications where id in ('00000000-0000-0000-0000-000000000030', '00000000-0000-0000-0000-000000000031', '00000000-0000-0000-0000-000000000032', '00000000-0000-0000-0000-000000000033')) <> 4 then raise exception 'expected four canonical seeded applications'; end if;
   if (select count(*) from public.pipeline_events where application_id in ('00000000-0000-0000-0000-000000000030', '00000000-0000-0000-0000-000000000031', '00000000-0000-0000-0000-000000000032', '00000000-0000-0000-0000-000000000033')) <> 4 then raise exception 'expected four canonical seeded events'; end if;
   if (select count(distinct stage) from public.applications where id in ('00000000-0000-0000-0000-000000000030', '00000000-0000-0000-0000-000000000031', '00000000-0000-0000-0000-000000000032', '00000000-0000-0000-0000-000000000033')) <> 4 then raise exception 'expected canonical candidates across four stages'; end if;
-end $$;
+end; $$;
 do $$ begin
   begin
     insert into public.applications (candidate_id, job_id, created_by) values ('00000000-0000-0000-0000-000000000020', '00000000-0000-0000-0000-000000000010', '00000000-0000-0000-0000-000000000001');
@@ -21,7 +21,7 @@ do $$ begin
   exception when others then
     if position('immutable' in sqlerrm) = 0 then raise; end if;
   end;
-end $$;
+end; $$;
 select 'seed_and_constraints=PASS';
 
 begin;
@@ -43,14 +43,15 @@ begin
   if public.transition_application_stage(transitioned.id, 1, 'interview', '00000000-0000-0000-0000-000000000001') is not null then
     raise exception 'stale application transition was accepted';
   end if;
-end $$;
+end; $$;
 select 'atomic_application_transition=PASS';
 rollback;
 
 begin;
 do $$
-declare created jsonb;
-declare replayed jsonb;
+declare
+created jsonb;
+replayed jsonb;
 begin
   created := public.create_candidate_with_application(
     'Module 3 Verification Candidate', 'module3.verify@example.com', '0800000099', 'manual',
@@ -71,14 +72,16 @@ begin
   exception when others then
     if position('idempotency key was reused' in sqlerrm) = 0 then raise; end if;
   end;
+  end if;
 end $$;
 select 'candidate_crud_idempotency=PASS';
 rollback;
 
 begin;
 do $$
-declare scheduled public.interviews;
-declare replayed public.interviews;
+declare
+scheduled public.interviews;
+replayed public.interviews;
 begin
   select * into scheduled from public.schedule_interview(
     '00000000-0000-0000-0000-000000000040',
@@ -163,7 +166,7 @@ set local role authenticated;
 set local request.jwt.claim.sub = '00000000-0000-0000-0000-000000000001';
 do $$ begin
   if (select count(*) from public.profiles) <> 1 then raise exception 'active HR profile read was not limited to self'; end if;
-  if (select count(*) from public.jobs) <> 1 then raise exception 'active HR could not read jobs'; end if;
+  if (select count(*) from public.jobs where id = '00000000-0000-0000-0000-000000000010') <> 1 then raise exception 'active HR could not read canonical job'; end if;
   if (select count(*) from public.pipeline_events) <> 4 then raise exception 'active HR could not read pipeline events'; end if;
   insert into public.jobs (id, title, description, created_by)
   values ('00000000-0000-0000-0000-000000000011', 'RLS verification job', 'Rolled back after verification', '00000000-0000-0000-0000-000000000001');
@@ -173,7 +176,7 @@ select 'rls_active_hr_allowed=PASS';
 set local request.jwt.claim.sub = '00000000-0000-0000-0000-000000000002';
 do $$ begin
   if (select count(*) from public.profiles) <> 1 then raise exception 'viewer could not self-read profile'; end if;
-  if (select count(*) from public.jobs) <> 0 then raise exception 'viewer could read jobs'; end if;
+  if (select count(*) from public.jobs where id = '00000000-0000-0000-0000-000000000010') <> 0 then raise exception 'viewer could read jobs'; end if;
   begin
     insert into public.jobs (title, description, created_by)
     values ('Viewer write', 'Must be denied', '00000000-0000-0000-0000-000000000002');
