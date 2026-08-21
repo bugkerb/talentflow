@@ -1,0 +1,9 @@
+import { describe, expect, it, vi } from "vitest";
+import { DiscoveryService } from "@/application/discovery/service";
+import { generateDiscoveryQuery, normalizeAndRank, type DiscoverySourceRecord } from "@/application/discovery/types";
+
+const source: DiscoverySourceRecord = { source: "persisted", externalId: "p-1", profileUrl: "https://example.test/p-1", fullName: "A", email: "a@example.test", skills: ["TypeScript"], experienceYears: 5, profileText: "Senior TypeScript engineer", raw: {} };
+describe("Module 1 discovery", () => {
+  it("generates deterministic query and ranked evidence", () => { const input = { jobId: "00000000-0000-0000-0000-000000000001", title: "Tech Lead", jobDescription: "TypeScript platform engineer", skills: ["TypeScript"], minimumYears: 3 }; expect(generateDiscoveryQuery(input)).toEqual(generateDiscoveryQuery(input)); expect(normalizeAndRank(generateDiscoveryQuery(input), [source])[0].normalizedProfile.evidence.length).toBeGreaterThan(0); });
+  it("keeps approval idempotency at service boundary", async () => { const approveResult = { candidateId: "c", applicationId: "a" }; const repository = { saveRun: vi.fn().mockResolvedValue("r"), saveResults: vi.fn(), approveResult: vi.fn().mockResolvedValue(approveResult) }; const service = new DiscoveryService({ search: vi.fn().mockResolvedValue([source]) }, repository); await expect(service.approve("r", "p-1", "00000000-0000-0000-0000-000000000001", "u", "")).rejects.toMatchObject({ code: "VALIDATION_ERROR" }); await expect(service.approve("r", "p-1", "00000000-0000-0000-0000-000000000001", "u", "key")).resolves.toEqual(approveResult); });
+});
