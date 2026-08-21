@@ -10,9 +10,10 @@ export type ScreeningRecord = {
   skillsScore: number | null;
   experienceScore: number | null;
   cultureScore: number | null;
-  reasoning: { summary: string; evidence: string[] };
+  reasoning: ScreeningResult["reasoning"];
   strengths: string[];
   interviewQuestions: string[];
+  teamInterviewReport: ScreeningResult["teamInterviewReport"];
   model: string | null;
   promptVersion: string;
   schemaVersion: string;
@@ -60,9 +61,9 @@ export class ScreeningRuntime {
     const completedAt = this.options.now();
     const screening: ScreeningRecord = {
       id: this.options.idFactory(), applicationId: parsed.data.applicationId, resumeId: parsed.data.resumeId, status: "completed",
-      skillsScore: null, experienceScore: null, cultureScore: null,
-      reasoning: { summary: result.summary, evidence: result.evidence }, strengths: result.evidence, interviewQuestions: [],
-      model: this.options.model ?? null, promptVersion: result.promptVersion, schemaVersion: "screening-v1", rawOutput: result,
+      skillsScore: result.scores.skills, experienceScore: result.scores.experience, cultureScore: result.scores.cultureCommunication,
+      reasoning: result.reasoning, strengths: result.strengths, interviewQuestions: result.prescreenQuestions, teamInterviewReport: result.teamInterviewReport,
+      model: this.options.model ?? null, promptVersion: result.promptVersion, schemaVersion: "screening-v2", rawOutput: result,
       errorCode: null, createdBy: actorId, createdAt: completedAt, completedAt
     };
     return { screening: await this.repository.insert(screening), result };
