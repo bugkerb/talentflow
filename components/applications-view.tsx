@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { isValidStageTransition, applicationStages, type ApplicationStage, type CandidateSource } from "@/domain/enums";
-import { defaultTrackerFilters, filterApplications, groupApplicationsByStage, parseTrackerFilters, serializeTrackerFilters, type ApplicationTrackerData, type TrackerApplication, type TrackerFilters } from "@/application/application-tracker";
+import { defaultTrackerFilters, filterApplications, groupApplicationsByStage, parseTrackerFilters, serializeTrackerFilters, type ApplicationTrackerData, type TrackerApplication, type TrackerCandidate, type TrackerFilters } from "@/application/application-tracker";
 import { AppShell, Header, Sidebar } from "./talentflow";
 
 const stageLabels: Record<ApplicationStage, string> = {
@@ -20,6 +21,21 @@ const sourceLabels: Record<CandidateSource, string> = {
   discovery: "ค้นหา",
   import: "นำเข้า",
 };
+
+type CandidateFormState = {
+  fullName: string;
+  email: string;
+  phone: string;
+  source: CandidateSource;
+  sourceDetail: string;
+  referrerName: string;
+  jobId: string;
+  appliedAt: string;
+};
+
+const todayInput = (): string => new Date().toISOString().slice(0, 10);
+const toDateInput = (value: string): string => value.slice(0, 10);
+const emptyCandidateForm = (jobId = ""): CandidateFormState => ({ fullName: "", email: "", phone: "", source: "manual", sourceDetail: "", referrerName: "", jobId, appliedAt: todayInput() });
 
 const stageColors: Record<ApplicationStage, string> = {
   screening: "bg-slate-400",
@@ -41,8 +57,8 @@ function StageSelect({ application, onChange, pending }: { application: TrackerA
   return <label className="text-xs text-[#565e74]"><span className="sr-only">เปลี่ยนขั้นตอนของ {application.candidate.fullName}</span><select aria-label={`เปลี่ยนขั้นตอนของ ${application.candidate.fullName}`} disabled={pending} value={application.stage} onChange={(event) => onChange(event.target.value as ApplicationStage)} className="rounded border border-[#bec5d8] bg-white px-2 py-1 text-xs">{choices.map((stage) => <option key={stage} value={stage}>{stageLabels[stage]}</option>)}</select></label>;
 }
 
-function ApplicationCard({ application, onStageChange, pending }: { application: TrackerApplication; onStageChange: (application: TrackerApplication, stage: ApplicationStage) => void; pending: boolean }) {
-  return <article className="rounded-lg border border-[#d9dee7] bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"><div className="flex items-start justify-between gap-3"><div className="flex min-w-0 items-center gap-3"><div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#dbe1ff] text-sm font-bold text-[#004cca]">{application.candidate.fullName.slice(0, 2)}</div><div className="min-w-0"><h3 className="truncate font-semibold">{application.candidate.fullName}</h3><p className="truncate text-xs text-[#565e74]">{application.job.title}</p></div></div><StageSelect application={application} pending={pending} onChange={(stage) => onStageChange(application, stage)} /></div><div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-[#565e74]"><span className="rounded bg-[#e8edf2] px-2 py-0.5">{sourceLabels[application.candidate.source]}</span>{application.candidate.email && <span className="truncate">{application.candidate.email}</span>}</div></article>;
+function ApplicationCard({ application, onStageChange, onEdit, onDelete, pending }: { application: TrackerApplication; onStageChange: (application: TrackerApplication, stage: ApplicationStage) => void; onEdit: (application: TrackerApplication) => void; onDelete: (application: TrackerApplication) => void; pending: boolean }) {
+  return <article className="rounded-lg border border-[#d9dee7] bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"><div className="flex items-start justify-between gap-3"><div className="flex min-w-0 items-center gap-3"><div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#dbe1ff] text-sm font-bold text-[#004cca]">{application.candidate.fullName.slice(0, 2)}</div><div className="min-w-0"><h3 className="truncate font-semibold">{application.candidate.fullName}</h3><p className="truncate text-xs text-[#565e74]">{application.job.title}</p></div></div><StageSelect application={application} pending={pending} onChange={(stage) => onStageChange(application, stage)} /></div><div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-[#565e74]"><span className="rounded bg-[#e8edf2] px-2 py-0.5">{sourceLabels[application.candidate.source]}</span>{application.candidate.email && <span className="truncate">{application.candidate.email}</span>}<span>สมัคร {toDateInput(application.appliedAt)}</span></div><div className="mt-3 flex gap-2 border-t border-[#eef0f3] pt-3"><button type="button" onClick={() => onEdit(application)} className="rounded-md border border-[#bec5d8] px-2 py-1 text-xs font-semibold text-[#34405b]">แก้ไข</button><button type="button" onClick={() => onDelete(application)} className="rounded-md border border-[#f1b8b5] px-2 py-1 text-xs font-semibold text-[#ba1a1a]">ลบ</button></div></article>;
 }
 
 function FilterControls({ data, filters, onChange }: { data: ApplicationTrackerData; filters: TrackerFilters; onChange: (patch: Partial<TrackerFilters>) => void }) {
@@ -51,11 +67,23 @@ function FilterControls({ data, filters, onChange }: { data: ApplicationTrackerD
 
 function EmptyState() { return <div className="rounded-xl border border-dashed border-[#bec5d8] bg-white p-12 text-center"><h2 className="font-serif text-2xl">ไม่พบผู้สมัคร</h2><p className="mt-2 text-sm text-[#565e74]">ลองเปลี่ยนคำค้นหาหรือตัวกรองเพื่อดูรายการอื่น</p></div>; }
 
+function CandidateDialog({ form, editing, candidate, jobs, pending, error, onChange, onClose, onSubmit }: { form: CandidateFormState; editing: TrackerApplication | null; candidate: TrackerCandidate | null; jobs: ApplicationTrackerData["jobs"]; pending: boolean; error: string | null; onChange: (patch: Partial<CandidateFormState>) => void; onClose: () => void; onSubmit: () => void }) {
+  const isCreate = !editing && !candidate;
+  return <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#071d37]/45 p-4" role="presentation"><div role="dialog" aria-modal="true" aria-labelledby="candidate-dialog-title" className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl"><div className="flex items-start justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-widest text-[#004cca]">Applicant Tracker</p><h2 id="candidate-dialog-title" className="mt-1 font-serif text-2xl font-bold">{isCreate ? "เพิ่มผู้สมัคร" : "แก้ไขผู้สมัคร"}</h2><p className="mt-1 text-sm text-[#565e74]">{isCreate ? "บันทึกข้อมูลลง Supabase และผูกกับตำแหน่งงานทันที" : "แก้ไขข้อมูลผู้สมัครด้วย optimistic locking"}</p></div><button type="button" aria-label="ปิดหน้าต่าง" onClick={onClose} className="rounded-md px-2 py-1 text-xl text-[#565e74]">×</button></div><div className="mt-5 grid gap-4 sm:grid-cols-2"><label className="text-sm font-semibold">ชื่อผู้สมัคร<input required value={form.fullName} onChange={(event) => onChange({ fullName: event.target.value })} className="mt-1 block w-full rounded-lg border border-[#bec5d8] px-3 py-2 font-normal" /></label><label className="text-sm font-semibold">อีเมล<input type="email" value={form.email} onChange={(event) => onChange({ email: event.target.value })} className="mt-1 block w-full rounded-lg border border-[#bec5d8] px-3 py-2 font-normal" /></label><label className="text-sm font-semibold">เบอร์โทร<input value={form.phone} onChange={(event) => onChange({ phone: event.target.value })} className="mt-1 block w-full rounded-lg border border-[#bec5d8] px-3 py-2 font-normal" /></label><label className="text-sm font-semibold">แหล่งที่มา<select value={form.source} onChange={(event) => onChange({ source: event.target.value as CandidateSource })} className="mt-1 block w-full rounded-lg border border-[#bec5d8] bg-white px-3 py-2 font-normal">{Object.entries(sourceLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label><label className="text-sm font-semibold sm:col-span-2">รายละเอียดแหล่งที่มา<input value={form.sourceDetail} onChange={(event) => onChange({ sourceDetail: event.target.value })} placeholder="เช่น LinkedIn, JobsDB, ชื่อกลุ่ม หรือ URL" className="mt-1 block w-full rounded-lg border border-[#bec5d8] px-3 py-2 font-normal" /></label>{form.source === "referral" && <label className="text-sm font-semibold sm:col-span-2">ผู้แนะนำ<input required value={form.referrerName} onChange={(event) => onChange({ referrerName: event.target.value })} className="mt-1 block w-full rounded-lg border border-[#bec5d8] px-3 py-2 font-normal" /></label>}<label className="text-sm font-semibold">ตำแหน่งงาน{isCreate ? <select required value={form.jobId} onChange={(event) => onChange({ jobId: event.target.value })} className="mt-1 block w-full rounded-lg border border-[#bec5d8] bg-white px-3 py-2 font-normal"><option value="">เลือกตำแหน่งงาน</option>{jobs.map((job) => <option key={job.id} value={job.id}>{job.title}</option>)}</select> : <span className="mt-1 block rounded-lg border border-[#eef0f3] bg-[#f8f9fb] px-3 py-2 text-sm font-normal text-[#565e74]">{editing?.job.title ?? "ยังไม่มีใบสมัคร"}</span>}</label><label className="text-sm font-semibold">วันที่สมัคร<input required={isCreate || Boolean(editing)} type="date" value={form.appliedAt} onChange={(event) => onChange({ appliedAt: event.target.value })} className="mt-1 block w-full rounded-lg border border-[#bec5d8] px-3 py-2 font-normal" /></label></div>{error && <p role="alert" className="mt-4 rounded-lg bg-[#fff5f4] p-3 text-sm text-[#ba1a1a]">{error}</p>}<div className="mt-6 flex justify-end gap-3"><button type="button" onClick={onClose} className="rounded-lg border border-[#bec5d8] px-4 py-2 text-sm font-semibold">ยกเลิก</button><button type="button" disabled={pending} onClick={onSubmit} className="rounded-lg bg-[#0057d9] px-4 py-2 text-sm font-semibold text-white disabled:opacity-60">{pending ? "กำลังบันทึก..." : "บันทึกผู้สมัคร"}</button></div></div></div>;
+}
+
 export function ApplicationsView({ data, initialFilters = defaultTrackerFilters, loadError }: { data: ApplicationTrackerData; initialFilters?: TrackerFilters; loadError?: boolean }) {
+  const router = useRouter();
   const [applications, setApplications] = useState(data.applications);
   const [filters, setFilters] = useState(initialFilters);
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [candidateDialog, setCandidateDialog] = useState<"create" | "edit" | null>(null);
+  const [editingApplication, setEditingApplication] = useState<TrackerApplication | null>(null);
+  const [editingCandidate, setEditingCandidate] = useState<TrackerCandidate | null>(null);
+  const [candidateForm, setCandidateForm] = useState<CandidateFormState>(() => emptyCandidateForm(data.jobs[0]?.id ?? ""));
+  const [candidatePending, setCandidatePending] = useState(false);
+  const [candidateError, setCandidateError] = useState<string | null>(null);
 
   useEffect(() => {
     if (window.location.search) return;
@@ -89,5 +117,70 @@ export function ApplicationsView({ data, initialFilters = defaultTrackerFilters,
     }
   };
 
-  return <AppShell><Sidebar activePath="/applications" /><Header /><main className="min-h-screen bg-[#f8f9fb] px-4 py-6 md:ml-[260px] md:px-6"><div className="mx-auto max-w-[1500px]"><div className="mb-5 flex flex-wrap items-end justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-widest text-[#004cca]">TalentFlow</p><h1 className="mt-2 font-serif text-3xl font-bold">ติดตามผู้สมัคร</h1><p className="mt-1 text-sm text-[#565e74]">ข้อมูลจากฐานข้อมูลผู้สมัคร ตำแหน่งงาน และใบสมัคร</p></div><div className="text-right text-xs text-[#565e74]"><p>{data.candidates.length} ผู้สมัคร · {data.jobs.length} ตำแหน่งงาน</p><p>{filteredApplications.length} ใบสมัครที่แสดง</p></div></div>{loadError ? <div className="rounded-xl border border-[#ba1a1a]/30 bg-[#fff5f4] p-6"><h2 className="font-semibold text-[#ba1a1a]">โหลดข้อมูลใบสมัครไม่สำเร็จ</h2><p className="mt-1 text-sm text-[#565e74]">ตรวจสอบการเชื่อมต่อและสิทธิ์ Supabase แล้วลองใหม่อีกครั้ง</p><button onClick={() => window.location.reload()} className="mt-4 rounded-lg bg-[#071d37] px-4 py-2 text-sm font-semibold text-white">ลองใหม่</button></div> : <><section className="mb-5 rounded-xl border border-[#e1e4ea] bg-white p-4"><div className="mb-4 flex flex-wrap items-center justify-between gap-3"><div className="flex rounded-lg bg-[#e8edf2] p-1"><button onClick={() => changeFilters({ view: "board" })} className={`rounded-md px-3 py-2 text-sm ${filters.view === "board" ? "bg-white font-semibold text-[#0057d9] shadow-sm" : "text-[#565e74]"}`}>บอร์ด</button><button onClick={() => changeFilters({ view: "list" })} className={`rounded-md px-3 py-2 text-sm ${filters.view === "list" ? "bg-white font-semibold text-[#0057d9] shadow-sm" : "text-[#565e74]"}`}>รายการ</button></div><button onClick={() => changeFilters(defaultTrackerFilters)} className="rounded-lg border border-[#bec5d8] bg-white px-3 py-2 text-xs font-semibold text-[#565e74]">ล้างตัวกรอง</button></div><FilterControls data={data} filters={filters} onChange={changeFilters} /></section>{error && <p role="alert" className="mb-4 rounded-lg border border-[#ba1a1a]/30 bg-[#fff5f4] p-3 text-sm text-[#ba1a1a]">{error}</p>}{filteredApplications.length === 0 ? <EmptyState /> : filters.view === "list" ? <div className="overflow-x-auto rounded-xl border border-[#e1e4ea] bg-white"><table className="min-w-full text-left text-sm"><thead className="border-b border-[#e1e4ea] bg-[#f8f9fb] text-xs text-[#565e74]"><tr><th className="px-4 py-3">ผู้สมัคร</th><th className="px-4 py-3">ตำแหน่งงาน</th><th className="px-4 py-3">แหล่งที่มา</th><th className="px-4 py-3">ขั้นตอน</th></tr></thead><tbody>{filteredApplications.map((application) => <tr key={application.id} className="border-b border-[#eef0f3] last:border-0"><td className="px-4 py-4 font-semibold">{application.candidate.fullName}<span className="block text-xs font-normal text-[#7c8292]">{application.candidate.email ?? "ไม่มีอีเมล"}</span></td><td className="px-4 py-4">{application.job.title}</td><td className="px-4 py-4 text-[#565e74]">{sourceLabels[application.candidate.source]}</td><td className="px-4 py-4"><div className="flex items-center gap-2"><span className={`h-2.5 w-2.5 rounded-full ${stageColors[application.stage]}`} />{stageLabels[application.stage]}<StageSelect application={application} pending={pendingId === application.id} onChange={(stage) => changeStage(application, stage)} /></div></td></tr>)}</tbody></table></div> : <div className="flex gap-5 overflow-x-auto pb-5">{applicationStages.map((stage) => <section key={stage} className="flex min-h-[430px] w-80 shrink-0 flex-col rounded-xl border border-[#d9dee7] bg-[#eef2f5] p-3"><header className="mb-4 flex items-center justify-between px-2"><h2 className="flex items-center gap-2 font-semibold"><span className={`h-2.5 w-2.5 rounded-full ${stageColors[stage]}`} />{stageLabels[stage]}</h2><span className="rounded-full bg-[#dce2e8] px-2 py-0.5 text-xs text-[#565e74]">{groupedApplications[stage].length}</span></header><div className="flex-1 space-y-3">{groupedApplications[stage].map((application) => <ApplicationCard key={application.id} application={application} pending={pendingId === application.id} onStageChange={changeStage} />)}</div></section>)}</div>}</>}</div></main></AppShell>;
+  const openCreateCandidate = (): void => {
+    setEditingApplication(null);
+    setEditingCandidate(null);
+    setCandidateForm(emptyCandidateForm(data.jobs[0]?.id ?? ""));
+    setCandidateError(null);
+    setCandidateDialog("create");
+  };
+
+  const openEditCandidate = (application: TrackerApplication): void => {
+    setEditingApplication(application);
+    setEditingCandidate(application.candidate);
+    setCandidateForm({ fullName: application.candidate.fullName, email: application.candidate.email ?? "", phone: application.candidate.phone ?? "", source: application.candidate.source, sourceDetail: application.candidate.sourceDetail ?? "", referrerName: "", jobId: application.jobId, appliedAt: toDateInput(application.appliedAt) });
+    setCandidateError(null);
+    setCandidateDialog("edit");
+  };
+
+  const openEditStandaloneCandidate = (candidate: TrackerCandidate): void => {
+    setEditingApplication(null);
+    setEditingCandidate(candidate);
+    setCandidateForm({ fullName: candidate.fullName, email: candidate.email ?? "", phone: candidate.phone ?? "", source: candidate.source, sourceDetail: candidate.sourceDetail ?? "", referrerName: "", jobId: "", appliedAt: "" });
+    setCandidateError(null);
+    setCandidateDialog("edit");
+  };
+
+  const submitCandidate = async (): Promise<void> => {
+    setCandidatePending(true);
+    setCandidateError(null);
+    try {
+      const payload = { fullName: candidateForm.fullName, email: candidateForm.email || undefined, phone: candidateForm.phone || undefined, source: candidateForm.source, sourceDetail: candidateForm.sourceDetail || undefined, referrerName: candidateForm.referrerName || undefined, ...(candidateForm.jobId ? { jobId: candidateForm.jobId } : {}), ...(candidateForm.appliedAt ? { appliedAt: new Date(`${candidateForm.appliedAt}T00:00:00.000Z`).toISOString() } : {}) };
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      let response: Response;
+      if (!editingCandidate) {
+        headers["Idempotency-Key"] = crypto.randomUUID();
+        response = await fetch("/api/candidates", { method: "POST", headers, body: JSON.stringify(payload) });
+      } else {
+        response = await fetch(`/api/candidates/${editingCandidate.id}`, { method: "PATCH", headers, body: JSON.stringify({ ...payload, expectedVersion: editingCandidate.version, ...(editingApplication ? { applicationId: editingApplication.id, applicationVersion: editingApplication.version } : {}) }) });
+      }
+      const result = await response.json() as { error?: { message?: string } };
+      if (!response.ok) throw new Error(result.error?.message ?? "บันทึกผู้สมัครไม่สำเร็จ");
+      setCandidateDialog(null);
+      router.refresh();
+    } catch (cause) {
+      setCandidateError(cause instanceof Error ? cause.message : "บันทึกผู้สมัครไม่สำเร็จ");
+    } finally {
+      setCandidatePending(false);
+    }
+  };
+
+  const deleteCandidate = async (candidate: TrackerCandidate, applicationId?: string): Promise<void> => {
+    if (!window.confirm(`ยืนยันลบ ${candidate.fullName} หรือไม่`)) return;
+    setPendingId(applicationId ?? candidate.id);
+    setError(null);
+    try {
+      const response = await fetch(`/api/candidates/${candidate.id}`, { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ expectedVersion: candidate.version }) });
+      const result = await response.json() as { error?: { message?: string } };
+      if (!response.ok) throw new Error(result.error?.message ?? "ลบผู้สมัครไม่สำเร็จ");
+      router.refresh();
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "ลบผู้สมัครไม่สำเร็จ");
+    } finally {
+      setPendingId(null);
+    }
+  };
+
+  const linkedApplicationByCandidate = new Map(applications.map((application) => [application.candidateId, application]));
+  return <AppShell><Sidebar activePath="/applications" /><Header /><main className="min-h-screen bg-[#f8f9fb] px-4 py-6 md:ml-[260px] md:px-6"><div className="mx-auto max-w-[1500px]"><div className="mb-5 flex flex-wrap items-end justify-between gap-4"><div><p className="text-xs font-bold uppercase tracking-widest text-[#004cca]">TalentFlow</p><h1 className="mt-2 font-serif text-3xl font-bold">ติดตามผู้สมัคร</h1><p className="mt-1 text-sm text-[#565e74]">ข้อมูลจากฐานข้อมูลผู้สมัคร ตำแหน่งงาน และใบสมัคร</p></div><div className="flex items-end gap-4"><div className="text-right text-xs text-[#565e74]"><p>{data.candidates.length} ผู้สมัคร · {data.jobs.length} ตำแหน่งงาน</p><p>{filteredApplications.length} ใบสมัครที่แสดง</p></div><button type="button" onClick={openCreateCandidate} className="rounded-lg bg-[#0057d9] px-4 py-2 text-sm font-semibold text-white shadow-sm">เพิ่มผู้สมัคร</button></div></div>{loadError ? <div className="rounded-xl border border-[#ba1a1a]/30 bg-[#fff5f4] p-6"><h2 className="font-semibold text-[#ba1a1a]">โหลดข้อมูลใบสมัครไม่สำเร็จ</h2><p className="mt-1 text-sm text-[#565e74]">ตรวจสอบการเชื่อมต่อและสิทธิ์ Supabase แล้วลองใหม่อีกครั้ง</p><button onClick={() => window.location.reload()} className="mt-4 rounded-lg bg-[#071d37] px-4 py-2 text-sm font-semibold text-white">ลองใหม่</button></div> : <><section className="mb-5 rounded-xl border border-[#e1e4ea] bg-white p-4"><div className="mb-4 flex flex-wrap items-center justify-between gap-3"><div className="flex rounded-lg bg-[#e8edf2] p-1"><button onClick={() => changeFilters({ view: "board" })} className={`rounded-md px-3 py-2 text-sm ${filters.view === "board" ? "bg-white font-semibold text-[#0057d9] shadow-sm" : "text-[#565e74]"}`}>บอร์ด</button><button onClick={() => changeFilters({ view: "list" })} className={`rounded-md px-3 py-2 text-sm ${filters.view === "list" ? "bg-white font-semibold text-[#0057d9] shadow-sm" : "text-[#565e74]"}`}>รายการ</button></div><button onClick={() => changeFilters(defaultTrackerFilters)} className="rounded-lg border border-[#bec5d8] bg-white px-3 py-2 text-xs font-semibold text-[#565e74]">ล้างตัวกรอง</button></div><FilterControls data={data} filters={filters} onChange={changeFilters} /></section>{error && <p role="alert" className="mb-4 rounded-lg border border-[#ba1a1a]/30 bg-[#fff5f4] p-3 text-sm text-[#ba1a1a]">{error}</p>}{filteredApplications.length === 0 ? <EmptyState /> : filters.view === "list" ? <div className="overflow-x-auto rounded-xl border border-[#e1e4ea] bg-white"><table className="min-w-full text-left text-sm"><thead className="border-b border-[#e1e4ea] bg-[#f8f9fb] text-xs text-[#565e74]"><tr><th className="px-4 py-3">ผู้สมัคร</th><th className="px-4 py-3">ตำแหน่งงาน</th><th className="px-4 py-3">วันที่สมัคร</th><th className="px-4 py-3">แหล่งที่มา</th><th className="px-4 py-3">ขั้นตอน</th><th className="px-4 py-3">จัดการ</th></tr></thead><tbody>{filteredApplications.map((application) => <tr key={application.id} className="border-b border-[#eef0f3] last:border-0"><td className="px-4 py-4 font-semibold">{application.candidate.fullName}<span className="block text-xs font-normal text-[#7c8292]">{application.candidate.email ?? "ไม่มีอีเมล"}<br />{application.candidate.phone ?? "ไม่มีเบอร์โทร"}</span></td><td className="px-4 py-4">{application.job.title}</td><td className="px-4 py-4">{toDateInput(application.appliedAt)}</td><td className="px-4 py-4 text-[#565e74]">{sourceLabels[application.candidate.source]}{application.candidate.sourceDetail ? <span className="block text-xs">{application.candidate.sourceDetail}</span> : null}</td><td className="px-4 py-4"><div className="flex items-center gap-2"><span className={`h-2.5 w-2.5 rounded-full ${stageColors[application.stage]}`} />{stageLabels[application.stage]}<StageSelect application={application} pending={pendingId === application.id} onChange={(stage) => changeStage(application, stage)} /></div></td><td className="px-4 py-4"><div className="flex gap-2"><button type="button" onClick={() => openEditCandidate(application)} className="text-xs font-semibold text-[#0057d9]">แก้ไข</button><button type="button" onClick={() => deleteCandidate(application.candidate, application.id)} className="text-xs font-semibold text-[#ba1a1a]">ลบ</button></div></td></tr>)}</tbody></table></div> : <div className="flex gap-5 overflow-x-auto pb-5">{applicationStages.map((stage) => <section key={stage} className="flex min-h-[430px] w-80 shrink-0 flex-col rounded-xl border border-[#d9dee7] bg-[#eef2f5] p-3"><header className="mb-4 flex items-center justify-between px-2"><h2 className="flex items-center gap-2 font-semibold"><span className={`h-2.5 w-2.5 rounded-full ${stageColors[stage]}`} />{stageLabels[stage]}</h2><span className="rounded-full bg-[#dce2e8] px-2 py-0.5 text-xs text-[#565e74]">{groupedApplications[stage].length}</span></header><div className="flex-1 space-y-3">{groupedApplications[stage].map((application) => <ApplicationCard key={application.id} application={application} pending={pendingId === application.id} onStageChange={changeStage} onEdit={openEditCandidate} onDelete={(item) => deleteCandidate(item.candidate, item.id)} />)}</div></section>)}</div>}<section className="mt-6 rounded-xl border border-[#e1e4ea] bg-white p-4"><div className="mb-3 flex items-center justify-between"><h2 className="font-semibold">ผู้สมัครในฐานข้อมูล</h2><span className="text-xs text-[#565e74]">แก้ไขหรือลบได้จากรายการที่มีใบสมัคร</span></div><div className="grid gap-2 md:grid-cols-2 lg:grid-cols-3">{data.candidates.map((candidate) => { const application = linkedApplicationByCandidate.get(candidate.id); return <div key={candidate.id} className="rounded-lg border border-[#eef0f3] p-3"><p className="font-semibold">{candidate.fullName}</p><p className="text-xs text-[#565e74]">{candidate.email ?? "ไม่มีอีเมล"} · {candidate.phone ?? "ไม่มีเบอร์โทร"}</p><div className="mt-2 flex gap-3"><button type="button" onClick={() => application ? openEditCandidate(application) : openEditStandaloneCandidate(candidate)} className="text-xs font-semibold text-[#0057d9]">แก้ไข</button><button type="button" onClick={() => deleteCandidate(candidate)} className="text-xs font-semibold text-[#ba1a1a]">ลบ</button></div></div>; })}</div></section></>}</div></main>{candidateDialog && <CandidateDialog form={candidateForm} editing={editingApplication} candidate={editingCandidate} jobs={data.jobs} pending={candidatePending} error={candidateError} onChange={(patch) => setCandidateForm((current) => ({ ...current, ...patch }))} onClose={() => setCandidateDialog(null)} onSubmit={() => void submitCandidate()} />}</AppShell>;
 }

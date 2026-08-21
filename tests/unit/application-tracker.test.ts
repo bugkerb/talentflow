@@ -17,7 +17,7 @@ const applications: TrackerApplication[] = [
     status: "active",
     version: 1,
     appliedAt: "2026-08-20T00:00:00.000Z",
-    candidate: { id: "c1", fullName: "Narin Chaiyapruk", email: "narin@example.com", source: "referral" },
+    candidate: { id: "c1", fullName: "Narin Chaiyapruk", email: "narin@example.com", phone: "0800000000", source: "referral", sourceDetail: "team", version: 1 },
     job: { id: "j1", title: "Tech Lead", status: "open" },
   },
   {
@@ -28,7 +28,7 @@ const applications: TrackerApplication[] = [
     status: "active",
     version: 2,
     appliedAt: "2026-08-19T00:00:00.000Z",
-    candidate: { id: "c2", fullName: "Pimchanok Tester", email: "pim@example.com", source: "manual" },
+    candidate: { id: "c2", fullName: "Pimchanok Tester", email: "pim@example.com", phone: "0800000001", source: "manual", sourceDetail: null, version: 1 },
     job: { id: "j1", title: "Tech Lead", status: "open" },
   },
 ];
@@ -43,7 +43,7 @@ describe("application tracker state", () => {
       status: "active",
       version: 1,
       applied_at: "2026-08-20T00:00:00.000Z",
-      candidates: { id: "c1", full_name: "Narin Chaiyapruk", email: "narin@example.com", source: "referral" },
+      candidates: { id: "c1", full_name: "Narin Chaiyapruk", email: "narin@example.com", phone: "0800000000", source: "referral", source_detail: "team", version: 1 },
       jobs: { id: "j1", title: "Tech Lead", status: "open" },
     })).toEqual(applications[0]);
   });

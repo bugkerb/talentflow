@@ -49,6 +49,34 @@ rollback;
 
 begin;
 do $$
+declare created jsonb;
+declare replayed jsonb;
+begin
+  created := public.create_candidate_with_application(
+    'Module 3 Verification Candidate', 'module3.verify@example.com', '0800000099', 'manual',
+    'verification', null, null, '00000000-0000-0000-0000-000000000010', now(),
+    'verify-candidate-crud-1', repeat('c', 64), '00000000-0000-0000-0000-000000000001');
+  replayed := public.create_candidate_with_application(
+    'Module 3 Verification Candidate', 'module3.verify@example.com', '0800000099', 'manual',
+    'verification', null, null, '00000000-0000-0000-0000-000000000010', now(),
+    'verify-candidate-crud-1', repeat('c', 64), '00000000-0000-0000-0000-000000000001');
+  if created->>'candidateId' <> replayed->>'candidateId' or created->>'applicationId' <> replayed->>'applicationId' then
+    raise exception 'candidate create idempotency replay returned another resource';
+  begin
+    perform public.create_candidate_with_application(
+      'Module 3 Verification Candidate', 'module3.verify@example.com', '0800000099', 'manual',
+      'different-request', null, null, '00000000-0000-0000-0000-000000000010', now(),
+      'verify-candidate-crud-1', repeat('d', 64), '00000000-0000-0000-0000-000000000001');
+    raise exception 'candidate idempotency hash mismatch was accepted';
+  exception when others then
+    if position('idempotency key was reused' in sqlerrm) = 0 then raise; end if;
+  end;
+end $$;
+select 'candidate_crud_idempotency=PASS';
+rollback;
+
+begin;
+do $$
 declare scheduled public.interviews;
 declare replayed public.interviews;
 begin

@@ -12,7 +12,10 @@ export type TrackerCandidate = {
   id: string;
   fullName: string;
   email: string | null;
+  phone: string | null;
   source: CandidateSource;
+  sourceDetail: string | null;
+  version: number;
 };
 
 export type TrackerJob = { id: string; title: string; status: JobStatus };
@@ -43,7 +46,7 @@ type SupabaseTrackerApplicationRow = {
   status: TrackerApplication["status"];
   version: number;
   applied_at: string;
-  candidates: { id: string; full_name: string; email: string | null; source: CandidateSource } | { id: string; full_name: string; email: string | null; source: CandidateSource }[];
+  candidates: { id: string; full_name: string; email: string | null; phone: string | null; source: CandidateSource; source_detail: string | null; version: number } | { id: string; full_name: string; email: string | null; phone: string | null; source: CandidateSource; source_detail: string | null; version: number }[];
   jobs: { id: string; title: string; status: JobStatus } | { id: string; title: string; status: JobStatus }[];
 };
 
@@ -63,7 +66,7 @@ export const toTrackerApplication = (row: SupabaseTrackerApplicationRow): Tracke
     status: row.status,
     version: row.version,
     appliedAt: row.applied_at,
-    candidate: { id: candidate.id, fullName: candidate.full_name, email: candidate.email, source: candidate.source },
+    candidate: { id: candidate.id, fullName: candidate.full_name, email: candidate.email, phone: candidate.phone, source: candidate.source, sourceDetail: candidate.source_detail, version: candidate.version },
     job: { id: job.id, title: job.title, status: job.status },
   };
 };
