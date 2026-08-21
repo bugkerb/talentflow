@@ -1,11 +1,13 @@
 \set ON_ERROR_STOP on
 do $$ begin
-  if (select count(*) from public.profiles) <> 1 then raise exception 'expected one seeded profile'; end if;
-  if (select count(*) from public.jobs) <> 1 then raise exception 'expected one seeded job'; end if;
-  if (select count(*) from public.candidates) <> 4 then raise exception 'expected four seeded candidates'; end if;
-  if (select count(*) from public.applications) <> 4 then raise exception 'expected four seeded applications'; end if;
-  if (select count(*) from public.pipeline_events) <> 4 then raise exception 'expected four seeded events'; end if;
-  if (select count(distinct stage) from public.applications) <> 4 then raise exception 'expected candidates across four stages'; end if;
+  -- The cloud test project is shared with isolated E2E users. Verify only the
+  -- deterministic seed records instead of assuming the whole database is empty.
+  if (select count(*) from public.profiles where id = '00000000-0000-0000-0000-000000000001') <> 1 then raise exception 'expected canonical seeded profile'; end if;
+  if (select count(*) from public.jobs where id = '00000000-0000-0000-0000-000000000010') <> 1 then raise exception 'expected canonical seeded job'; end if;
+  if (select count(*) from public.candidates where id in ('00000000-0000-0000-0000-000000000020', '00000000-0000-0000-0000-000000000021', '00000000-0000-0000-0000-000000000022', '00000000-0000-0000-0000-000000000023')) <> 4 then raise exception 'expected four canonical seeded candidates'; end if;
+  if (select count(*) from public.applications where id in ('00000000-0000-0000-0000-000000000030', '00000000-0000-0000-0000-000000000031', '00000000-0000-0000-0000-000000000032', '00000000-0000-0000-0000-000000000033')) <> 4 then raise exception 'expected four canonical seeded applications'; end if;
+  if (select count(*) from public.pipeline_events where application_id in ('00000000-0000-0000-0000-000000000030', '00000000-0000-0000-0000-000000000031', '00000000-0000-0000-0000-000000000032', '00000000-0000-0000-0000-000000000033')) <> 4 then raise exception 'expected four canonical seeded events'; end if;
+  if (select count(distinct stage) from public.applications where id in ('00000000-0000-0000-0000-000000000030', '00000000-0000-0000-0000-000000000031', '00000000-0000-0000-0000-000000000032', '00000000-0000-0000-0000-000000000033')) <> 4 then raise exception 'expected canonical candidates across four stages'; end if;
 end $$;
 do $$ begin
   begin
