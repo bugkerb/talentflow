@@ -55,4 +55,22 @@ describe("jobs and shared shell QA regressions", () => {
     expect(screen.getByRole("main").classList.contains("md:ml-[260px]")).toBe(true);
     expect(screen.getByRole("banner").classList.contains("md:ml-[260px]")).toBe(true);
   });
+
+  it("shows deterministic validation when creating a job with empty required fields", () => {
+    render(createElement(JobsPage, { initialJobs: jobs }));
+
+    fireEvent.submit(document.getElementById("create-job-form") as HTMLFormElement);
+
+    expect(screen.getByRole("status").textContent).toContain("กรุณากรอกข้อมูลที่จำเป็นก่อนบันทึก");
+    expect(screen.getByText("กรุณาระบุชื่อตำแหน่งงาน")).toBeTruthy();
+    expect(screen.getByText("กรุณาระบุรายละเอียดงาน")).toBeTruthy();
+    expect(screen.getByRole("textbox", { name: /ชื่อตำแหน่ง/ }).getAttribute("aria-invalid")).toBe("true");
+  });
+
+  it("uses Thai-only copy for the job description field", () => {
+    render(createElement(JobsPage, { initialJobs: jobs }));
+
+    expect(screen.getByText("รายละเอียดงาน", { selector: "label" })).toBeTruthy();
+    expect(screen.queryByText(/Job Description/i)).toBeNull();
+  });
 });
