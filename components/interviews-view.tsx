@@ -65,9 +65,11 @@ export function InterviewsView({ initialInterviews = [] }: { initialInterviews?:
   const [scheduleDate, setScheduleDate] = useState(formatInputDate(today));
   const [scheduleStart, setScheduleStart] = useState("11:00");
   const [scheduleEnd, setScheduleEnd] = useState("11:30");
+  const [scheduleTargetId, setScheduleTargetId] = useState("");
   const [cancelOpen, setCancelOpen] = useState(false);
   const [cancelTargetId, setCancelTargetId] = useState<string | null>(null);
   const [detailDate, setDetailDate] = useState(formatInputDate(today));
+  const [detailTargetId, setDetailTargetId] = useState("");
   const detailsRef = useRef<HTMLElement>(null);
   const timeRef = useRef<HTMLInputElement>(null);
   const cancelDialogRef = useRef<HTMLElement>(null);
@@ -78,17 +80,20 @@ export function InterviewsView({ initialInterviews = [] }: { initialInterviews?:
     const query = searchTerm.trim().toLocaleLowerCase();
     return interviewEvents.filter((event) => !query || `${event.title} ${event.candidate} ${event.detail ?? ""}`.toLocaleLowerCase().includes(query));
   }, [interviewEvents, searchTerm]);
+  const selectedDetail = interviews.find((item) => item.id === detailTargetId) ?? null;
+  const conflicts = useMemo(() => interviews.filter((item, index, all) => item.status === "scheduled" && all.some((other, otherIndex) => otherIndex !== index && other.status === "scheduled" && other.interviewerId === item.interviewerId && new Date(item.startsAt) < new Date(other.endsAt) && new Date(other.startsAt) < new Date(item.endsAt))), [interviews]);
   const periodLabel = calendarView === "day"
     ? formatFullDate(calendarDate)
     : calendarView === "month"
       ? formatMonth(calendarDate)
       : `${formatShortDate(visibleDates[0])} – ${formatShortDate(visibleDates[visibleDates.length - 1])}`;
-  const focusRescheduleForm = () => { setMessage("เลือกเวลาใหม่เพื่อเลื่อนนัดหมาย"); timeRef.current?.focus(); };
+  const focusRescheduleForm = (value?: string | FormEvent<HTMLButtonElement>) => { const id = typeof value === "string" ? value : undefined; if (id) { setDetailTargetId(id); const target = interviews.find((item) => item.id === id); if (target) setDetailDate(formatInputDate(new Date(target.startsAt))); } setMessage("เลือกเวลาใหม่เพื่อเลื่อนนัดหมาย"); timeRef.current?.focus(); };
   const showDetails = () => { setMessage("แสดงรายละเอียดนัดหมายที่มีเวลาซ้อนทับกัน"); detailsRef.current?.focus(); };
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => { event.preventDefault(); const form = new FormData(event.currentTarget); const target = interviews.find((item) => item.id === form.get("interviewId")); if (!target) { setMessage("ไม่พบนัดหมายที่ต้องการแก้ไข"); return; } const start = new Date(`${form.get("date")}T${form.get("time")}:00`); const result = await rescheduleInterview({ interviewId: target.id, startsAt: start.toISOString(), endsAt: new Date(start.getTime() + 30 * 60000).toISOString(), reason: String(form.get("reason") ?? "") }, target.version); if ("data" in result && result.data) { setInterviews((current) => current.map((item) => item.id === target.id ? { ...item, ...result.data } : item)); setMessage("บันทึกการเลื่อนนัดหมายแล้ว"); } else setMessage("บันทึกไม่สำเร็จ กรุณาโหลดข้อมูลใหม่"); };
-  const createSchedule = async () => { const target = interviews[0]; if (!target) { setMessage("ยังไม่มีใบสมัครสำหรับสร้างนัดหมาย"); return; } const start = new Date(`${scheduleDate}T${scheduleStart}:00`); const end = new Date(`${scheduleDate}T${scheduleEnd}:00`); const result = await scheduleInterview({ id: crypto.randomUUID(), applicationId: target.applicationId, interviewType: target.interviewType, startsAt: start.toISOString(), endsAt: end.toISOString(), timezone: target.timezone, interviewerId: target.interviewerId, description: target.description, additionalQuestions: target.additionalQuestions, idempotencyKey: crypto.randomUUID() }); if ("data" in result && result.data) { setInterviews((current) => [...current, { ...target, ...result.data }]); setMessage("สร้างนัดหมายแล้ว"); setScheduleOpen(false); } else setMessage("สร้างนัดหมายไม่สำเร็จ"); };
+  const actionError = (result: { error?: string | { message?: string }; message?: string; [key: string]: unknown }) => typeof result.error === "string" ? result.error : result.error?.message ?? result.message ?? "เซิร์ฟเวอร์ไม่สามารถดำเนินการได้";
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => { event.preventDefault(); const form = new FormData(event.currentTarget); const target = interviews.find((item) => item.id === form.get("interviewId")); if (!target) { setMessage("โปรดเลือกนัดหมายที่ต้องการแก้ไข"); return; } const start = new Date(`${form.get("date")}T${form.get("time")}:00`); const result = await rescheduleInterview({ interviewId: target.id, startsAt: start.toISOString(), endsAt: new Date(start.getTime() + 30 * 60000).toISOString(), reason: String(form.get("reason") ?? "") }, target.version); if ("data" in result && result.data) { setInterviews((current) => current.map((item) => item.id === target.id ? { ...item, ...result.data } : item)); setMessage("บันทึกการเลื่อนนัดหมายแล้ว"); } else setMessage(actionError(result)); };
+  const createSchedule = async () => { const target = interviews.find((item) => item.id === scheduleTargetId); if (!target) { setMessage("โปรดเลือกผู้สมัครและนัดหมายต้นแบบ"); return; } const start = new Date(`${scheduleDate}T${scheduleStart}:00`); const end = new Date(`${scheduleDate}T${scheduleEnd}:00`); const result = await scheduleInterview({ id: crypto.randomUUID(), applicationId: target.applicationId, interviewType: target.interviewType, startsAt: start.toISOString(), endsAt: end.toISOString(), timezone: target.timezone, interviewerId: target.interviewerId, description: target.description, additionalQuestions: target.additionalQuestions, idempotencyKey: crypto.randomUUID() }); if ("data" in result && result.data) { setInterviews((current) => [...current, { ...target, ...result.data }]); setMessage("สร้างนัดหมายแล้ว"); setScheduleOpen(false); } else setMessage(actionError(result)); };
   const handleCancel = async () => { const target = interviews.find((item) => item.id === cancelTargetId); if (!target) { setMessage("ไม่พบนัดหมายที่ต้องการยกเลิก"); return; } const result = await cancelInterview({ interviewId: target.id, reason: "ยกเลิกโดย HR" }, target.version); if ("data" in result && result.data) { setInterviews((current) => current.map((item) => item.id === target.id ? { ...item, ...result.data } : item)); setCancelOpen(false); setMessage("ยกเลิกนัดหมายแล้ว"); } else setMessage("ยกเลิกไม่สำเร็จ กรุณาโหลดข้อมูลใหม่"); };
-  const handleReset = () => { setDetailDate(formatInputDate(today)); setMessage("ยกเลิกการเปลี่ยนแปลงแล้ว"); };
+  const handleReset = () => { setDetailDate(selectedDetail ? formatInputDate(new Date(selectedDetail.startsAt)) : formatInputDate(today)); setMessage("ยกเลิกการเปลี่ยนแปลงแล้ว"); };
   const moveCalendar = (amount: number) => setCalendarDate(calendarView === "month" ? addMonths(calendarDate, amount) : addDays(calendarDate, calendarView === "week" ? amount * 7 : amount));
   const resetCalendar = () => setCalendarDate(today);
   const eventsForDate = (date: Date) => filteredEvents.filter((event) => event.date === dateKey(date));
