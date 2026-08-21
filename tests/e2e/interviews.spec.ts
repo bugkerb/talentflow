@@ -13,6 +13,6 @@ test("HR can inspect a conflict and reschedule the interview view", async ({ pag
   await expect(page.getByRole("status")).toContainText("เลื่อนนัดหมายแล้ว");
   await page.getByRole("button", { name: "ดูรายละเอียด" }).click();
   await expect(page.getByRole("status")).toContainText("แสดงรายละเอียดนัดหมาย");
-  await page.getByRole("button", { name: "ยกเลิก" }).click();
+  await page.locator('section[aria-labelledby="appointment-details-heading"]').getByRole("button", { name: "ยกเลิก" }).click();
   await expect(page.getByRole("status")).toContainText("ยกเลิกการเปลี่ยนแปลงแล้ว");
 });
