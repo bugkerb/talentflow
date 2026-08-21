@@ -35,7 +35,7 @@
 | G-05 | Critical HR journey ผ่าน | `npm run test:e2e` exit 0 โดยไม่มี required test ถูก skip | PASS (GitHub CI run `32431880232`; 6/6 E2E passed) |
 | G-06 | Production build ผ่าน | `npm run build` exit 0 | PASS (GitHub CI run `32431880232`) |
 | G-07 | OWASP Top 10 gate ผ่าน | Security tests/audit ของ #9 ไม่มี unresolved Critical/High | PARTIAL PASS (dependency audit + secret/security smoke passed in CI `32425278483`; runtime OWASP controls remain) |
-| G-08 | Idempotency/race gates ผ่าน | DB concurrency assertions ของ #4, #7, #8 ผ่าน | PARTIAL PASS (#7/#8 atomic transitions and SQL verification added; Cloud test project still pending) |
+| G-08 | Idempotency/race gates ผ่าน | DB concurrency assertions ของ #4, #7, #8 ผ่าน | PASS for Cloud database verifier (schema/seed/RLS/transition/interview idempotency and overlap all PASS); application Cloud E2E still pending |
 | G-09 | AI release gate ผ่าน | Deterministic Harness ของ #6 ผ่านทุก fixture | PASS (provider-agnostic Harness: 9 deterministic tests; 100% business-logic coverage) |
 | G-10 | Deployment recovery ผ่าน | Deploy, rollback และ restore evidence ของ #12 ผ่าน | BLOCKED (no authorized target host/deploy credentials) |
 
@@ -43,7 +43,7 @@
 
 | Issue | Scope | Status |
 |---|---|---|
-| [#2](https://github.com/bugkerb/talentflow/issues/2) | Auth/session/role authorization/RLS | IN PROGRESS: local CI auth gates pass; Cloud schema/E2E blocked by missing `profiles` table |
+| [#2](https://github.com/bugkerb/talentflow/issues/2) | Auth/session/role authorization/RLS | IN PROGRESS: Cloud schema/RLS verifier PASS; authenticated Cloud E2E still has logout timing failure |
 | [#3](https://github.com/bugkerb/talentflow/issues/3) | Supabase job lifecycle | IN PROGRESS: draft/list plus edit/publish/pause/close/version conflict implemented; Cloud/readback E2E pending |
 | [#4](https://github.com/bugkerb/talentflow/issues/4) | Manual/referral candidates and applications | IN PROGRESS: authenticated persistence actions and active-email uniqueness added; idempotency/readback E2E pending |
 | [#5](https://github.com/bugkerb/talentflow/issues/5) | Private resume Storage | IN PROGRESS: private bucket/policies and strict upload boundary added; malware scanner and runtime integration pending |

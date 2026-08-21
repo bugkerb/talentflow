@@ -17,8 +17,8 @@ Evidence is recorded from the current worktree/branch, not inferred from histori
 
 | Gate | Required evidence | Status |
 |---|---|---|
-| Cloud schema | `scripts/verify-cloud-database.sh` with direct `SUPABASE_DB_URL` | BLOCKED — Cloud Auth health passes, but `POST /rest/v1/profiles` returns `404 PGRST205`; schema is not applied and direct Postgres URL/credential is not configured |
-| Cloud E2E | `E2E_SUPABASE_MODE=cloud scripts/run-e2e.sh` | BLOCKED — health check passes after `96dfc2e`, then isolated profile seed returns `404 PGRST205` because Cloud schema is missing |
+| Cloud schema | `supabase db push` + `psql supabase/seed.sql` + `psql supabase/verify.sql` | PASS — all seed, constraint, atomic transition, interview idempotency/overlap, privilege and RLS assertions returned PASS |
+| Cloud E2E | `E2E_SUPABASE_MODE=cloud scripts/run-e2e.sh` | PARTIAL — 5/6 flows pass; remaining auth logout redirect needs another clean-run confirmation after Cloud latency/env fixes |
 | Deployment recovery | deploy, rollback, restore drill | NOT RUN — authorized target host/credentials not configured |
 
 ## Current commit
