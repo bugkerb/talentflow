@@ -40,7 +40,7 @@ describe("jobs and shared shell QA regressions", () => {
     expect(screen.getByRole("heading", { name: "นักวิจัยผู้ใช้" })).toBeTruthy();
     expect(screen.queryByRole("heading", { name: "นักพัฒนาซอฟต์แวร์" })).toBeNull();
 
-    fireEvent.change(screen.getByRole("combobox", { name: "กรองตามสถานะ" }), { target: { value: "open" } });
+    fireEvent.click(screen.getByRole("button", { name: "เปิดรับ" }));
     expect(screen.getByText("ไม่พบตำแหน่งงานที่ตรงกับตัวกรอง")).toBeTruthy();
     expect(screen.queryByRole("link", { name: "สร้างตำแหน่งงาน" })).toBeNull();
   });

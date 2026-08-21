@@ -149,55 +149,28 @@ export function DiscoveryPage({ jobs }: { jobs: JobRecord[] }) {
   return (
     <AppShell>
       <Sidebar activePath="/discovery" />
-      <Header />
-      <main className="mx-auto min-w-0 max-w-7xl space-y-6 px-4 py-6 md:ml-[260px] md:px-6">
-        <section aria-labelledby="discovery-heading">
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#004cca]">TalentFlow</p>
-          <h1 id="discovery-heading" className="mt-2 font-serif text-3xl leading-tight sm:text-4xl">
+      <Header showSearch searchValue={searchQuery} onSearch={setSearchQuery} />
+      <main className="mx-auto min-h-screen min-w-0 max-w-7xl space-y-8 px-4 py-6 md:ml-[260px] md:px-8 md:py-8">
+        <section aria-labelledby="discovery-heading" className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h1 id="discovery-heading" className="font-serif text-3xl leading-tight sm:text-4xl">
             ค้นหาผู้สมัคร
-          </h1>
-          <p className="mt-2 max-w-2xl text-sm text-[#565e74]">
-            เลือกตำแหน่งงาน ค้นหาผู้สมัครที่เหมาะสม และตรวจสอบหลักฐานก่อนตัดสินใจ
-          </p>
-        </section>
-
-        <section className="rounded-xl border border-[#e0e3e5] bg-white p-4 shadow-[0_2px_8px_rgba(15,23,42,.06)] sm:p-6" aria-label="ตั้งค่าการค้นหา">
-          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(260px,360px)] lg:items-end">
-            <label className="mb-0 block text-sm font-semibold">
-              ค้นหาทักษะหรือชื่อผู้สมัคร
-              <span className="relative mt-2 block">
-                <span aria-hidden="true" className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xl text-[#737687]">
-                  search
-                </span>
-                <input
-                  type="search"
-                  value={searchQuery}
-                  onChange={(event) => setSearchQuery(event.target.value)}
-                  className={`${field} pl-10`}
-                  placeholder="เช่น React, TypeScript, กิตติพงษ์"
-                  aria-label="ค้นหาทักษะหรือชื่อผู้สมัคร"
-                />
-              </span>
-            </label>
-            <label className="mb-0 block text-sm font-semibold">
+            </h1>
+            <p className="mt-2 text-sm text-[#565e74]">เลือกตำแหน่งงานก่อนเริ่มค้นหาและประเมินผู้สมัคร</p>
+            <label className="mt-4 block max-w-xl text-xs font-bold uppercase tracking-[0.05em] text-[#424656]">
               ตำแหน่งงาน
               <select
                 value={selectedJobId}
                 onChange={(event) => setSelectedJobId(event.target.value)}
-                className={`${field} ml-0`}
+                className={`${field} mt-2 py-2.5`}
                 aria-label="เลือกตำแหน่งงาน"
               >
                 <option value="">เลือกตำแหน่งงานที่เปิดรับ</option>
-                {openJobs.map((job) => (
-                  <option key={job.id} value={job.id}>
-                    {job.title}
-                  </option>
-                ))}
+                {openJobs.map((job) => <option key={job.id} value={job.id}>{job.title}</option>)}
               </select>
             </label>
           </div>
-
-          <div className="mt-5 flex flex-col gap-3 border-t border-[#e0e3e5] pt-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex shrink-0 gap-3">
             <button
               type="button"
               onClick={() => setFilterOpen((isOpen) => !isOpen)}
@@ -208,14 +181,16 @@ export function DiscoveryPage({ jobs }: { jobs: JobRecord[] }) {
               <span aria-hidden="true" className="material-symbols-outlined text-lg">tune</span>
               ตัวกรอง
             </button>
-            <button type="button" onClick={startSearch} disabled={!selectedJobId} className={`${primaryButton} w-full sm:w-auto`}>
+            <button type="button" onClick={startSearch} disabled={!selectedJobId} className={primaryButton}>
               <span aria-hidden="true" className="material-symbols-outlined text-lg">refresh</span>
               เริ่มค้นหา
             </button>
           </div>
+        </section>
 
+        <section aria-label="ตั้งค่าการค้นหา">
           {filterOpen && (
-            <div id="discovery-filters" className="mt-4 grid gap-4 border-t border-[#e0e3e5] pt-4 sm:grid-cols-2" role="region" aria-label="ตัวกรองผลลัพธ์">
+            <div id="discovery-filters" className="grid gap-4 border-t border-[#e0e3e5] pt-4 sm:grid-cols-2" role="region" aria-label="ตัวกรองผลลัพธ์">
               <label className="mb-0 block text-sm font-semibold">
                 คะแนนขั้นต่ำ
                 <select value={minimumScore} onChange={(event) => setMinimumScore(event.target.value)} className={`${field} ml-0`}>
@@ -285,9 +260,9 @@ export function DiscoveryPage({ jobs }: { jobs: JobRecord[] }) {
           {rankedResults.length === 0 ? (
             <div className="mt-4 rounded-xl border border-dashed border-[#c2c6d9] bg-white p-8 text-center text-sm text-[#565e74]">ไม่พบผู้สมัครตามเงื่อนไขการค้นหา</div>
           ) : (
-            <div className="mt-4 space-y-5">
+            <div className="mt-4 grid grid-cols-12 gap-6">
               {rankedResults.map((candidate) => (
-                <article key={candidate.id} className="overflow-hidden rounded-xl border border-[#c2c6d9] bg-white shadow-[0_2px_8px_rgba(15,23,42,.06)] transition hover:-translate-y-0.5 hover:shadow-md">
+                <article key={candidate.id} className="col-span-12 overflow-hidden rounded-xl border border-[#c2c6d9] bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
                   <header className="flex flex-col gap-4 border-b border-[#e0e3e5] bg-[#f2f4f6] p-4 sm:flex-row sm:items-start sm:justify-between sm:p-6">
                     <div className="flex min-w-0 items-start gap-4">
                       <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 border-white bg-[#dae2fd] text-lg font-bold text-[#004cca] shadow-sm sm:h-16 sm:w-16 sm:text-xl">
@@ -327,11 +302,11 @@ export function DiscoveryPage({ jobs }: { jobs: JobRecord[] }) {
                   <div className="grid divide-y divide-[#e0e3e5] md:grid-cols-3 md:divide-x md:divide-y-0">
                     <section className="p-5 sm:p-6">
                       <h4 className="flex items-center gap-2 font-semibold"><span aria-hidden="true" className="material-symbols-outlined text-[#004cca]">fact_check</span>หลักฐานที่พบ</h4>
-                      <ul className="mt-4 space-y-3 text-sm text-[#424656]">{candidate.evidence.map((item) => <li key={item}><span aria-hidden="true" className="mr-2 text-[#22c55e]">✓</span>{item}</li>)}</ul>
+                      <ul className="mt-4 space-y-3 text-sm text-[#424656]">{candidate.evidence.map((item) => <li key={item} className="flex items-start gap-2"><span aria-hidden="true" className="material-symbols-outlined mt-0.5 text-base text-[#22c55e]">check_circle</span><span>{item}</span></li>)}</ul>
                     </section>
                     <section className="bg-[#ffdad6]/20 p-5 sm:p-6">
                       <h4 className="flex items-center gap-2 font-semibold text-[#ba1a1a]"><span aria-hidden="true" className="material-symbols-outlined">warning</span>ข้อควรตรวจสอบ</h4>
-                      <ul className="mt-4 space-y-3 text-sm text-[#424656]">{candidate.concerns.map((item) => <li key={item}><span aria-hidden="true" className="mr-2 text-[#ba1a1a]">!</span>{item}</li>)}</ul>
+                      <ul className="mt-4 space-y-3 text-sm text-[#424656]">{candidate.concerns.map((item) => <li key={item} className="flex items-start gap-2"><span aria-hidden="true" className="material-symbols-outlined mt-0.5 text-base text-[#737687]">info</span><span>{item}</span></li>)}</ul>
                     </section>
                     <section className="flex flex-col justify-center gap-3 bg-[#f2f4f6] p-5 sm:p-6" aria-label={`การตัดสินใจสำหรับ ${candidate.fullName}`}>
                       {candidateDecisions[candidate.id] && (
