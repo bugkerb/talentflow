@@ -12,6 +12,7 @@ Evidence is recorded from the current worktree/branch, not inferred from histori
 | Production build | `npm run build` (`next build --webpack`) | PASS — exit 0 |
 | Atomic application transition | `supabase/migrations/0005_atomic_application_transition.sql` + `supabase/verify.sql` | PASS in isolated CI; stale version returns no update and event is transactional |
 | CI release checks | GitHub Actions run `32431880232` | PASS — dependency audit, lint, typecheck, coverage, integration, build, 6/6 Playwright E2E, and secret scan |
+| Vercel production deployment | `vercel deploy --prod --yes --scope bugkerbs-projects` | PASS — deployment `dpl_8vDVmeG9GofkNk7sg7DWMEqJLr2x`, `readyState=READY`, production alias `https://talentflow-rose.vercel.app` |
 
 ## Pending / blocked
 
@@ -19,7 +20,7 @@ Evidence is recorded from the current worktree/branch, not inferred from histori
 |---|---|---|
 | Cloud schema | `supabase db push` + `psql supabase/seed.sql` + `psql supabase/verify.sql` | PASS — all seed, constraint, atomic transition, interview idempotency/overlap, privilege and RLS assertions returned PASS |
 | Cloud E2E | `E2E_SUPABASE_MODE=cloud scripts/run-e2e.sh` | PARTIAL — 5/6 flows pass; remaining auth logout redirect needs another clean-run confirmation after Cloud latency/env fixes |
-| Deployment recovery | deploy, rollback, restore drill | NOT RUN — authorized target host/credentials not configured |
+| Deployment recovery | deploy, rollback, restore drill | PARTIAL — production deploy is READY; rollback/restore drill remains pending |
 
 ## Current commit
 

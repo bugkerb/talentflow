@@ -37,7 +37,7 @@
 | G-07 | OWASP Top 10 gate ผ่าน | Security tests/audit ของ #9 ไม่มี unresolved Critical/High | PARTIAL PASS (dependency audit + secret/security smoke passed in CI `32425278483`; runtime OWASP controls remain) |
 | G-08 | Idempotency/race gates ผ่าน | DB concurrency assertions ของ #4, #7, #8 ผ่าน | PASS for Cloud database verifier (schema/seed/RLS/transition/interview idempotency and overlap all PASS); application Cloud E2E still pending |
 | G-09 | AI release gate ผ่าน | Deterministic Harness ของ #6 ผ่านทุก fixture | PASS (provider-agnostic Harness: 9 deterministic tests; 100% business-logic coverage) |
-| G-10 | Deployment recovery ผ่าน | Deploy, rollback และ restore evidence ของ #12 ผ่าน | BLOCKED (no authorized target host/deploy credentials) |
+| G-10 | Deployment recovery ผ่าน | Deploy, rollback และ restore evidence ของ #12 ผ่าน | PARTIAL — production deploy PASS; rollback/restore pending |
 
 ## GitHub issue delivery status
 
@@ -53,8 +53,8 @@
 | [#9](https://github.com/bugkerb/talentflow/issues/9) | OWASP production verification | IN PROGRESS: threat model and CI dependency gate added; runtime abuse/Storage/AI/provider controls pending |
 | [#10](https://github.com/bugkerb/talentflow/issues/10) | UI maintainability/accessibility | IN PROGRESS (3 parallel slices) |
 | [#11](https://github.com/bugkerb/talentflow/issues/11) | Clean-checkout CI/full journey | IN PROGRESS: local isolated schema passes; latest GitHub CI pending |
-| [#12](https://github.com/bugkerb/talentflow/issues/12) | Deployment/observability/recovery | BLOCKED by #9, #11 |
-| [#13](https://github.com/bugkerb/talentflow/issues/13) | Handover/go-live sign-off | BLOCKED by #12 |
+| [#12](https://github.com/bugkerb/talentflow/issues/12) | Deployment/observability/recovery | IN PROGRESS: Vercel production deployment READY; rollback/restore and runtime observability evidence pending |
+| [#13](https://github.com/bugkerb/talentflow/issues/13) | Handover/go-live sign-off | BLOCKED by #12 until rollback/restore and remaining Cloud E2E evidence pass |
 
 ## Active slice: Issue #2 Auth and role-scoped access
 
