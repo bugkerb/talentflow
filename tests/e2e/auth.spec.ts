@@ -57,6 +57,9 @@ test("demo HR can log in, refresh the session, and log out", async ({ context, p
   await page.getByRole("button", { name: "ออกจากระบบ" }).click({ force: true });
   await expect(page).toHaveURL(/\/login$/, { timeout: 30_000 });
 
+  const loggedOutCookies = await context.cookies();
+  expect(loggedOutCookies.some(({ name }) => /^sb-.*-auth-token(?:\.\d+)?$/.test(name))).toBe(false);
+
   const loggedOutResponse = await page.request.get("/api/auth/session");
   expect(loggedOutResponse.status()).toBe(401);
 });
