@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import type { JobRecord } from "@/application/job-service";
 import type { DiscoveryCandidateRecord } from "@/server/discovery-repository";
-import { updateDiscoveryDecision } from "../app/discovery/actions";
+import { approveDiscoveryResult, runDiscovery, updateDiscoveryDecision } from "../app/discovery/actions";
 import { AppShell, Header, Sidebar } from "./talentflow";
 
 type CandidateSource = "referral" | "manual" | "discovery" | "import";
@@ -46,9 +46,17 @@ export function DiscoveryPage({ jobs, initialCandidates }: { jobs: JobRecord[]; 
   const [candidates, setCandidates] = useState(initialCandidates);
   const [, startTransition] = useTransition();
   const [actionError, setActionError] = useState<string | null>(null);
+  const [jobDescription, setJobDescription] = useState("");
+  const [skillsInput, setSkillsInput] = useState("");
+  const [minimumYears, setMinimumYears] = useState("0");
+  const [runState, setRunState] = useState<"idle" | "running" | "done">("idle");
+  const [runId, setRunId] = useState<string | null>(null);
+  const [runResults, setRunResults] = useState<Array<{ source: string; externalId: string; profileUrl: string; fullName: string; role?: string; company?: string; skills: string[]; score: number; evidence: string[]; concerns: string[] }>>([]);
+  const [approvedResults, setApprovedResults] = useState<Record<string, string>>({});
 
   const openJobs = jobs.filter((job) => job.status === "open");
   const selectedJob = openJobs.find((job) => job.id === selectedJobId);
+  useEffect(() => { if (selectedJob) { setJobDescription(selectedJob.description); setSkillsInput(""); setMinimumYears("0"); } }, [selectedJob]);
   const searchTerm = searchQuery.trim().toLocaleLowerCase();
   const scoreFloor = Number(minimumScore);
 
@@ -96,8 +104,18 @@ export function DiscoveryPage({ jobs, initialCandidates }: { jobs: JobRecord[]; 
 
   function confirmSearch() {
     if (!selectedJobId) return;
-    setSearchedJobId(selectedJobId);
     setSearchConfirmationOpen(false);
+    setRunState("running");
+    startTransition(async () => {
+      const result = await runDiscovery({ jobId: selectedJobId, title: selectedJob?.title ?? "", jobDescription, skills: skillsInput.split(",").map((item) => item.trim()).filter(Boolean), minimumYears: Number(minimumYears) });
+      if (result.error || !result.data) { setRunState("idle"); setActionError(result.error ? `${result.error.message} (รหัสคำขอ ${result.error.requestId})` : "ไม่สามารถเริ่มการค้นหาได้"); return; }
+      setRunId(result.data.runId); setRunResults(result.data.results.map((item) => ({ source: item.source, externalId: item.externalId, profileUrl: item.profileUrl, fullName: item.fullName, role: item.role, company: item.company, skills: item.skills, score: item.normalizedProfile.score, evidence: item.normalizedProfile.evidence, concerns: item.normalizedProfile.concerns }))); setRunState("done"); setSearchedJobId(selectedJobId); setActionError(null);
+    });
+  }
+
+  function approveResult(result: typeof runResults[number]) {
+    if (!runId || !selectedJobId) return;
+    startTransition(async () => { const response = await approveDiscoveryResult({ runId, externalId: result.externalId, jobId: selectedJobId, idempotencyKey: `discovery-${runId}-${result.externalId}` }); if (response.error) setActionError(`${response.error.message} (รหัสคำขอ ${response.error.requestId})`); else setApprovedResults((current) => ({ ...current, [result.externalId]: response.data?.applicationId ?? "approved" })); });
   }
 
   function updateCandidateDecision(candidate: DiscoveryCandidate, decision: CandidateDecision) {
@@ -136,6 +154,11 @@ export function DiscoveryPage({ jobs, initialCandidates }: { jobs: JobRecord[]; 
                 {openJobs.map((job) => <option key={job.id} value={job.id}>{job.title}</option>)}
               </select>
             </label>
+            {selectedJob && <div className="mt-4 grid max-w-3xl gap-3 rounded-xl border border-[#c2c6d9] bg-white p-4 text-sm shadow-sm">
+              <label className="font-semibold">เกณฑ์และรายละเอียดตำแหน่งงาน<textarea value={jobDescription} onChange={(event) => setJobDescription(event.target.value)} className={`${field} min-h-24`} aria-label="รายละเอียดตำแหน่งงาน" /></label>
+              <div className="grid gap-3 sm:grid-cols-2"><label className="font-semibold">ทักษะที่ต้องการ<input value={skillsInput} onChange={(event) => setSkillsInput(event.target.value)} className={field} aria-label="ทักษะที่ต้องการ" placeholder="เช่น TypeScript, React" /></label><label className="font-semibold">ประสบการณ์ขั้นต่ำ (ปี)<input type="number" min="0" max="60" value={minimumYears} onChange={(event) => setMinimumYears(event.target.value)} className={field} aria-label="ประสบการณ์ขั้นต่ำ" /></label></div>
+              <p className="text-xs text-[#565e74]">ระบบจะสร้างคำค้นจากรายละเอียดและทักษะ แล้วเรียกแหล่งข้อมูลที่ตั้งค่าไว้จริง</p>
+            </div>}
           </div>
           <div className="flex shrink-0 gap-3">
             <button
@@ -148,12 +171,17 @@ export function DiscoveryPage({ jobs, initialCandidates }: { jobs: JobRecord[]; 
               <span aria-hidden="true" className="material-symbols-outlined text-lg">tune</span>
               ตัวกรอง
             </button>
-            <button type="button" onClick={startSearch} disabled={!selectedJobId} className={primaryButton}>
+            <button type="button" onClick={startSearch} disabled={!selectedJobId || runState === "running"} className={primaryButton}>
               <span aria-hidden="true" className="material-symbols-outlined text-lg">refresh</span>
-              เริ่มค้นหา
+              {runState === "running" ? "กำลังค้นหา…" : "เริ่มค้นหา"}
             </button>
           </div>
         </section>
+
+        {runState === "done" && <section aria-labelledby="discovery-run-results" className="rounded-xl border border-[#c2c6d9] bg-white p-5 shadow-sm">
+          <div className="flex items-center justify-between gap-3"><div><h2 id="discovery-run-results" className="text-xl font-bold">ผลลัพธ์จากแหล่งข้อมูล</h2><p className="mt-1 text-sm text-[#565e74]">ตรวจสอบ evidence ก่อนอนุมัติเข้า Applicant Tracker</p></div><span className="text-sm font-semibold text-[#565e74]">พบ {runResults.length} คน</span></div>
+          <div className="mt-4 grid gap-4">{runResults.map((result) => <article key={result.externalId} className="rounded-lg border border-[#e0e3e5] p-4"><div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between"><div><h3 className="font-bold">{result.fullName}</h3><p className="text-sm text-[#565e74]">{result.role ?? "ไม่ระบุ"} · {result.company ?? "ไม่ระบุ"}</p><a className="text-xs text-[#004cca] underline" href={result.profileUrl} target="_blank" rel="noreferrer">เปิดแหล่งข้อมูล</a></div><div className="flex items-center gap-3"><strong className="rounded-full bg-[#dbe1ff] px-3 py-1 text-[#004cca]">{result.score}/100</strong><button type="button" className={secondaryButton} disabled={Boolean(approvedResults[result.externalId])} onClick={() => approveResult(result)}>{approvedResults[result.externalId] ? "อนุมัติแล้ว" : "อนุมัติเข้า Tracker"}</button></div></div><div className="mt-3 grid gap-2 text-sm sm:grid-cols-2"><div><h4 className="font-semibold">หลักฐาน</h4><ul className="mt-1 list-disc pl-5">{result.evidence.map((item) => <li key={item}>{item}</li>)}</ul></div><div><h4 className="font-semibold">ข้อควรตรวจสอบ</h4><ul className="mt-1 list-disc pl-5">{(result.concerns.length ? result.concerns : ["ไม่พบข้อควรตรวจสอบเพิ่มเติม"]).map((item) => <li key={item}>{item}</li>)}</ul></div></div></article>)}</div>
+        </section>}
 
         <section aria-label="ตั้งค่าการค้นหา">
           {filterOpen && (
