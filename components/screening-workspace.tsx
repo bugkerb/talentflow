@@ -84,7 +84,7 @@ export function ScreeningWorkspace({ data }: { data: ScreeningWorkspaceData }) {
       const response = await runScreening({ applicationId: target.applicationId, resumeId: selectedResumeId, jobDescription: target.jobDescription, resumeText });
       if ("error" in response) { setError(response.error.message); return; }
       const screeningResult = response.data.result;
-      setResult({ score: screeningResult.score, summary: screeningResult.summary, evidence: screeningResult.evidence, riskFlags: screeningResult.riskFlags });
+      setResult({ score: screeningResult.score ?? 0, summary: screeningResult.summary, evidence: screeningResult.evidence ?? [], riskFlags: screeningResult.riskFlags });
       setMessage("วิเคราะห์และบันทึกผลเรียบร้อยแล้ว");
     } catch { setError("ไม่สามารถวิเคราะห์เรซูเม่ได้ กรุณาลองใหม่"); }
     finally { setBusy(false); }
