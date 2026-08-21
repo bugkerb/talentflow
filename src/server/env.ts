@@ -15,6 +15,7 @@ const envSchema = z.object({
   GOOGLE_CLIENT_SECRET: optionalSecret,
   GOOGLE_OAUTH_REDIRECT_URI: z.string().url().optional(),
   GOOGLE_TOKEN_ENCRYPTION_KEY: optionalSecret
+  ,DISCOVERY_SOURCE_API_KEY: optionalSecret
 }).superRefine((env, ctx) => {
   const runtime = process.env.NODE_ENV ?? "development";
   if (env.AI_PROVIDER === "fixture" && runtime !== "test") {
