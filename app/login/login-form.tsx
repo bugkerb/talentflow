@@ -1,6 +1,7 @@
 "use client";
 
-import { useFormState, useFormStatus } from "react-dom";
+import { useActionState } from "react";
+import { useFormStatus } from "react-dom";
 import { loginAction, type LoginState } from "./actions";
 
 const initialState: LoginState = { error: null };
@@ -11,7 +12,7 @@ function SubmitButton() {
 }
 
 export function LoginForm({ next }: { next: string }) {
-  const [state, action] = useFormState(loginAction, initialState);
+  const [state, action] = useActionState(loginAction, initialState);
   return <form action={action} className="space-y-5">
     <input type="hidden" name="next" value={next} />
     <label className="block text-sm font-semibold">อีเมล<input required autoComplete="email" name="email" type="email" className="mt-2 block w-full rounded-lg border border-[#c2c6d9] px-3 py-3" /></label>
