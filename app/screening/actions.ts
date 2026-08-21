@@ -9,6 +9,7 @@ import { createSupabaseServerClient } from "@/server/supabase-server";
 import { InMemoryRateLimiter, rateLimitKey, rateLimitPolicies } from "@/server/rate-limit";
 import { createConfiguredScreeningAdapter } from "@/server/screening-provider";
 import { SupabaseScreeningRepository } from "@/server/screening-repository";
+import { readEnv } from "@/server/env";
 
 const uploadRateLimiter = new InMemoryRateLimiter(rateLimitPolicies.upload);
 
@@ -21,7 +22,8 @@ export async function runScreening(input: unknown) {
   try {
     const actor = await requireActiveHr();
     const client = await createSupabaseServerClient();
-    const runtime = new ScreeningRuntime(createConfiguredScreeningAdapter(), new SupabaseScreeningRepository(client), { provider: process.env.AI_PROVIDER ?? "fixture", model: process.env.AI_MODEL });
+    const env = readEnv();
+    const runtime = new ScreeningRuntime(createConfiguredScreeningAdapter(env), new SupabaseScreeningRepository(client), { provider: env.AI_PROVIDER, model: env.AI_MODEL });
     return { data: await runtime.run(input, actor.id) };
   } catch (error) {
     return toSafeError(error, requestId);
