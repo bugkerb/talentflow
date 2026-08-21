@@ -32,8 +32,8 @@
 | G-02 | Static analysis ผ่าน | `npm run lint` และ `npm run typecheck` exit 0 | PASS (current worktree) |
 | G-03 | Business logic coverage 100% | `npm run test:coverage` แสดง 100% statements/branches/functions/lines | PASS (73 tests, 100% all metrics; current worktree) |
 | G-04 | Database behavior ผ่าน | `npm run test:integration` exit 0 จาก isolated Supabase | PASS (GitHub CI run 32423393794) |
-| G-05 | Critical HR journey ผ่าน | `npm run test:e2e` exit 0 โดยไม่มี required test ถูก skip | IN PROGRESS (auth/dashboard ผ่าน; interview E2E locator fixes pushed in `96dfc2e`, CI pending) |
-| G-06 | Production build ผ่าน | `npm run build` exit 0 | PASS (current worktree) |
+| G-05 | Critical HR journey ผ่าน | `npm run test:e2e` exit 0 โดยไม่มี required test ถูก skip | PASS (GitHub CI run `32431880232`; 6/6 E2E passed) |
+| G-06 | Production build ผ่าน | `npm run build` exit 0 | PASS (GitHub CI run `32431880232`) |
 | G-07 | OWASP Top 10 gate ผ่าน | Security tests/audit ของ #9 ไม่มี unresolved Critical/High | PARTIAL PASS (dependency audit + secret/security smoke passed in CI `32425278483`; runtime OWASP controls remain) |
 | G-08 | Idempotency/race gates ผ่าน | DB concurrency assertions ของ #4, #7, #8 ผ่าน | PARTIAL PASS (#7/#8 atomic transitions and SQL verification added; Cloud test project still pending) |
 | G-09 | AI release gate ผ่าน | Deterministic Harness ของ #6 ผ่านทุก fixture | PASS (provider-agnostic Harness: 9 deterministic tests; 100% business-logic coverage) |

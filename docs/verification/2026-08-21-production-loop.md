@@ -11,7 +11,7 @@ Evidence is recorded from the current worktree/branch, not inferred from histori
 | Lint | `npm run lint` | PASS — exit 0 |
 | Production build | `npm run build` (`next build --webpack`) | PASS — exit 0 |
 | Atomic application transition | `supabase/migrations/0005_atomic_application_transition.sql` + `supabase/verify.sql` | PASS in isolated CI; stale version returns no update and event is transactional |
-| CI release checks | GitHub Actions runs `32430332565`, `32430746591` | FAIL → FIXED ITERATION — static/integration/build passed; interview E2E failed on ambiguous locators; fixes in `cf02bb4` and `96dfc2e`; latest CI pending |
+| CI release checks | GitHub Actions run `32431880232` | PASS — dependency audit, lint, typecheck, coverage, integration, build, 6/6 Playwright E2E, and secret scan |
 
 ## Pending / blocked
 
@@ -23,4 +23,4 @@ Evidence is recorded from the current worktree/branch, not inferred from histori
 
 ## Current commit
 
-`96dfc2e test: authenticate cloud supabase health check`
+`2d1e461 ci: cancel superseded verification runs`
