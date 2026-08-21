@@ -37,7 +37,6 @@ type Result = { score: number; summary: string; evidence: string[]; riskFlags: s
 
 const panel = "rounded-xl border border-[#e0e3e5] bg-white p-6 shadow-[0_2px_8px_rgba(15,23,42,.06)]";
 const primary = "rounded-lg bg-gradient-to-r from-[#0062ff] to-[#38bdf8] px-4 py-3 text-sm font-bold text-white shadow-sm disabled:cursor-not-allowed disabled:opacity-50";
-const secondary = "rounded-lg border border-[#c2c6d9] bg-white px-4 py-3 text-sm font-semibold text-[#004cca] disabled:cursor-not-allowed disabled:opacity-50";
 
 export function ScreeningWorkspace({ data }: { data: ScreeningWorkspaceData }) {
   const [targetId, setTargetId] = useState(data.targets[0]?.applicationId ?? "");

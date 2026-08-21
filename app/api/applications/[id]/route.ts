@@ -8,11 +8,12 @@ import { SupabaseApplicationRepository } from "@/server/supabase-application-rep
 
 export const dynamic = "force-dynamic";
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const requestId = requestIdFrom(request.headers.get("x-request-id"));
   try {
+    const { id } = await params;
     const body = await request.json().catch(() => null);
-    const input = transitionSchema.safeParse({ ...(body && typeof body === "object" ? body : {}), applicationId: params.id });
+    const input = transitionSchema.safeParse({ ...(body && typeof body === "object" ? body : {}), applicationId: id });
     if (!input.success) throw new AppError("VALIDATION_ERROR", "ข้อมูลการเปลี่ยนขั้นตอนไม่ถูกต้อง", 400);
 
     const supabase = await createSupabaseServerClient();
@@ -27,4 +28,3 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     return NextResponse.json(safe, { status, headers: { "Cache-Control": "no-store", "X-Request-ID": requestId } });
   }
 }
-
