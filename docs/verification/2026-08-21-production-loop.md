@@ -11,16 +11,16 @@ Evidence is recorded from the current worktree/branch, not inferred from histori
 | Lint | `npm run lint` | PASS — exit 0 |
 | Production build | `npm run build` (`next build --webpack`) | PASS — exit 0 |
 | Atomic application transition | `supabase/migrations/0005_atomic_application_transition.sql` + `supabase/verify.sql` | PASS in isolated CI; stale version returns no update and event is transactional |
-| CI release checks | GitHub Actions run `32426388196` | PASS — dependency audit, lint, typecheck, coverage, integration, build, Playwright, secret scan |
+| CI release checks | GitHub Actions runs `32430332565`, `32430746591` | FAIL → FIXED ITERATION — static/integration/build passed; interview E2E failed on ambiguous locators; fixes in `cf02bb4` and `96dfc2e`; latest CI pending |
 
 ## Pending / blocked
 
 | Gate | Required evidence | Status |
 |---|---|---|
-| Cloud schema | `scripts/verify-cloud-database.sh` with direct `SUPABASE_DB_URL` | BLOCKED — public Supabase URL is reachable, but direct Postgres URL/credential is not configured |
-| Cloud E2E | `E2E_SUPABASE_MODE=cloud scripts/run-e2e.sh` | NOT RUN — requires cloud service-role test credentials |
+| Cloud schema | `scripts/verify-cloud-database.sh` with direct `SUPABASE_DB_URL` | BLOCKED — Cloud Auth health passes, but `POST /rest/v1/profiles` returns `404 PGRST205`; schema is not applied and direct Postgres URL/credential is not configured |
+| Cloud E2E | `E2E_SUPABASE_MODE=cloud scripts/run-e2e.sh` | BLOCKED — health check passes after `96dfc2e`, then isolated profile seed returns `404 PGRST205` because Cloud schema is missing |
 | Deployment recovery | deploy, rollback, restore drill | NOT RUN — authorized target host/credentials not configured |
 
 ## Current commit
 
-`24ad35e feat: add clickable interview scheduling flow`
+`96dfc2e test: authenticate cloud supabase health check`
