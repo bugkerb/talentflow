@@ -8,7 +8,7 @@ const repository = vi.hoisted(() => ({ insert: vi.fn(async (record: unknown) => 
 
 vi.mock("@/server/auth", () => auth);
 vi.mock("@/server/supabase-server", () => ({ createSupabaseServerClient: vi.fn(async () => ({})) }));
-vi.mock("@/server/screening-provider", () => ({ createConfiguredScreeningAdapter: () => ({ screen: async () => ({ score: 90, recommendation: "strong", summary: "Good fit", evidence: ["Relevant experience"], riskFlags: [], promptVersion: "ai-screening-v1" }) }) }));
+vi.mock("@/server/screening-provider", () => ({ createConfiguredScreeningAdapter: () => ({ screen: async () => ({ score: 8, recommendation: "strong", scores: { skills: 8, experience: 8, cultureCommunication: 8 }, reasoning: { skills: "ตรง", experience: "ตรง", cultureCommunication: "ชัดเจน" }, summary: "Good fit", strengths: ["Relevant experience"], prescreenQuestions: ["ถามเพิ่ม"], teamInterviewReport: { summary: "รายงานทีม", focusAreas: ["ระบบ"], recommendation: "strong" }, evidence: ["Relevant experience"], riskFlags: [], promptVersion: "ai-screening-v1" }) }) }));
 vi.mock("@/server/screening-repository", () => ({ SupabaseScreeningRepository: class { insert = repository.insert; } }));
 vi.mock("@/server/env", () => ({ readEnv: () => ({ AI_PROVIDER: "fixture", AI_MODEL: undefined }) }));
 

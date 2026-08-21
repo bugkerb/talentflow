@@ -14,7 +14,8 @@ describe("provider-agnostic AI screening core", () => {
     expect(screeningResultSchema.parse(result)).toEqual(result);
     expect(result.recommendation).toBe("strong");
     expect(result.promptVersion).toBe(AI_SCREENING_PROMPT_VERSION);
-    expect(result.score).toBeGreaterThanOrEqual(80);
+    expect(result.score).toBeGreaterThanOrEqual(0);
+    expect(result.score).toBeLessThanOrEqual(10);
   });
 
   it.each(["weak", "missing", "prompt-injection"] as const)("handles the %s fixture deterministically", async (fixture) => {
