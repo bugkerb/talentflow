@@ -1,23 +1,19 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import type { JobRecord } from "@/application/job-service";
+import type { DiscoveryCandidateRecord } from "@/server/discovery-repository";
+import { updateDiscoveryDecision } from "../app/discovery/actions";
 import { AppShell, Header, Sidebar } from "./talentflow";
 
-type CandidateSource = "referral" | "direct";
+type CandidateSource = "referral" | "manual" | "discovery" | "import";
 
-type DiscoveryCandidate = {
+type DiscoveryCandidate = DiscoveryCandidateRecord & {
   id: string;
   fullName: string;
   initials: string;
   role: string;
   company: string;
-  score: number;
-  skills: readonly string[];
-  evidence: readonly string[];
-  concerns: readonly string[];
-  source: CandidateSource;
-  referrerName?: string;
 };
 
 type CandidateDecision = "interview" | "review" | "rejected";
@@ -28,47 +24,6 @@ const decisionDetails: Record<CandidateDecision, { label: string; message: strin
   rejected: { label: "ปฏิเสธ", message: "ปฏิเสธผู้สมัครแล้ว และนำออกจากรายการที่ต้องดำเนินการต่อ" },
 };
 
-const candidateFixtures: readonly DiscoveryCandidate[] = [
-  {
-    id: "kittipong",
-    fullName: "กิตติพงษ์ วิริยะ",
-    initials: "กพ",
-    role: "Senior Frontend Developer",
-    company: "TechCorp",
-    score: 94,
-    skills: ["React", "TypeScript", "System Design"],
-    evidence: [
-      "ประสบการณ์ตรง 5 ปีในการสร้างระบบด้วย React",
-      "ผ่าน Technical Test ระดับยอดเยี่ยม 95%",
-      "ร่วมพัฒนา Open Source ระดับองค์กร",
-    ],
-    concerns: [
-      "ประสบการณ์จัดการทีมขนาดใหญ่ยังจำกัด",
-      "คาดหวังเงินเดือนสูงกว่าโครงสร้าง 10%",
-    ],
-    source: "referral",
-    referrerName: "พิมพ์ชนก ศรีสุวรรณ",
-  },
-  {
-    id: "araya",
-    fullName: "อารยา นำโชค",
-    initials: "อน",
-    role: "Frontend Engineer",
-    company: "WebSolutions",
-    score: 78,
-    skills: ["Vue.js", "JavaScript", "UI/UX"],
-    evidence: [
-      "ผลงานโดดเด่นด้านการออกแบบ UI/UX",
-      "ประสบการณ์ทำงาน 3 ปีกับโปรเจกต์ E-commerce",
-    ],
-    concerns: [
-      "ขาดประสบการณ์ด้าน React ซึ่งเป็น Core Tech Stack",
-      "ระยะเวลาการทำงานที่เก่าสั้น ควรตรวจสอบเพิ่มเติม",
-    ],
-    source: "direct",
-  },
-];
-
 const primaryButton =
   "inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-[#0062ff] to-[#38bdf8] px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:-translate-y-0.5 disabled:translate-y-0 disabled:opacity-50";
 const secondaryButton =
@@ -76,7 +31,7 @@ const secondaryButton =
 const field =
   "mt-2 block w-full rounded-lg border border-[#c2c6d9] bg-white px-3 py-2.5 text-sm text-[#191c1e]";
 
-export function DiscoveryPage({ jobs }: { jobs: JobRecord[] }) {
+export function DiscoveryPage({ jobs, initialCandidates }: { jobs: JobRecord[]; initialCandidates: DiscoveryCandidateRecord[] }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedJobId, setSelectedJobId] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
@@ -88,6 +43,9 @@ export function DiscoveryPage({ jobs }: { jobs: JobRecord[] }) {
   const [candidateDecisions, setCandidateDecisions] = useState<Record<string, CandidateDecision>>({});
   const searchConfirmButtonRef = useRef<HTMLButtonElement>(null);
   const previouslyFocusedElementRef = useRef<HTMLElement | null>(null);
+  const [candidates, setCandidates] = useState(initialCandidates);
+  const [, startTransition] = useTransition();
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const openJobs = jobs.filter((job) => job.status === "open");
   const selectedJob = openJobs.find((job) => job.id === selectedJobId);
@@ -96,7 +54,7 @@ export function DiscoveryPage({ jobs }: { jobs: JobRecord[] }) {
 
   const rankedResults = useMemo(
     () =>
-      [...candidateFixtures]
+      candidates.filter((candidate) => !selectedJobId || candidate.jobId === selectedJobId).map((candidate) => ({ ...candidate, initials: candidate.fullName.slice(0, 2) }))
         .filter((candidate) => {
           const searchableText = [
             candidate.fullName,
@@ -108,12 +66,12 @@ export function DiscoveryPage({ jobs }: { jobs: JobRecord[] }) {
             .toLocaleLowerCase();
 
           const matchesSearch = !searchTerm || searchableText.includes(searchTerm);
-          const matchesScore = candidate.score >= scoreFloor;
+          const matchesScore = candidate.score === null ? scoreFloor === 0 : candidate.score >= scoreFloor;
           const matchesSource = sourceFilter === "all" || candidate.source === sourceFilter;
           return matchesSearch && matchesScore && matchesSource;
         })
-        .sort((left, right) => right.score - left.score),
-    [scoreFloor, searchTerm, sourceFilter],
+        .sort((left, right) => (right.score ?? -1) - (left.score ?? -1)),
+    [candidates, scoreFloor, searchTerm, sourceFilter, selectedJobId],
   );
 
   useEffect(() => {
@@ -142,8 +100,17 @@ export function DiscoveryPage({ jobs }: { jobs: JobRecord[] }) {
     setSearchConfirmationOpen(false);
   }
 
-  function updateCandidateDecision(candidateId: string, decision: CandidateDecision) {
-    setCandidateDecisions((currentDecisions) => ({ ...currentDecisions, [candidateId]: decision }));
+  function updateCandidateDecision(candidate: DiscoveryCandidate, decision: CandidateDecision) {
+    startTransition(async () => {
+      const result = await updateDiscoveryDecision({ applicationId: candidate.applicationId, expectedVersion: candidate.version, decision });
+      if (result.error) {
+        setActionError(`${result.error.message} (รหัสคำขอ ${result.error.requestId})`);
+        return;
+      }
+      setActionError(null);
+      setCandidates((current) => current.map((item) => item.applicationId === candidate.applicationId ? { ...item, version: result.data.version } : item));
+      setCandidateDecisions((currentDecisions) => ({ ...currentDecisions, [candidate.id]: decision }));
+    });
   }
 
   return (
@@ -204,7 +171,9 @@ export function DiscoveryPage({ jobs }: { jobs: JobRecord[] }) {
                 <select value={sourceFilter} onChange={(event) => setSourceFilter(event.target.value as "all" | CandidateSource)} className={`${field} ml-0`}>
                   <option value="all">ทุกแหล่งที่มา</option>
                   <option value="referral">ผู้สมัครที่มีผู้แนะนำ</option>
-                  <option value="direct">ค้นพบโดยตรง</option>
+                  <option value="manual">เพิ่มด้วยตนเอง</option>
+                  <option value="discovery">ระบบค้นพบ</option>
+                  <option value="import">นำเข้า</option>
                 </select>
               </label>
             </div>
@@ -249,6 +218,7 @@ export function DiscoveryPage({ jobs }: { jobs: JobRecord[] }) {
         )}
 
         <section aria-labelledby="ranked-results-heading">
+          {actionError && <p role="alert" className="rounded-lg border border-[#ba1a1a] bg-[#ffdad6]/40 p-3 text-sm text-[#93000a]">{actionError}</p>}
           <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <h2 id="ranked-results-heading" className="text-xl font-bold sm:text-2xl">ผลลัพธ์ที่จัดอันดับ</h2>
@@ -316,7 +286,7 @@ export function DiscoveryPage({ jobs }: { jobs: JobRecord[] }) {
                       )}
                       <button
                         type="button"
-                        onClick={() => updateCandidateDecision(candidate.id, "interview")}
+                        onClick={() => updateCandidateDecision(candidate, "interview")}
                         aria-pressed={candidateDecisions[candidate.id] === "interview"}
                         className={`${primaryButton} w-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0062ff] ${candidateDecisions[candidate.id] === "interview" ? "ring-2 ring-[#004cca] ring-offset-2" : ""}`}
                       >
@@ -324,7 +294,7 @@ export function DiscoveryPage({ jobs }: { jobs: JobRecord[] }) {
                       </button>
                       <button
                         type="button"
-                        onClick={() => updateCandidateDecision(candidate.id, "review")}
+                        onClick={() => updateCandidateDecision(candidate, "review")}
                         aria-pressed={candidateDecisions[candidate.id] === "review"}
                         className={`${secondaryButton} w-full focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0062ff] ${candidateDecisions[candidate.id] === "review" ? "ring-2 ring-[#004cca] ring-offset-2" : ""}`}
                       >
@@ -332,7 +302,7 @@ export function DiscoveryPage({ jobs }: { jobs: JobRecord[] }) {
                       </button>
                       <button
                         type="button"
-                        onClick={() => updateCandidateDecision(candidate.id, "rejected")}
+                        onClick={() => updateCandidateDecision(candidate, "rejected")}
                         aria-pressed={candidateDecisions[candidate.id] === "rejected"}
                         className={`inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[#ba1a1a] px-4 py-2 text-sm font-semibold text-[#ba1a1a] transition hover:bg-[#ffdad6]/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#ba1a1a] ${candidateDecisions[candidate.id] === "rejected" ? "ring-2 ring-[#ba1a1a] ring-offset-2" : ""}`}
                       >

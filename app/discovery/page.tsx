@@ -3,10 +3,12 @@ import { createSupabaseServerClient } from "@/server/supabase-server";
 import { JobService } from "@/application/job-service";
 import { SupabaseJobRepository } from "@/server/job-repository";
 import { DiscoveryPage } from "../../components/discovery-page";
+import { SupabaseDiscoveryRepository } from "@/server/discovery-repository";
 
 export const dynamic = "force-dynamic";
 export default async function DiscoveryRoute() {
   await requireActiveHr();
   const jobs = await new JobService(new SupabaseJobRepository(await createSupabaseServerClient())).list();
-  return <DiscoveryPage jobs={jobs} />;
+  const candidates = await new SupabaseDiscoveryRepository(await createSupabaseServerClient()).list();
+  return <DiscoveryPage jobs={jobs} initialCandidates={candidates} />;
 }
