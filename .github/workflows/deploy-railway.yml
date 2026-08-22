@@ -33,6 +33,19 @@ jobs:
       - name: Install Railway CLI
         run: npm install --global @railway/cli
 
+      - name: Install Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Apply and verify production database migrations
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          test -n "$SUPABASE_DB_URL"
+          supabase db push --db-url "$SUPABASE_DB_URL" --yes
+          psql "$SUPABASE_DB_URL" --set ON_ERROR_STOP=1 --file supabase/verify.sql
+
       - name: Deploy service
         env:
           RAILWAY_API_TOKEN: ${{ secrets.RAILWAY_API_TOKEN }}

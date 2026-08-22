@@ -47,13 +47,20 @@ Deploy ไปยัง Railway แล้วตรวจ `/api/health`, login แ
 
 ### GitHub Actions auto-deploy
 
-เมื่อ `main` ผ่าน workflow `CI` แล้ว workflow `Deploy Railway production` จะ deploy commit เดียวกันโดยอัตโนมัติ และรอ health check ก่อนจบงาน
+เมื่อ `main` ผ่าน workflow `CI` แล้ว workflow `Deploy Railway production` จะทำตามลำดับต่อไปนี้:
+
+1. รอ approval ของ GitHub `production` environment
+2. Apply migration ด้วย `SUPABASE_DB_URL`
+3. รัน `supabase/verify.sql`
+4. Deploy Railway service
+5. ตรวจ health check ก่อนจบงาน
 
 ตั้งค่าใน GitHub production environment:
 
 - Secret `RAILWAY_API_TOKEN` (Account/Workspace token; use only while the plan cannot create a Project Token)
 - Secret `RAILWAY_PROJECT_ID`
 - Secret `RAILWAY_SERVICE_ID`
+- Secret `SUPABASE_DB_URL` (production direct Postgres connection string; production environment only)
 - Variable `TALENTFLOW_HEALTH_URL` เช่น `https://talentflow-web-production.up.railway.app/api/health`
 
 ถ้า CI ไม่ผ่าน จะไม่ deploy. ถ้า deploy สำเร็จแต่ health check ไม่ผ่าน workflow จะ fail เพื่อหยุดการ promote ต่อ
