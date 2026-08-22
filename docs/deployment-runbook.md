@@ -45,6 +45,19 @@ npm run test:e2e
 
 Deploy ไปยัง Railway แล้วตรวจ `/api/health`, login และ critical HR journey. Production deploy ต้องมีผู้มีสิทธิ์อนุมัติและเก็บ deployment URL/commit SHA เป็น evidence
 
+### GitHub Actions auto-deploy
+
+เมื่อ `main` ผ่าน workflow `CI` แล้ว workflow `Deploy Railway production` จะ deploy commit เดียวกันโดยอัตโนมัติ และรอ health check ก่อนจบงาน
+
+ตั้งค่าใน GitHub production environment:
+
+- Secret `RAILWAY_TOKEN`
+- Secret `RAILWAY_PROJECT_ID`
+- Secret `RAILWAY_SERVICE_ID`
+- Variable `TALENTFLOW_HEALTH_URL` เช่น `https://talentflow-web-production.up.railway.app/api/health`
+
+ถ้า CI ไม่ผ่าน จะไม่ deploy. ถ้า deploy สำเร็จแต่ health check ไม่ผ่าน workflow จะ fail เพื่อหยุดการ promote ต่อ
+
 ## Rollback
 
 1. เลือก Railway deployment ก่อนหน้าที่ผ่าน smoke test
