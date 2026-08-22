@@ -1,0 +1,28 @@
+name: E2E tests
+
+on: [push, pull_request]
+
+concurrency:
+  group: talentflow-e2e-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - uses: supabase/setup-cli@v1
+        with: { version: latest }
+      - run: supabase start
+      - run: npx playwright install --with-deps chromium
+      - name: Run auth and foundation E2E against local Supabase
+        env:
+          # Local-only fixture; never reused for hosted or production environments.
+          E2E_HR_PASSWORD: demo-password-not-for-production
+        run: npm run test:e2e
