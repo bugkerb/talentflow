@@ -75,7 +75,7 @@ describe("InterviewService", () => {
   it("retries a failed calendar provider with the original idempotency key", async () => {
     let failures = 1;
     const keys: string[] = [];
-    const provider = { async createEvent(_event: unknown, key: string) { keys.push(key); if (failures-- > 0) throw new Error("temporary outage"); return { eventId: "calendar-80", meetUrl: null }; }, async updateEvent() {}, async cancelEvent() {} };
+    const provider = { async createEvent(_event: unknown, key: string) { keys.push(key); if (failures-- > 0) throw new Error("temporary outage"); return { eventId: "calendar-80", meetUrl: null }; }, async updateEvent() {}, async cancelEvent() {}, async listEvents() { return []; } };
     const service = new InterviewService(new InMemoryInterviewRepository(), provider);
 
     await expect(service.schedule(input, "00000000-0000-0000-0000-000000000001", "00000000-0000-0000-0000-000000000080", "calendar-retry")).rejects.toMatchObject({ code: "CALENDAR_PROVIDER_ERROR" });

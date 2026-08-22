@@ -1,0 +1,13 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "talentflow-facebook-search",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-08-22",
+  "compatibility_flags": ["nodejs_compat"],
+  "browser": { "binding": "BROWSER" },
+  "vars": {
+    "MAX_POSTS": "80",
+    "FACEBOOK_GROUP_URL": "https://www.facebook.com/groups/625167729529245",
+    "CLOUDFLARE_ACCOUNT_ID": "91a17cc877b319285bd1ed86ca86e5d8"
+  }
+}

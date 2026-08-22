@@ -2,7 +2,7 @@ import { AppError } from "@/server/errors";
 
 export const RESUME_BUCKET = "private-resumes";
 export const MAX_RESUME_SIZE_BYTES = 5 * 1024 * 1024;
-export const SUPPORTED_RESUME_TYPES = ["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"] as const;
+export const SUPPORTED_RESUME_TYPES = ["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "text/plain"] as const;
 
 export type ValidatedResume = {
   fileName: string;
@@ -22,10 +22,31 @@ export class ResumeService {
 
     const bytes = await file.arrayBuffer();
     const header = new Uint8Array(bytes.slice(0, 8));
-    const validMagic = file.type === "application/pdf"
+    const validMagic = file.type === "text/plain"
+      ? bytes.byteLength > 0
+      : file.type === "application/pdf"
       ? hasPrefix(header, [0x25, 0x50, 0x44, 0x46, 0x2d])
       : hasPrefix(header, [0x50, 0x4b, 0x03, 0x04]);
     if (!validMagic) throw new AppError("VALIDATION_ERROR", "Resume file signature is invalid");
     return { fileName: file.name, mimeType: file.type as ValidatedResume["mimeType"], fileSizeBytes: file.size, bytes };
+  }
+
+  async extractText(file: File): Promise<string> {
+    const validated = await this.validateUpload(file);
+    const bytes = Buffer.from(validated.bytes);
+    if (validated.mimeType === "application/pdf") {
+      const { PDFParse } = await import("pdf-parse");
+      const parser = new PDFParse({ data: bytes });
+      try {
+        return (await parser.getText()).text.trim();
+      } finally {
+        await parser.destroy();
+      }
+    }
+    if (validated.mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
+      const mammoth = await import("mammoth");
+      return (await mammoth.extractRawText({ buffer: bytes })).value.trim();
+    }
+    return new TextDecoder().decode(validated.bytes).trim();
   }
 }

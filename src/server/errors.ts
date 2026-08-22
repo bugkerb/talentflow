@@ -22,5 +22,6 @@ export class AppError extends Error {
 }
 export const toSafeError = (error: unknown, requestId: string): { error: { code: ErrorCode; message: string; requestId: string } } => {
   if (error instanceof AppError) return { error: { code: error.code, message: error.message, requestId } };
+  if (error instanceof Error && error.name === "ZodError") return { error: { code: "VALIDATION_ERROR", message: "ข้อมูลค้นหาไม่ถูกต้อง กรุณาตรวจสอบตำแหน่งงานและเกณฑ์การค้นหา", requestId } };
   return { error: { code: "INTERNAL_ERROR", message: "เกิดข้อผิดพลาดภายในระบบ", requestId } };
 };

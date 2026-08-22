@@ -40,8 +40,8 @@ describe("ApplicationsView board counts", () => {
     fireEvent.change(screen.getByRole("combobox", { name: "ขั้นตอน" }), { target: { value: "screening" } });
 
     expect(screen.getByText("1 ใบสมัครที่แสดง")).toBeTruthy();
-    expect(screen.getAllByText("วิชญะ อารีรัตน์")).toHaveLength(2);
-    expect(screen.getAllByText("ณัฐกานต์ วงศ์สว่าง")).toHaveLength(1);
+    expect(screen.getAllByText("วิชญะ อารีรัตน์")).toHaveLength(1);
+    expect(screen.queryAllByText("ณัฐกานต์ วงศ์สว่าง")).toHaveLength(0);
   });
 
   it("updates visible count when a candidate changes stage", async () => {
@@ -55,17 +55,28 @@ describe("ApplicationsView board counts", () => {
     expect(fetch).toHaveBeenCalledWith("/api/applications/application-1", expect.objectContaining({ method: "PATCH" }));
   });
 
-  it("opens the real candidate form and submits an idempotent create request", async () => {
+  it("opens candidate details in a full-height drawer", async () => {
     installLocalStorage();
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => ({ data: { candidateId: "candidate-3", applicationId: "application-3" } }) }));
-    vi.stubGlobal("crypto", { randomUUID: () => "candidate-idempotency-key" });
     render(React.createElement(ApplicationsView, { data }));
-    fireEvent.click(screen.getByRole("button", { name: "เพิ่มผู้สมัคร" }));
-    fireEvent.change(screen.getByLabelText("ชื่อผู้สมัคร"), { target: { value: "ผู้สมัครใหม่" } });
-    fireEvent.change(screen.getByLabelText("อีเมล"), { target: { value: "new@example.com" } });
-    fireEvent.change(screen.getByLabelText("เบอร์โทร"), { target: { value: "0812345678" } });
-    fireEvent.click(screen.getByRole("button", { name: "บันทึกผู้สมัคร" }));
-    expect(await screen.findByRole("dialog")).toBeTruthy();
-    expect(fetch).toHaveBeenCalledWith("/api/candidates", expect.objectContaining({ method: "POST", headers: expect.objectContaining({ "Idempotency-Key": "candidate-idempotency-key" }) }));
+    fireEvent.click(screen.getByRole("heading", { name: "วิชญะ อารีรัตน์" }));
+    expect(await screen.findByRole("dialog", { name: "รายละเอียดผู้สมัคร" })).toBeTruthy();
+    expect(screen.getByText("ทักษะหลัก (Primary Skills)")).toBeTruthy();
+    expect(screen.getByText("ประสบการณ์ทำงาน")).toBeTruthy();
+    expect(screen.getByText("การศึกษา")).toBeTruthy();
+    expect(screen.getByText("เงินเดือนที่คาดหวัง")).toBeTruthy();
+  });
+
+  it("reopens the stage dropdown with the latest selected stage", async () => {
+    installLocalStorage();
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => ({ data: { stage: "interview", version: 2, updatedBy: "hr-1" } }) }));
+    render(React.createElement(ApplicationsView, { data }));
+    fireEvent.click(screen.getByRole("heading", { name: "วิชญะ อารีรัตน์" }));
+    fireEvent.click(screen.getByRole("button", { name: /คัดกรองเบื้องต้น.*เปลี่ยนสถานะ/ }));
+    const firstSelect = screen.getByRole("combobox", { name: "เปลี่ยนสถานะผู้สมัคร" }) as HTMLSelectElement;
+    expect(firstSelect.value).toBe("screening");
+    fireEvent.change(firstSelect, { target: { value: "interview" } });
+    expect(await screen.findByRole("button", { name: /สัมภาษณ์.*เปลี่ยนสถานะ/ })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: /สัมภาษณ์.*เปลี่ยนสถานะ/ }));
+    expect((screen.getByRole("combobox", { name: "เปลี่ยนสถานะผู้สมัคร" }) as HTMLSelectElement).value).toBe("interview");
   });
 });

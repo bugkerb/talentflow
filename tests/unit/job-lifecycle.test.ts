@@ -60,6 +60,18 @@ describe("JobService lifecycle", () => {
     });
   });
 
+  it("resumes a paused job and preserves its original opening audit", async () => {
+    const result = await new JobService(repository(job({ status: "paused", version: 3, openedAt: "2026-08-20T00:00:00.000Z" })), () => new Date("2026-08-21T00:30:00.000Z")).resume("job-1", 3, "hr-2");
+
+    expect(result).toMatchObject({ status: "open", version: 4, updatedBy: "hr-2", openedAt: "2026-08-20T00:00:00.000Z", updatedAt: "2026-08-21T00:30:00.000Z" });
+  });
+
+  it("sets an opening audit when resuming legacy paused data without one", async () => {
+    const result = await new JobService(repository(job({ status: "paused", version: 3, openedAt: null })), () => new Date("2026-08-21T00:45:00.000Z")).resume("job-1", 3, "hr-2");
+
+    expect(result.openedAt).toBe("2026-08-21T00:45:00.000Z");
+  });
+
   it("closes a paused job with required close attribution", async () => {
     const result = await new JobService(repository(job({ status: "paused", version: 3 })), () => new Date("2026-08-21T01:00:00.000Z")).close("job-1", 3, "hr-3", { reason: "Role filled", note: "Offer accepted" });
 
@@ -99,6 +111,7 @@ describe("JobService lifecycle", () => {
     await expect(service.publish("job-1", 2, "hr-1")).rejects.toMatchObject({ code: "VALIDATION_ERROR" });
     await expect(service.pause("job-1", 1, "hr-1")).rejects.toMatchObject({ code: "CONFLICT" });
     await expect(service.pause("job-1", 2, "hr-1")).rejects.toMatchObject({ code: "VALIDATION_ERROR" });
+    await expect(new JobService(repository(job({ status: "open", version: 2 }))).resume("job-1", 2, "hr-1")).rejects.toMatchObject({ code: "VALIDATION_ERROR" });
     await expect(service.close("job-1", 2, "hr-1", { reason: "Already closed" })).rejects.toMatchObject({ code: "VALIDATION_ERROR" });
     await expect(new JobService(repository(job({ status: "open", version: 2 }))).close("job-1", 2, "hr-1", { reason: "   " })).rejects.toMatchObject({ name: "ZodError" });
   });

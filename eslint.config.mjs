@@ -2,7 +2,7 @@ import tseslint from "@typescript-eslint/eslint-plugin";
 import tsParser from "@typescript-eslint/parser";
 
 export default [
-  { ignores: [".next/**", "node_modules/**", "prototype/**", "supabase/.temp/**", "coverage/**", "playwright-report/**"] },
+  { ignores: [".next/**", ".open-next/**", "node_modules/**", "prototype/**", "supabase/.temp/**", "coverage/**", "playwright-report/**", "test-results/**", "output/**", "workers/**"] },
   {
     files: ["**/*.{ts,tsx}"],
     languageOptions: { parser: tsParser, parserOptions: { project: "./tsconfig.json" } },

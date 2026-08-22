@@ -16,6 +16,8 @@ export type TrackerCandidate = {
   source: CandidateSource;
   sourceDetail: string | null;
   version: number;
+  resumeUrl?: string | null;
+  resumeText?: string | null;
 };
 
 export type TrackerJob = { id: string; title: string; status: JobStatus };

@@ -1,0 +1,9 @@
+FROM mcr.microsoft.com/playwright:v1.62.1-jammy
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci --include=dev
+COPY scripts/facebook-group-search-worker.mjs ./scripts/
+ENV NODE_ENV=production
+EXPOSE 8787
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s CMD node -e "fetch('http://127.0.0.1:8787/healthz').then(r=>{if(!r.ok) process.exit(1)}).catch(()=>process.exit(1))"
+CMD ["node", "scripts/facebook-group-search-worker.mjs"]

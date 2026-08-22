@@ -11,3 +11,22 @@ test-results/
 *.tsbuildinfo
 .vercel
 .env*
+
+# OpenNext
+.open-next
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+
+# Local verification artifacts and screenshots
+output/
+tmp/
+railway-vnc/
+dashboard-route-*.png
+discovery-login-console-errors.txt
+\ .pdf
+AGENTS.md
+
+!.env.example

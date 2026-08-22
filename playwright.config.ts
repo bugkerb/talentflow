@@ -1,6 +1,10 @@
 import { defineConfig, devices } from "@playwright/test";
 
-const baseURL = "http://127.0.0.1:3000";
+const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? "http://127.0.0.1:3000";
+const webServerUrl = new URL(baseURL);
+if (webServerUrl.protocol !== "http:" || webServerUrl.hostname !== "127.0.0.1" || !/^\d+$/.test(webServerUrl.port)) {
+  throw new Error("PLAYWRIGHT_BASE_URL must be an explicit http://127.0.0.1:<port> URL.");
+}
 const localSupabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const localSupabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
@@ -25,9 +29,9 @@ export default defineConfig({
     ...devices["Desktop Chrome"]
   },
   webServer: {
-    command: "npm run dev -- --hostname 127.0.0.1",
+    command: `node_modules/.bin/next dev --webpack --hostname 127.0.0.1 --port ${webServerUrl.port}`,
     url: baseURL,
-    reuseExistingServer: false,
+    reuseExistingServer: process.env.PLAYWRIGHT_REUSE_EXISTING_SERVER === "1",
     timeout: 120_000,
     env: {
       NEXT_PUBLIC_SUPABASE_URL: localSupabaseUrl,

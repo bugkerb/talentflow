@@ -76,7 +76,8 @@ describe("runtime security boundaries", () => {
     expect(config).toContain("Content-Security-Policy");
     expect(config).toContain("object-src 'none'");
     expect(config).toContain("frame-ancestors 'none'");
-    expect(config).not.toContain("unsafe-eval");
+    expect(config).toContain('const isDevelopment = process.env.NODE_ENV !== "production"');
+    expect(config).toContain('isDevelopment ? " \'unsafe-eval\'" : ""');
     expect(config).toContain('X-Content-Type-Options", value: "nosniff"');
     expect(config).toContain('X-Frame-Options", value: "DENY"');
   });

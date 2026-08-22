@@ -48,7 +48,10 @@ export class ScreeningRuntime {
 
   async run(rawInput: unknown, actorId: string): Promise<{ screening: ScreeningRecord; result: ScreeningResult }> {
     const parsed = screeningRequestSchema.safeParse(rawInput);
-    if (!parsed.success) throw new AppError("VALIDATION_ERROR", "Screening input is invalid", 400);
+    if (!parsed.success) {
+      const fields = [...new Set(parsed.error.issues.map((issue) => issue.path.join(".") || "ข้อมูลคำขอ"))];
+      throw new AppError("VALIDATION_ERROR", `ข้อมูลสำหรับวิเคราะห์ไม่ถูกต้อง: ${fields.join(", ")}`, 400);
+    }
 
     let result: ScreeningResult;
     try {

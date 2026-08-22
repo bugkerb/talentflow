@@ -43,7 +43,7 @@ if [[ "${E2E_SUPABASE_MODE:-}" == "cloud" ]]; then
   export NEXT_PUBLIC_SUPABASE_URL="$E2E_SUPABASE_URL"
   export NEXT_PUBLIC_SUPABASE_ANON_KEY="$E2E_SUPABASE_ANON_KEY"
   export SUPABASE_SERVICE_ROLE_KEY="$E2E_SUPABASE_SERVICE_ROLE_KEY"
-  export E2E_HR_EMAIL="${E2E_HR_EMAIL:-e2e.hr-${GITHUB_RUN_ID:-local}@talentflow.local}"
+  export E2E_HR_EMAIL="${E2E_HR_EMAIL:-e2e.hr-${GITHUB_RUN_ID:-$(uuidgen)}@talentflow.local}"
   [[ -n "${E2E_HR_PASSWORD:-}" ]] || fail "E2E_HR_PASSWORD is required in cloud mode."
   setup_test_user
   exec npx playwright test "$@"
@@ -113,7 +113,7 @@ curl --fail --silent --show-error --max-time 5 "$api_url/auth/v1/health" >/dev/n
 export NEXT_PUBLIC_SUPABASE_URL="$api_url"
 export NEXT_PUBLIC_SUPABASE_ANON_KEY="$anon_key"
 export SUPABASE_SERVICE_ROLE_KEY="$service_role_key"
-export E2E_HR_EMAIL="${E2E_HR_EMAIL:-e2e.hr-${GITHUB_RUN_ID:-local}@talentflow.local}"
+export E2E_HR_EMAIL="${E2E_HR_EMAIL:-e2e.hr-${GITHUB_RUN_ID:-$(uuidgen)}@talentflow.local}"
 [[ -n "${E2E_HR_PASSWORD:-}" ]] || fail "E2E_HR_PASSWORD is required for authenticated E2E."
 
 setup_test_user

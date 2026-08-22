@@ -17,7 +17,16 @@ FACEBOOK_GROUP_URL=https://www.facebook.com/groups/625167729529245
 FACEBOOK_STORAGE_STATE_PATH=/secure/path/facebook-storage-state.json
 DISCOVERY_SOURCE_ENDPOINT=https://talentflow-rose.vercel.app/api/discovery/source
 DISCOVERY_SOURCE_API_KEY=<server-generated-key>
+DISCOVERY_SEARCH_ENDPOINT=http://127.0.0.1:8787/search
+FACEBOOK_STORAGE_STATE_JSON=<secret-json-for-production-worker>
+ไมโครเซอร์วิส Cloudflare ใช้ `CLOUDFLARE_BROWSER_RENDERING_API_TOKEN` และ `CLOUDFLARE_ACCOUNT_ID` เป็น Worker secrets/vars เพื่อเรียก Browser Rendering REST API; session state ยังเป็น optional สำหรับกลุ่มสาธารณะ
 ```
+
+Web flow ส่ง query ที่สร้างจาก JD ไปยัง `DISCOVERY_SEARCH_ENDPOINT` และรับเฉพาะโพสต์ที่ตรงเงื่อนไขกลับมา ส่วน `DISCOVERY_SOURCE_ENDPOINT` เป็น ingestion sink สำหรับ worker เท่านั้น ไม่ใช่ search endpoint
+
+รัน worker จากโค้ด scraper เดิมด้วย `npm run worker:facebook` หรือ deploy ด้วย `Dockerfile.facebook-worker` โดยห้าม commit storage state; production ใช้ secret `FACEBOOK_STORAGE_STATE_JSON` แทนไฟล์ local
+
+ตรวจสุขภาพ worker ได้ที่ `GET /healthz`; ค้นหาใช้ `POST /search` พร้อม `Authorization: Bearer <DISCOVERY_SOURCE_API_KEY>`
 
 รันแบบ local/worker เท่านั้น เพราะ Vercel serverless ไม่เหมาะกับ browser session แบบถาวร:
 

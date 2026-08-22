@@ -30,13 +30,13 @@
 |---|---|---|---|
 | G-01 | Clean install สำเร็จ | `npm ci` exit 0 | PASS (GitHub CI run 32423393794) |
 | G-02 | Static analysis ผ่าน | `npm run lint` และ `npm run typecheck` exit 0 | PASS (current worktree) |
-| G-03 | Business logic coverage 100% | `npm run test:coverage` แสดง 100% statements/branches/functions/lines | PASS (73 tests, 100% all metrics; current worktree) |
+| G-03 | Business logic coverage 100% | `npm run test:coverage` แสดง 100% statements/branches/functions/lines | PASS (117 tests, 100% all metrics; 2026-08-22 current worktree) |
 | G-04 | Database behavior ผ่าน | `npm run test:integration` exit 0 จาก isolated Supabase | PASS (GitHub CI run 32423393794) |
 | G-05 | Critical HR journey ผ่าน | `npm run test:e2e` exit 0 โดยไม่มี required test ถูก skip | PASS (GitHub CI run `32431880232`; 6/6 E2E passed) |
-| G-06 | Production build ผ่าน | `npm run build` exit 0 | PASS (GitHub CI run `32431880232`) |
+| G-06 | Production build ผ่าน | `npm run build` exit 0 | PASS (GitHub CI run `32431880232`; current worktree reverified 2026-08-22) |
 | G-07 | OWASP Top 10 gate ผ่าน | Security tests/audit ของ #9 ไม่มี unresolved Critical/High | PARTIAL PASS (dependency audit + secret/security smoke passed in CI `32425278483`; runtime OWASP controls remain) |
 | G-08 | Idempotency/race gates ผ่าน | DB concurrency assertions ของ #4, #7, #8 ผ่าน | PASS for Cloud database verifier (schema/seed/RLS/transition/interview idempotency and overlap all PASS); application Cloud E2E still pending |
-| G-09 | AI release gate ผ่าน | Deterministic Harness ของ #6 ผ่านทุก fixture | PASS (provider-agnostic Harness: 9 deterministic tests; 100% business-logic coverage) |
+| G-09 | AI release gate ผ่าน | Deterministic Harness ของ #6 ผ่านทุก fixture | PASS (strict OpenRouter JSON Schema + local Playwright/Cloud Supabase persistence and DOM verification; evidence `docs/verification/2026-08-22-screening-openrouter-loop.md`) |
 | G-10 | Deployment recovery ผ่าน | Deploy, rollback และ restore evidence ของ #12 ผ่าน | PARTIAL — production deploy PASS; rollback/restore pending |
 
 ## GitHub issue delivery status
@@ -47,7 +47,7 @@
 | [#3](https://github.com/bugkerb/talentflow/issues/3) | Supabase job lifecycle | IN PROGRESS: draft/list plus edit/publish/pause/close/version conflict implemented; Cloud/readback E2E pending |
 | [#4](https://github.com/bugkerb/talentflow/issues/4) | Manual/referral candidates and applications | IN PROGRESS: authenticated persistence actions and active-email uniqueness added; idempotency/readback E2E pending |
 | [#5](https://github.com/bugkerb/talentflow/issues/5) | Private resume Storage | IN PROGRESS: private bucket/policies and strict upload boundary added; malware scanner and runtime integration pending |
-| [#6](https://github.com/bugkerb/talentflow/issues/6) | Anthropic/OpenRouter + AI Harness | IN PROGRESS: provider core/Harness, authenticated runtime action and persistence adapter implemented; Cloud/provider E2E pending |
+| [#6](https://github.com/bugkerb/talentflow/issues/6) | Anthropic/OpenRouter + AI Harness | PASS in current worktree: strict structured output, authenticated runtime, Cloud persistence, complete DOM binding, deterministic Playwright evidence |
 | [#7](https://github.com/bugkerb/talentflow/issues/7) | Applicant tracker concurrency | IN PROGRESS: atomic transition RPC, HR/actor guards, version lock, and transactional pipeline event added; Cloud verification pending |
 | [#8](https://github.com/bugkerb/talentflow/issues/8) | Interview scheduling race/idempotency | IN PROGRESS: atomic schedule/reschedule/cancel RPCs, idempotency/overlap guards, UI flow and tests added; Cloud E2E pending |
 | [#9](https://github.com/bugkerb/talentflow/issues/9) | OWASP production verification | IN PROGRESS: threat model and CI dependency gate added; runtime abuse/Storage/AI/provider controls pending |

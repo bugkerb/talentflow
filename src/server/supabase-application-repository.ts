@@ -33,9 +33,20 @@ export class SupabaseApplicationRepository implements ApplicationRepository {
     return result.data ? toApplication(result.data) : null;
   }
 
+  async transitionStage(id: string, expectedVersion: number, stage: ApplicationStage, actorId: string, reason?: string): Promise<Application | null> {
+    const result = await this.client.rpc("transition_application_stage", {
+      p_application_id: id,
+      p_expected_version: expectedVersion,
+      p_to_stage: stage,
+      p_actor_id: actorId,
+      p_reason: reason ?? null,
+    });
+    if (result.error) throw result.error;
+    return result.data ? toApplication(result.data as ApplicationRow) : null;
+  }
+
   async addPipelineEvent(event: PipelineEvent): Promise<void> {
     const result = await this.client.from("pipeline_events").insert({ application_id: event.applicationId, from_stage: event.fromStage, to_stage: event.toStage, actor_id: event.actorId, actor_type: "user", reason: event.reason ?? null });
     if (result.error) throw result.error;
   }
 }
-
