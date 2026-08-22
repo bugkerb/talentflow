@@ -1,7 +1,8 @@
 -- Discovery results are persisted immediately as canonical, unverified candidates.
 alter table public.candidates
   add column if not exists data_status text not null default 'unverified',
-  add column if not exists data_origin text not null default 'manual';
+  add column if not exists data_origin text not null default 'manual',
+  add column if not exists discovery_identity text;
 
 alter table public.candidates
   drop constraint if exists candidates_data_status_check,
@@ -9,9 +10,9 @@ alter table public.candidates
   drop constraint if exists candidates_data_origin_check,
   add constraint candidates_data_origin_check check (data_origin in ('live', 'fixture', 'manual', 'resume_upload'));
 
-create unique index if not exists candidates_source_identity_idx
-  on public.candidates(source, source_detail)
-  where source_detail is not null and deleted_at is null;
+update public.candidates
+set discovery_identity = source_detail
+where source = 'discovery' and discovery_identity is null and source_detail is not null;
 
 alter table public.discovery_results
   add column if not exists candidate_id uuid references public.candidates(id) on delete set null,
