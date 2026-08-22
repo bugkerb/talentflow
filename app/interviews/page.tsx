@@ -6,7 +6,10 @@ import { GoogleCalendarProvider } from "@/application/calendar-provider";
 import type { CalendarEventSummary } from "@/application/interview-ports";
 
 export const dynamic = "force-dynamic";
-export default async function InterviewsPage() {
+export default async function InterviewsPage({ searchParams }: { searchParams?: Promise<Record<string, string | string[] | undefined>> }) {
+  const params = await (searchParams ?? Promise.resolve({} as Record<string, string | string[] | undefined>));
+  const application = params.application;
+  const initialScheduleApplicationId = typeof application === "string" ? application : "";
   const actor = await requireActiveHr();
   const client = await createSupabaseServerClient();
   const interviews = await new SupabaseInterviewRepository(client).list();
@@ -23,5 +26,5 @@ export default async function InterviewsPage() {
   } catch (error) {
     calendarError = error instanceof Error ? error.message : "ไม่สามารถโหลดกิจกรรมจาก Google Calendar ได้";
   }
-  return <InterviewsView initialInterviews={interviews} initialCalendarEvents={calendarEvents} calendarError={calendarError} />;
+  return <InterviewsView initialInterviews={interviews} initialCalendarEvents={calendarEvents} calendarError={calendarError} initialScheduleApplicationId={initialScheduleApplicationId} />;
 }
