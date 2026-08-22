@@ -2,6 +2,8 @@ import { WorkspacePage } from "../../components/workspace";
 import { requireActiveHr } from "@/server/auth";
 import { createSupabaseServerClient } from "@/server/supabase-server";
 
+export const dynamic = "force-dynamic";
+
 export default async function SettingsPage() {
   const actor = await requireActiveHr();
   const client = await createSupabaseServerClient();
