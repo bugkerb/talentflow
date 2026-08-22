@@ -26,6 +26,11 @@ const profileValue = (profile: DrawerProfile | null | undefined, key: "location"
   const value = profile?.ai?.[key as "location" | "education" | "expectedSalary"] ?? profile?.[key];
   return typeof value === "string" && value.trim() ? value : undefined;
 };
+const localDateTimeInput = (): string => {
+  const date = new Date(Date.now() + 24 * 60 * 60 * 1000);
+  const pad = (value: number) => String(value).padStart(2, "0");
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T11:00`;
+};
 
 export function ApplicationDrawer({ application, onClose }: { application: TrackerApplication; onClose: () => void }) {
   const router = useRouter();
@@ -38,6 +43,9 @@ export function ApplicationDrawer({ application, onClose }: { application: Track
   const experience = drawerProfile?.ai?.evidence?.experienceSummary ?? profileValue(drawerProfile, "experienceSummary") ?? profileValue(drawerProfile, "experience");
   const [stage, setStage] = useState(application.stage);
   const [editingStage, setEditingStage] = useState(false);
+  const [scheduleOpen, setScheduleOpen] = useState(false);
+  const [scheduleDateTime, setScheduleDateTime] = useState(localDateTimeInput);
+  const [scheduleError, setScheduleError] = useState("");
   useEffect(() => setStage(application.stage), [application.stage]);
   const changeStage = (nextStage: ApplicationStage): void => {
     if (!isValidStageTransition(application.stage, nextStage)) return;
@@ -60,7 +68,8 @@ export function ApplicationDrawer({ application, onClose }: { application: Track
           <section><h4 className="mb-3 text-sm font-bold text-[#565e74]">เงินเดือนที่คาดหวัง</h4><div className="rounded-xl border border-[#e1e4ea] bg-white p-3"><span className="text-base font-bold leading-tight text-[#20232a]">{expectedSalary ?? unavailable}</span></div></section>
         </div>
       </div>
-      <footer className="border-t border-[#e1e4ea] bg-[#f7f9fb] p-6"><button type="button" onClick={() => router.push(`/interviews?application=${encodeURIComponent(application.id)}`)} className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-[#0062ff] to-[#38bdf8] px-4 py-3 font-bold text-white shadow-md"><span className="material-symbols-outlined">calendar_add_on</span>นัดหมายสัมภาษณ์</button></footer>
+      <footer className="border-t border-[#e1e4ea] bg-[#f7f9fb] p-6"><button type="button" onClick={() => { setScheduleError(""); setScheduleOpen(true); }} className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-[#0062ff] to-[#38bdf8] px-4 py-3 font-bold text-white shadow-md"><span className="material-symbols-outlined">calendar_add_on</span>นัดหมายสัมภาษณ์</button></footer>
     </aside>
+    {scheduleOpen && <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#071d37]/55 p-4" role="presentation"><section role="dialog" aria-modal="true" aria-labelledby="schedule-dialog-title" className="w-full max-w-xl rounded-2xl bg-white p-6 shadow-2xl"><header className="flex items-start justify-between gap-4"><h2 id="schedule-dialog-title" className="text-2xl font-bold">นัดหมายสัมภาษณ์</h2><button type="button" aria-label="ปิดหน้าต่างนัดหมาย" onClick={() => setScheduleOpen(false)} className="rounded-lg p-1 text-2xl text-[#565e74] hover:bg-[#f2f4f6]">×</button></header><label className="mt-6 block text-sm font-bold text-[#565e74]">วันเวลา<input aria-label="วันเวลา interview" type="datetime-local" value={scheduleDateTime} onChange={(event) => setScheduleDateTime(event.target.value)} className="mt-2 block w-full rounded-lg border border-[#c2c6d9] px-4 py-3 text-base" /></label><p className="mt-4 rounded-lg bg-[#fff9e8] p-4 text-sm font-medium text-[#725b00]">ระบบจะตรวจสอบเวลาชนก่อนสร้างนัด</p>{scheduleError && <p role="alert" className="mt-3 rounded-lg bg-[#fff5f4] p-3 text-sm text-[#ba1a1a]">{scheduleError}</p>}<div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end"><button type="button" onClick={() => setScheduleOpen(false)} className="rounded-lg border border-[#c2c6d9] px-5 py-3 font-semibold">ยกเลิก</button><button type="button" onClick={() => setScheduleError("จำลองการเชื่อมต่อล้มเหลว กรุณาลองใหม่")} className="rounded-lg border border-[#c2c6d9] px-5 py-3 font-semibold">จำลองการเชื่อมต่อล้มเหลว</button><button type="button" disabled={!scheduleDateTime} onClick={() => { const [date, time] = scheduleDateTime.split("T"); const end = new Date(`${date}T${time}:00`); end.setMinutes(end.getMinutes() + 30); const pad = (value: number) => String(value).padStart(2, "0"); const endTime = `${pad(end.getHours())}:${pad(end.getMinutes())}`; router.push(`/interviews?application=${encodeURIComponent(application.id)}&date=${encodeURIComponent(date)}&start=${encodeURIComponent(time)}&end=${encodeURIComponent(endTime)}`); }} className="rounded-lg bg-gradient-to-r from-[#0062ff] to-[#38bdf8] px-5 py-3 font-bold text-white disabled:opacity-50">ตรวจสอบและสร้างนัด</button></div></section></div>}
   </div>;
 }

@@ -10,6 +10,9 @@ export default async function InterviewsPage({ searchParams }: { searchParams?: 
   const params = await (searchParams ?? Promise.resolve({} as Record<string, string | string[] | undefined>));
   const application = params.application;
   const initialScheduleApplicationId = typeof application === "string" ? application : "";
+  const initialScheduleDate = typeof params.date === "string" ? params.date : "";
+  const initialScheduleStart = typeof params.start === "string" ? params.start : "";
+  const initialScheduleEnd = typeof params.end === "string" ? params.end : "";
   const actor = await requireActiveHr();
   const client = await createSupabaseServerClient();
   const interviews = await new SupabaseInterviewRepository(client).list();
@@ -26,5 +29,5 @@ export default async function InterviewsPage({ searchParams }: { searchParams?: 
   } catch (error) {
     calendarError = error instanceof Error ? error.message : "ไม่สามารถโหลดกิจกรรมจาก Google Calendar ได้";
   }
-  return <InterviewsView initialInterviews={interviews} initialCalendarEvents={calendarEvents} calendarError={calendarError} initialScheduleApplicationId={initialScheduleApplicationId} />;
+  return <InterviewsView initialInterviews={interviews} initialCalendarEvents={calendarEvents} calendarError={calendarError} initialScheduleApplicationId={initialScheduleApplicationId} initialScheduleDate={initialScheduleDate} initialScheduleStart={initialScheduleStart} initialScheduleEnd={initialScheduleEnd} />;
 }

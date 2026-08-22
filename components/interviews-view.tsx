@@ -61,16 +61,16 @@ function CalendarEventsPanel({ events, error }: { events: CalendarEventSummary[]
   return <section aria-labelledby="external-calendar-heading" className="mx-auto mb-6 max-w-7xl rounded-xl border border-[#d9dee7] bg-white p-4 shadow-sm md:ml-[260px] sm:p-5"><div className="flex items-center justify-between"><div><h2 id="external-calendar-heading" className="text-lg font-semibold">กิจกรรมจาก Google Calendar</h2><p className="mt-1 text-sm text-[#565e74]">กิจกรรมจริงจากปฏิทินที่เชื่อมต่อแล้ว</p></div><span className="rounded-full bg-[#d4f1f0] px-2 py-1 text-xs font-semibold text-[#087b99]">{events.length} กิจกรรม</span></div><div className="mt-4 grid gap-3 md:grid-cols-2 lg:grid-cols-3">{events.map((event) => <a key={event.eventId} href={event.htmlUrl ?? undefined} target={event.htmlUrl ? "_blank" : undefined} rel={event.htmlUrl ? "noreferrer" : undefined} className="rounded-lg border-l-4 border-[#087b99] bg-[#d4f1f0]/40 p-3 hover:bg-[#d4f1f0]"><strong className="block truncate text-sm">{event.title}</strong><span className="mt-1 block text-xs text-[#565e74]">{new Intl.DateTimeFormat("th-TH", { dateStyle: "medium", timeStyle: "short" }).format(new Date(event.startsAt))}–{new Intl.DateTimeFormat("th-TH", { timeStyle: "short" }).format(new Date(event.endsAt))}</span></a>)}</div></section>;
 }
 
-export function InterviewsView({ initialInterviews = [], initialCalendarEvents = [], calendarError = "", initialScheduleApplicationId = "" }: { initialInterviews?: InterviewListItem[]; initialCalendarEvents?: CalendarEventSummary[]; calendarError?: string; initialScheduleApplicationId?: string }) {
+export function InterviewsView({ initialInterviews = [], initialCalendarEvents = [], calendarError = "", initialScheduleApplicationId = "", initialScheduleDate = "", initialScheduleStart = "", initialScheduleEnd = "" }: { initialInterviews?: InterviewListItem[]; initialCalendarEvents?: CalendarEventSummary[]; calendarError?: string; initialScheduleApplicationId?: string; initialScheduleDate?: string; initialScheduleStart?: string; initialScheduleEnd?: string }) {
   const [today] = useState(() => startOfDay(new Date()));
   const [calendarDate, setCalendarDate] = useState(today);
   const [calendarView, setCalendarView] = useState<CalendarView>("week");
   const [searchTerm, setSearchTerm] = useState("");
   const [message, setMessage] = useState("");
   const [scheduleOpen, setScheduleOpen] = useState(false);
-  const [scheduleDate, setScheduleDate] = useState(formatInputDate(today));
-  const [scheduleStart, setScheduleStart] = useState("11:00");
-  const [scheduleEnd, setScheduleEnd] = useState("11:30");
+  const [scheduleDate, setScheduleDate] = useState(initialScheduleDate || formatInputDate(today));
+  const [scheduleStart, setScheduleStart] = useState(initialScheduleStart || "11:00");
+  const [scheduleEnd, setScheduleEnd] = useState(initialScheduleEnd || "11:30");
   const [scheduleTargetId, setScheduleTargetId] = useState("");
   const [cancelOpen, setCancelOpen] = useState(false);
   const [cancelTargetId, setCancelTargetId] = useState<string | null>(null);
