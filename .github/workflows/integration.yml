@@ -3,7 +3,8 @@ name: Integration tests
 on:
   push:
     paths:
-      - "src/**"
+      - "src/server/**"
+      - "src/application/**"
       - "supabase/**"
       - "scripts/verify-database.sh"
       - "package.json"
@@ -11,7 +12,8 @@ on:
       - ".github/workflows/integration.yml"
   pull_request:
     paths:
-      - "src/**"
+      - "src/server/**"
+      - "src/application/**"
       - "supabase/**"
       - "scripts/verify-database.sh"
       - "package.json"
