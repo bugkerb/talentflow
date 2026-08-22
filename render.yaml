@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: talentflow-facebook-scraper
+    runtime: docker
+    dockerfilePath: ./Dockerfile.facebook-worker
+    healthCheckPath: /healthz
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: FACEBOOK_GROUP_URL
+        sync: false
+      - key: FACEBOOK_STORAGE_STATE_JSON
+        sync: false
+      - key: DISCOVERY_SOURCE_API_KEY
+        sync: false

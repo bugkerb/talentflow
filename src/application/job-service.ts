@@ -69,6 +69,12 @@ export class JobService {
     return this.persist(id, expectedVersion, { status: "paused", updatedAt: this.now() }, actorId);
   }
 
+  async resume(id: string, expectedVersion: number, actorId: string) {
+    const current = await this.requireCurrent(id, expectedVersion);
+    if (current.status !== "paused") throw new AppError("VALIDATION_ERROR", "Only paused jobs can be resumed");
+    return this.persist(id, expectedVersion, { status: "open", openedAt: current.openedAt ?? this.now(), updatedAt: this.now() }, actorId);
+  }
+
   async close(id: string, expectedVersion: number, actorId: string, input: unknown) {
     const current = await this.requireCurrent(id, expectedVersion);
     if (current.status !== "open" && current.status !== "paused") throw new AppError("VALIDATION_ERROR", "Only open or paused jobs can be closed");

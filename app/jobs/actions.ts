@@ -22,9 +22,8 @@ async function runJobAction<T>(operation: (service: JobService, actorId: string)
   }
 }
 
-export async function createDraftJob(input: unknown): Promise<CreateJobResult> {
-  return runJobAction((service, actorId) => service.create({ ...(typeof input === "object" && input !== null ? input : {}), status: "draft" }, actorId, randomUUID()));
-}
+export async function createJob(input: unknown): Promise<CreateJobResult> { return runJobAction((service, actorId) => service.create(input, actorId, randomUUID())); }
+export async function createDraftJob(input: unknown): Promise<CreateJobResult> { return createJob({ ...(typeof input === "object" && input !== null ? input : {}), status: "draft" }); }
 
 export async function updateJob(id: string, input: unknown, expectedVersion: number): Promise<JobActionResult> {
   return runJobAction((service, actorId) => service.update(id, input, expectedVersion, actorId));
@@ -37,6 +36,7 @@ export async function publishJob(id: string, expectedVersion: number): Promise<J
 export async function pauseJob(id: string, expectedVersion: number): Promise<JobActionResult> {
   return runJobAction((service, actorId) => service.pause(id, expectedVersion, actorId));
 }
+export async function resumeJob(id: string, expectedVersion: number): Promise<JobActionResult> { return runJobAction((service, actorId) => service.resume(id, expectedVersion, actorId)); }
 
 export async function closeJob(id: string, expectedVersion: number, input: unknown): Promise<JobActionResult> {
   return runJobAction((service, actorId) => service.close(id, expectedVersion, actorId, input));
