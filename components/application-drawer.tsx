@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import type { TrackerApplication } from "@/application/application-tracker";
 import { isValidStageTransition, type ApplicationStage } from "@/domain/enums";
 
@@ -27,6 +28,7 @@ const profileValue = (profile: DrawerProfile | null | undefined, key: "location"
 };
 
 export function ApplicationDrawer({ application, onClose }: { application: TrackerApplication; onClose: () => void }) {
+  const router = useRouter();
   const profile = application.candidate.normalizedProfile;
   const drawerProfile = profile as DrawerProfile | null | undefined;
   const location = profileValue(drawerProfile, "location");
@@ -58,7 +60,7 @@ export function ApplicationDrawer({ application, onClose }: { application: Track
           <section><h4 className="mb-3 text-sm font-bold text-[#565e74]">เงินเดือนที่คาดหวัง</h4><div className="rounded-xl border border-[#e1e4ea] bg-white p-3"><span className="text-base font-bold leading-tight text-[#20232a]">{expectedSalary ?? unavailable}</span></div></section>
         </div>
       </div>
-      <footer className="border-t border-[#e1e4ea] bg-[#f7f9fb] p-6"><button type="button" className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-[#0062ff] to-[#38bdf8] px-4 py-3 font-bold text-white shadow-md"><span className="material-symbols-outlined">calendar_add_on</span>นัดหมายสัมภาษณ์</button></footer>
+      <footer className="border-t border-[#e1e4ea] bg-[#f7f9fb] p-6"><button type="button" onClick={() => router.push(`/interviews?application=${encodeURIComponent(application.id)}`)} className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-[#0062ff] to-[#38bdf8] px-4 py-3 font-bold text-white shadow-md"><span className="material-symbols-outlined">calendar_add_on</span>นัดหมายสัมภาษณ์</button></footer>
     </aside>
   </div>;
 }
