@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 import { requireActiveHr } from "@/server/auth";
 import { createSupabaseServerClient } from "@/server/supabase-server";
 import { encryptGoogleToken, exchangeGoogleCode } from "@/server/google-oauth";
@@ -9,8 +10,10 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const state = url.searchParams.get("state");
   const code = url.searchParams.get("code");
-  const expected = request.headers.get("cookie")?.match(/(?:^|;\s*)talentflow_google_oauth_state=([^;]+)/)?.[1];
-  if (!state || !code || !expected || state !== decodeURIComponent(expected)) return NextResponse.json({ error: "Invalid OAuth state" }, { status: 400 });
+  const cookieStore = await cookies();
+  const expected = cookieStore.get("talentflow_google_oauth_state")?.value;
+  const normalizedExpected = expected ? decodeURIComponent(expected) : "";
+  if (!state || !code || !normalizedExpected || state !== normalizedExpected) return NextResponse.json({ error: "Invalid OAuth state" }, { status: 400 });
   try {
     const actor = await requireActiveHr();
     const { refreshToken } = await exchangeGoogleCode(code);
