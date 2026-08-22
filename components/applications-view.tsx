@@ -116,7 +116,7 @@ export function ApplicationsView({ data, initialFilters = defaultTrackerFilters,
   };
 
   const changeStage = async (application: TrackerApplication, stage: ApplicationStage): Promise<void> => {
-    if (stage === application.stage) return;
+    if (stage === application.stage || !isValidStageTransition(application.stage, stage)) return;
     setPendingId(application.id);
     setError(null);
     try {
@@ -136,7 +136,7 @@ export function ApplicationsView({ data, initialFilters = defaultTrackerFilters,
     event.preventDefault();
     const id = event.dataTransfer.getData("text/application-id") || draggedApplicationId;
     const application = applications.find((item) => item.id === id);
-    if (!application || stage === "new" || application.stage === stage) return;
+    if (!application || stage === "new" || application.stage === stage || !isValidStageTransition(application.stage, stage as ApplicationStage)) return;
     void changeStage(application, stage as ApplicationStage);
     setDraggedApplicationId(null);
   };
@@ -161,7 +161,6 @@ export function ApplicationsView({ data, initialFilters = defaultTrackerFilters,
       const detail = (event as CustomEvent<{ candidateId: string; applicationId?: string }>).detail;
       const application = applications.find((item) => item.id === detail.applicationId || item.candidate.id === detail.candidateId);
       if (application) void deleteCandidate(application.candidate, application.id);
-      setSelectedApplication(null);
     };
     const onStageEvent = (event: Event): void => {
       const detail = (event as CustomEvent<{ application: TrackerApplication; stage: ApplicationStage }>).detail;

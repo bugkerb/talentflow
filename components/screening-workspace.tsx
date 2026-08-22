@@ -110,7 +110,7 @@ export function ScreeningWorkspace({ data }: { data: ScreeningWorkspaceData }) {
 <p className="mt-1 text-sm text-[#565e74]">วิเคราะห์เรซูเม่จากข้อมูลจริง โดยมี HR ตรวจสอบก่อนตัดสินใจ</p>
     {data.jobs && <ScreeningIntake jobs={data.jobs} />}
     {data.loadError && <p role="alert" className="mt-5 rounded-lg border border-[#ba1a1a]/30 bg-[#fff7f5] p-4 text-sm text-[#93000a]">{data.loadError}</p>}
-    {!data.loadError && data.targets.length === 0 && <section className={`${panel} mt-6`}>
+    {!data.loadError && !data.jobs && data.targets.length === 0 && <section className={`${panel} mt-6`}>
 <h2 className="font-semibold">ยังไม่มีผู้สมัครที่พร้อมคัดกรอง</h2>
 <p className="mt-2 text-sm text-[#565e74]">เพิ่มผู้สมัครและตำแหน่งงานก่อน แล้วกลับมาที่หน้านี้เพื่อเริ่มวิเคราะห์</p>
 </section>}

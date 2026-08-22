@@ -46,10 +46,10 @@ describe("ApplicationsView board counts", () => {
 
   it("updates visible count when a candidate changes stage", async () => {
     installLocalStorage();
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => ({ data: { stage: "interview", version: 3, updatedBy: "hr-1" } }) }));
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => ({ data: { stage: "phone_screen", version: 3, updatedBy: "hr-1" } }) }));
     render(React.createElement(ApplicationsView, { data }));
 
-    fireEvent.change(screen.getByRole("combobox", { name: "เปลี่ยนขั้นตอนของ วิชญะ อารีรัตน์" }), { target: { value: "interview" } });
+    fireEvent.change(screen.getByRole("combobox", { name: "เปลี่ยนขั้นตอนของ วิชญะ อารีรัตน์" }), { target: { value: "phone_screen" } });
 
     expect(await screen.findByText("2 ใบสมัครที่แสดง")).toBeTruthy();
     expect(fetch).toHaveBeenCalledWith("/api/applications/application-1", expect.objectContaining({ method: "PATCH" }));
@@ -68,15 +68,25 @@ describe("ApplicationsView board counts", () => {
 
   it("reopens the stage dropdown with the latest selected stage", async () => {
     installLocalStorage();
-    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => ({ data: { stage: "interview", version: 2, updatedBy: "hr-1" } }) }));
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => ({ data: { stage: "phone_screen", version: 2, updatedBy: "hr-1" } }) }));
     render(React.createElement(ApplicationsView, { data }));
     fireEvent.click(screen.getByRole("heading", { name: "วิชญะ อารีรัตน์" }));
     fireEvent.click(screen.getByRole("button", { name: /คัดกรองเบื้องต้น.*เปลี่ยนสถานะ/ }));
     const firstSelect = screen.getByRole("combobox", { name: "เปลี่ยนสถานะผู้สมัคร" }) as HTMLSelectElement;
     expect(firstSelect.value).toBe("screening");
-    fireEvent.change(firstSelect, { target: { value: "interview" } });
-    expect(await screen.findByRole("button", { name: /สัมภาษณ์.*เปลี่ยนสถานะ/ })).toBeTruthy();
-    fireEvent.click(screen.getByRole("button", { name: /สัมภาษณ์.*เปลี่ยนสถานะ/ }));
-    expect((screen.getByRole("combobox", { name: "เปลี่ยนสถานะผู้สมัคร" }) as HTMLSelectElement).value).toBe("interview");
+    expect(Array.from(firstSelect.options).map((option) => option.value)).toEqual(["screening", "phone_screen", "rejected"]);
+    fireEvent.change(firstSelect, { target: { value: "phone_screen" } });
+    expect(await screen.findByRole("button", { name: /คัดกรองทางโทรศัพท์.*เปลี่ยนสถานะ/ })).toBeTruthy();
+    fireEvent.click(screen.getByRole("button", { name: /คัดกรองทางโทรศัพท์.*เปลี่ยนสถานะ/ }));
+    expect((screen.getByRole("combobox", { name: "เปลี่ยนสถานะผู้สมัคร" }) as HTMLSelectElement).value).toBe("phone_screen");
+  });
+
+  it("keeps the drawer open when delete confirmation is cancelled", () => {
+    installLocalStorage();
+    vi.stubGlobal("confirm", vi.fn(() => false));
+    render(React.createElement(ApplicationsView, { data }));
+    fireEvent.click(screen.getByRole("heading", { name: "วิชญะ อารีรัตน์" }));
+    fireEvent.click(screen.getByRole("button", { name: "ลบผู้สมัคร" }));
+    expect(screen.getByRole("dialog", { name: "รายละเอียดผู้สมัคร" })).toBeTruthy();
   });
 });

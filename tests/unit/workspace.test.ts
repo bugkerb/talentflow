@@ -58,6 +58,12 @@ describe("screening workspace interactions", () => {
     expect(screen.getByRole("alert").textContent).toContain("โหลดข้อมูลไม่สำเร็จ");
   });
 
+  it("does not show the legacy empty panel when resume intake jobs are available", () => {
+    render(createElement(ScreeningWorkspace, { data: { targets: [], history: [], loadError: null, jobs: [{ id: "job-1", title: "Tech Lead", description: "นำทีม" }] } }));
+    expect(screen.queryByText("ยังไม่มีผู้สมัครที่พร้อมคัดกรอง")).toBeNull();
+    expect(screen.getByText("ข้อมูลผู้สมัคร")).toBeTruthy();
+  });
+
   it("renders every deterministic scorecard field after the intake flow succeeds", async () => {
     candidateActions.createCandidate.mockResolvedValue({ data: { id: "00000000-0000-0000-0000-000000000020" } });
     applicationActions.createApplication.mockResolvedValue({ data: { id: "00000000-0000-0000-0000-000000000030" } });
