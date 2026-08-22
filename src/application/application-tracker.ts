@@ -18,6 +18,7 @@ export type TrackerCandidate = {
   version: number;
   resumeUrl?: string | null;
   resumeText?: string | null;
+  normalizedProfile?: Record<string, unknown> | null;
 };
 
 export type TrackerJob = { id: string; title: string; status: JobStatus };
@@ -48,7 +49,7 @@ type SupabaseTrackerApplicationRow = {
   status: TrackerApplication["status"];
   version: number;
   applied_at: string;
-  candidates: { id: string; full_name: string; email: string | null; phone: string | null; source: CandidateSource; source_detail: string | null; version: number } | { id: string; full_name: string; email: string | null; phone: string | null; source: CandidateSource; source_detail: string | null; version: number }[];
+  candidates: { id: string; full_name: string; email: string | null; phone: string | null; source: CandidateSource; source_detail: string | null; version: number; normalized_profile?: Record<string, unknown> | null } | { id: string; full_name: string; email: string | null; phone: string | null; source: CandidateSource; source_detail: string | null; version: number; normalized_profile?: Record<string, unknown> | null }[];
   jobs: { id: string; title: string; status: JobStatus } | { id: string; title: string; status: JobStatus }[];
 };
 
@@ -68,7 +69,7 @@ export const toTrackerApplication = (row: SupabaseTrackerApplicationRow): Tracke
     status: row.status,
     version: row.version,
     appliedAt: row.applied_at,
-    candidate: { id: candidate.id, fullName: candidate.full_name, email: candidate.email, phone: candidate.phone, source: candidate.source, sourceDetail: candidate.source_detail, version: candidate.version },
+    candidate: { id: candidate.id, fullName: candidate.full_name, email: candidate.email, phone: candidate.phone, source: candidate.source, sourceDetail: candidate.source_detail, version: candidate.version, normalizedProfile: candidate.normalized_profile },
     job: { id: job.id, title: job.title, status: job.status },
   };
 };

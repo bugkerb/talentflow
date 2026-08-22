@@ -10,8 +10,8 @@ const throwSupabaseError = (operation: string, error: { message: string } | null
 export const loadApplicationTracker = async (): Promise<ApplicationTrackerData> => {
   const supabase = await createSupabaseServerClient();
   const [applicationsResult, candidatesResult, jobsResult, resumesResult] = await Promise.all([
-    supabase.from("applications").select("id,candidate_id,job_id,stage,status,version,applied_at,candidates!inner(id,full_name,email,phone,source,source_detail,version),jobs!inner(id,title,status)").eq("status", "active").is("deleted_at", null).is("candidates.deleted_at", null).order("updated_at", { ascending: false }),
-    supabase.from("candidates").select("id,full_name,email,phone,source,source_detail,version").is("deleted_at", null).order("full_name"),
+    supabase.from("applications").select("id,candidate_id,job_id,stage,status,version,applied_at,candidates!inner(id,full_name,email,phone,source,source_detail,version,normalized_profile),jobs!inner(id,title,status)").eq("status", "active").is("deleted_at", null).is("candidates.deleted_at", null).order("updated_at", { ascending: false }),
+    supabase.from("candidates").select("id,full_name,email,phone,source,source_detail,version,normalized_profile").is("deleted_at", null).order("full_name"),
     supabase.from("jobs").select("id,title,status").is("deleted_at", null).order("title"),
     supabase.from("resumes").select("id,candidate_id,storage_path,extracted_text").is("deleted_at", null).order("created_at", { ascending: false }),
   ]);
@@ -30,7 +30,7 @@ export const loadApplicationTracker = async (): Promise<ApplicationTrackerData> 
   }
 
   const applications = (applicationsResult.data ?? []).map((row) => { const application = toTrackerApplication(row); return { ...application, candidate: { ...application.candidate, resumeUrl: resumeUrls.get(application.candidate.id) ?? null, resumeText: resumeTexts.get(application.candidate.id) ?? null } }; });
-  const candidates = (candidatesResult.data ?? []).map((row) => ({ id: row.id, fullName: row.full_name, email: row.email, phone: row.phone, source: row.source, sourceDetail: row.source_detail, version: row.version, resumeUrl: resumeUrls.get(row.id) ?? null, resumeText: resumeTexts.get(row.id) ?? null }));
+  const candidates = (candidatesResult.data ?? []).map((row) => ({ id: row.id, fullName: row.full_name, email: row.email, phone: row.phone, source: row.source, sourceDetail: row.source_detail, version: row.version, normalizedProfile: row.normalized_profile, resumeUrl: resumeUrls.get(row.id) ?? null, resumeText: resumeTexts.get(row.id) ?? null }));
   const jobs = (jobsResult.data ?? []).map((row) => ({ id: row.id, title: row.title, status: row.status }));
   return { applications, candidates, jobs };
 };
