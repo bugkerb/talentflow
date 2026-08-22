@@ -16,7 +16,7 @@ export class GoogleCalendarProvider implements CalendarProvider {
     this.accessToken = config.accessToken ?? process.env.GOOGLE_CALENDAR_ACCESS_TOKEN ?? "";
     this.refreshToken = config.refreshToken ?? "";
     this.calendarId = config.calendarId ?? process.env.GOOGLE_CALENDAR_ID ?? "";
-    if (!this.accessToken || !this.calendarId) throw new AppError("CALENDAR_CONFIGURATION_ERROR", "Google Calendar is not configured. Set GOOGLE_CALENDAR_ACCESS_TOKEN and GOOGLE_CALENDAR_ID.", 503);
+    if ((!this.accessToken && !this.refreshToken) || !this.calendarId) throw new AppError("CALENDAR_CONFIGURATION_ERROR", "Google Calendar is not configured. Set GOOGLE_CALENDAR_ACCESS_TOKEN or OAuth credentials and GOOGLE_CALENDAR_ID.", 503);
   }
 
   static async fromSupabase(client: SupabaseClient, ownerId: string): Promise<GoogleCalendarProvider> {

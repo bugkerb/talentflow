@@ -6,6 +6,10 @@ describe("GoogleCalendarProvider", () => {
     expect(() => new GoogleCalendarProvider({ accessToken: "", calendarId: "" })).toThrow(/GOOGLE_CALENDAR_ACCESS_TOKEN/);
   });
 
+  it("accepts an OAuth refresh token without an access token", () => {
+    expect(() => new GoogleCalendarProvider({ refreshToken: "encrypted-refresh-token", calendarId: "primary" })).not.toThrow();
+  });
+
   it("creates a real Google event with combined screening context and idempotency request id", async () => {
     const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(JSON.stringify({ id: "google-event-1", hangoutLink: "https://meet.google.com/abc-defg-hij" }), { status: 200 }));
     const provider = new GoogleCalendarProvider({ accessToken: "token", calendarId: "primary" });
