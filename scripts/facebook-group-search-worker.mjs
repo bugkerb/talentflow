@@ -5,11 +5,12 @@ import { chromium } from "@playwright/test";
 const groupUrl = process.env.FACEBOOK_GROUP_URL;
 const storageState = process.env.FACEBOOK_STORAGE_STATE_PATH;
 const storageStateJson = process.env.FACEBOOK_STORAGE_STATE_JSON;
+const cdpEndpoint = process.env.FACEBOOK_CDP_ENDPOINT;
 const workerKey = process.env.DISCOVERY_SOURCE_API_KEY;
 const port = Number(process.env.PORT ?? 8787);
 
-if (!groupUrl || (!storageState && !storageStateJson) || !workerKey) {
-  throw new Error("Set FACEBOOK_GROUP_URL, FACEBOOK_STORAGE_STATE_PATH or FACEBOOK_STORAGE_STATE_JSON and DISCOVERY_SOURCE_API_KEY");
+if (!groupUrl || (!cdpEndpoint && !storageState && !storageStateJson) || !workerKey) {
+  throw new Error("Set FACEBOOK_GROUP_URL, FACEBOOK_CDP_ENDPOINT or storage state and DISCOVERY_SOURCE_API_KEY");
 }
 
 const readBody = async (request) => {
@@ -22,10 +23,11 @@ const readBody = async (request) => {
 const searchPosts = async ({ terms, minimumYears }) => {
   const normalizedTerms = [...new Set((Array.isArray(terms) ? terms : []).filter((term) => typeof term === "string").map((term) => term.trim().toLocaleLowerCase()).filter((term) => term.length >= 3))].slice(0, 40);
   if (!normalizedTerms.length) return [];
-  const browser = await chromium.launch({ headless: true });
+  const browser = cdpEndpoint ? await chromium.connectOverCDP(cdpEndpoint) : await chromium.launch({ headless: true });
   try {
-    const context = await browser.newContext({ storageState: storageStateJson ? JSON.parse(storageStateJson) : storageState, locale: "th-TH" });
-    const page = await context.newPage();
+    const context = cdpEndpoint ? browser.contexts()[0] : await browser.newContext({ storageState: storageStateJson ? JSON.parse(storageStateJson) : storageState, locale: "th-TH" });
+    if (!context) throw new Error("CDP browser has no active context");
+    const page = context.pages()[0] ?? await context.newPage();
     await page.goto(groupUrl, { waitUntil: "domcontentloaded", timeout: 30_000 });
     await page.waitForTimeout(1_500);
     for (let index = 0; index < 6; index += 1) {
@@ -50,7 +52,8 @@ const searchPosts = async ({ terms, minimumYears }) => {
       return { source: "facebook-group", externalId, profileUrl: post.url || groupUrl, fullName: "Facebook group candidate", skills, experienceYears: experience ? Number(experience) : undefined, profileText: post.text, raw: { groupUrl, searchedAt: new Date().toISOString() } };
     });
   } finally {
-    await browser.close();
+    if (cdpEndpoint) browser.disconnect();
+    else await browser.close();
   }
 };
 
