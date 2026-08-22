@@ -8,7 +8,8 @@ export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
-  const redirectOrigin = process.env.GOOGLE_OAUTH_REDIRECT_URI ? new URL(process.env.GOOGLE_OAUTH_REDIRECT_URI).origin : url.origin;
+  const configuredOrigin = process.env.GOOGLE_OAUTH_REDIRECT_URI;
+  const redirectOrigin = configuredOrigin && !["localhost", "127.0.0.1"].includes(new URL(configuredOrigin).hostname) ? new URL(configuredOrigin).origin : "https://talentflow-web-production.up.railway.app";
   const state = url.searchParams.get("state");
   const code = url.searchParams.get("code");
   const cookieStore = await cookies();
