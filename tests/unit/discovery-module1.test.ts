@@ -3,10 +3,20 @@ import { DiscoveryService } from "@/application/discovery/service";
 import { createConfiguredDiscoveryAdapter } from "@/application/discovery/source-adapters";
 import { generateDiscoveryQuery, normalizeAndRank, type DiscoverySourceRecord } from "@/application/discovery/types";
 import { demoDiscoveryResults } from "@/application/discovery/demo-data";
+import { createOpenRouterDiscoveryEnricher } from "@/application/discovery/ai-enrichment";
 
 const source: DiscoverySourceRecord = { source: "persisted", externalId: "p-1", profileUrl: "https://example.test/p-1", fullName: "A", email: "a@example.test", skills: ["TypeScript"], experienceYears: 5, profileText: "Senior TypeScript engineer", raw: {} };
 describe("Module 1 discovery", () => {
   it("provides three detailed deterministic demo candidates", () => { expect(demoDiscoveryResults).toHaveLength(3); expect(new Set(demoDiscoveryResults.map((candidate) => candidate.externalId)).size).toBe(3); for (const candidate of demoDiscoveryResults) { expect(candidate.source).toBe("demo"); expect(candidate.evidence.length).toBeGreaterThanOrEqual(3); expect(candidate.skills.length).toBeGreaterThanOrEqual(3); expect(candidate.education).not.toBe(""); expect(candidate.expectedSalary).not.toBe(""); } });
+  it("maps structured AI evidence instead of keyword-only evidence", async () => {
+    const candidate = normalizeAndRank({ text: "react", terms: ["react"], minimumYears: 0 }, [source])[0];
+    const payload = { choices: [{ message: { content: JSON.stringify({ name: "A", is_verified: true, current_position: "Frontend", company: "Example", location: "กรุงเทพฯ", education: "ปริญญาตรี", expected_salary: "ไม่ระบุ", skills: ["React"], match_score: 88, evidence: { keyword_matches: ["มีประสบการณ์สร้าง SPA ด้วย React"], semantic_similarity_percent: 82, experience_summary: "5 ปี · React 4 ปี" }, warnings: ["ไม่พบข้อควรตรวจสอบเพิ่มเติม"] }) } }] };
+    const fetcher = vi.fn().mockResolvedValue({ ok: true, status: 200, json: async () => payload });
+    const [enriched] = await createOpenRouterDiscoveryEnricher({ apiKey: "test", model: "test", fetcher }).enrich({ jobId: "00000000-0000-0000-0000-000000000001", title: "Frontend", jobDescription: "React", skills: ["React"], minimumYears: 0 }, [candidate]);
+    expect(enriched.normalizedProfile.evidence).toEqual(["มีประสบการณ์สร้าง SPA ด้วย React"]);
+    expect(enriched.normalizedProfile.ai?.evidence.semanticSimilarityPercent).toBe(82);
+    expect(fetcher).toHaveBeenCalledOnce();
+  });
   it("generates deterministic query and ranked evidence", () => { const input = { jobId: "00000000-0000-0000-0000-000000000001", title: "Tech Lead", jobDescription: "TypeScript platform engineer", skills: ["TypeScript"], minimumYears: 3 }; expect(generateDiscoveryQuery(input)).toEqual(generateDiscoveryQuery(input)); expect(normalizeAndRank(generateDiscoveryQuery(input), [source])[0].normalizedProfile.evidence.length).toBeGreaterThan(0); });
   it("returns an explainable semantic similarity component", () => { const query = { text: '"typescript" OR "platform" OR "engineer"', terms: ["typescript", "platform", "engineer"], minimumYears: 3 }; const ranked = normalizeAndRank(query, [source])[0].normalizedProfile; expect(ranked.semanticSimilarity).toBeGreaterThan(0); expect(ranked.keywordScore).toBeGreaterThan(0); expect(ranked.score).toBeGreaterThan(0); });
   it("allows a short job description when title and skills still form a valid query", () => { const input = { jobId: "00000000-0000-0000-0000-000000000001", title: "React", jobDescription: "ทีม", skills: ["TypeScript"], minimumYears: 0 }; expect(generateDiscoveryQuery(input).terms).toEqual(expect.arrayContaining(["react", "typescript"])); });
