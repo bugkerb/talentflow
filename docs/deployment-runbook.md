@@ -51,7 +51,7 @@ Deploy ไปยัง Railway แล้วตรวจ `/api/health`, login แ
 
 ตั้งค่าใน GitHub production environment:
 
-- Secret `RAILWAY_TOKEN`
+- Secret `RAILWAY_API_TOKEN` (Account/Workspace token; use only while the plan cannot create a Project Token)
 - Secret `RAILWAY_PROJECT_ID`
 - Secret `RAILWAY_SERVICE_ID`
 - Variable `TALENTFLOW_HEALTH_URL` เช่น `https://talentflow-web-production.up.railway.app/api/health`
