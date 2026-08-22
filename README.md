@@ -1,8 +1,18 @@
 # TalentFlow V1
 
-Recruiting pipeline foundation สำหรับงาน HR: modular monolith ด้วย Next.js, TypeScript, Supabase PostgreSQL และ server-side domain services
+Recruiting Pipeline Tool สำหรับทีม HR ตั้งแต่ Candidate Discovery, AI Resume Screening, Applicant Tracking ไปจนถึง Interview Scheduling
+
+ระบบนี้เป็น take-home assignment ที่ออกแบบและพัฒนาด้วยแนวคิด Modular Monolith โดยใช้ Next.js, TypeScript และ Supabase PostgreSQL
 
 ## เริ่มต้นใช้งาน
+
+### สิ่งที่ต้องมี
+
+- Node.js รุ่นที่ระบุใน `package.json`
+- npm
+- Supabase CLI หากต้องการรันฐานข้อมูล local หรือ integration test
+
+### ติดตั้งและรันระบบ
 
 ```bash
 npm ci
@@ -10,42 +20,104 @@ cp .env.example .env.local
 npm run dev
 ```
 
-ค่า `AI_PROVIDER=fixture` ใช้ได้โดยไม่ต้องมี secret. ถ้าเลือก `anthropic` หรือ `openrouter` ต้องตั้ง credential ฝั่ง server เท่านั้น; browser ไม่เรียก provider โดยตรง
+เปิด `http://localhost:3000`
 
-## Database
+สำหรับการทดลองโดยไม่ใช้ API key ให้ตั้งค่า:
+
+```env
+AI_PROVIDER=fixture
+```
+
+หากใช้ AI จริง ให้เลือก `anthropic` หรือ `openrouter` และตั้งค่า API key ฝั่ง server เท่านั้น ระบบไม่เรียก AI provider จาก browser โดยตรง
+
+### ตั้งค่าฐานข้อมูล local
 
 ```bash
 supabase start
 npm run test:integration
 ```
 
-`npm run test:integration` reset เฉพาะ local Supabase ของ repository นี้ แล้วรัน migration, seed และ assertions สำหรับ seed count, unique application, immutable pipeline event และ RLS. Seed ใช้ fixed UUID และ `ON CONFLICT` จึง rerun ได้
+คำสั่ง integration จะ reset เฉพาะ local Supabase ของ repository นี้ แล้วรัน migration, seed และ assertions สำหรับ constraint, pipeline event และ RLS
 
-Production ต้องใช้ migration ผ่าน controlled CI job และไม่ใช้ demo seed กับ environment จริง
-
-สำหรับ Cloud test project ใช้ `SUPABASE_DB_URL` ของ project ทดสอบเท่านั้น:
+สำหรับ Cloud test project ให้ใช้ `SUPABASE_DB_URL` ของ project ทดสอบเท่านั้น:
 
 ```bash
 npm run test:cloud-db
 ```
 
-คำสั่งนี้เป็น forward-only (`supabase db push` แล้วรัน `supabase/verify.sql`) และไม่เรียก `db reset`; ห้ามใช้ connection string ของ production โดยตรง
+คำสั่งนี้เป็น forward-only และไม่ใช้ `db reset` กับ Cloud หรือ production
 
-## Architecture
+## Architecture decisions
+
+### 1. เลือก Modular Monolith
+
+ผมเลือก Modular Monolith เพราะ assignment ต้องการหลาย module ที่มี workflow เชื่อมโยงกัน เช่น candidate, resume, application และ interview การอยู่ใน codebase เดียวทำให้ transaction, authorization และการเปลี่ยน stage ทำงานร่วมกันได้ชัดเจน โดยยังแยกขอบเขตของ module ไว้เพื่อรองรับการแยก service ในอนาคต
+
+### 2. แยก domain, application และ server boundary
 
 ```text
 Next App Router
-  -> domain/application services
-    -> repository ports
-      -> Supabase PostgreSQL / Storage
-  -> server-only provider adapters (Anthropic/OpenRouter/Calendar)
+  -> application services
+    -> repository/provider ports
+      -> Supabase PostgreSQL / Storage / External APIs
 ```
 
-`src/domain` เก็บ enum, validation และ transition rules. `src/application` เก็บ business use cases ที่ไม่ผูกกับ Next หรือ Supabase. `src/server` เก็บ error boundary, request ID, logger และ environment validation. RLS เป็นชั้นเสริม; authorization ต้องอยู่ใน service boundary ด้วย
+- `src/domain` เก็บ schema, enum และ business transition rules
+- `src/application` เก็บ use case และ port ที่ไม่ผูกกับ framework
+- `src/server` เก็บ Supabase repository, authentication, environment, error boundary และ logger
+- `app/` ทำหน้าที่เป็น route/server-action boundary
 
-## Error และ logging
+เหตุผลคือ business logic สามารถทดสอบด้วย in-memory adapter ได้ โดยไม่ต้องพึ่ง browser, network หรือ database ทุกครั้ง
 
-ใช้ stable error codes (`VALIDATION_ERROR`, `NOT_FOUND`, `CONFLICT`, `IDEMPOTENCY_CONFLICT`, ...) และคืน `requestId` ให้ client. Structured logger redacts token, secret, API key, CV text, prompt และ signed URL ก่อนเขียน JSON log. Optimistic locking ใช้ `version`; retry side effects ใช้ `(scope, key, request_hash)`
+### 3. ใช้ Supabase เป็น persistence และ authorization layer
+
+ผมเลือก Supabase เพราะรวม PostgreSQL, Auth, Storage และ Row Level Security ไว้ใน platform เดียว เหมาะกับข้อมูล HR ที่ต้องควบคุมสิทธิ์และความสัมพันธ์ของข้อมูล
+
+RLS เป็น defense-in-depth แต่ service boundary ยังตรวจ actor และ role ซ้ำ ไม่ถือว่า RLS เพียงอย่างเดียวเพียงพอสำหรับ authorization
+
+### 4. ออกแบบ concurrency และ idempotency ตั้งแต่ต้น
+
+การย้าย stage, การสร้าง application และการนัดสัมภาษณ์อาจเกิด race condition หรือ retry ซ้ำได้ จึงใช้:
+
+- optimistic locking ด้วย `version`
+- atomic database transition
+- immutable pipeline events
+- idempotency key และ request hash สำหรับ side effects
+- conflict response เมื่อข้อมูลที่ client ถืออยู่เก่าแล้ว
+
+### 5. เลือก AI แบบ provider-agnostic
+
+ผมกำหนด adapter interface เดียวสำหรับ Anthropic และ OpenRouter เพื่อไม่ให้ business logic ผูกกับ provider รายใดรายหนึ่ง และสามารถใช้ fixture provider ใน deterministic test ได้
+
+AI Resume Screening ใช้ prompt version `ai-screening-v1` และบังคับ structured output ได้แก่คะแนน Skills, Experience, Culture/Communication, reasoning, evidence, strengths, prescreen questions และ team interview report
+
+Resume ถูกถือเป็น untrusted evidence เสมอ หากพบ prompt injection จะไม่ทำตามคำสั่งใน resume และจะใส่ risk flag ให้ HR ตรวจสอบต่อ
+
+รายละเอียด prompt ที่ใช้จริงอยู่ที่ [docs/cowork-log.md](docs/cowork-log.md) และ implementation อยู่ที่ `src/application/ai/index.ts`
+
+### 6. Human-in-the-loop
+
+AI ใช้เพื่อช่วยค้นหา จัดอันดับ และสรุปข้อมูล แต่ไม่ตัดสินใจแทน HR โดยระบบต้องให้ HR review/approve candidate และตรวจผล screening ก่อนดำเนินการต่อ
+
+### 7. Security และ maintenance
+
+- API key, service-role key และ OAuth token อยู่ฝั่ง server เท่านั้น
+- resume เก็บใน private storage และเปิดผ่าน authorized signed URL
+- input boundary ใช้ schema validation
+- error response ใช้ stable error code และไม่เปิดเผยข้อมูลภายใน
+- structured logger มีการ redact secret, token, API key, resume text, prompt และ signed URL
+- มี request ID เพื่อ trace ปัญหาใน production
+
+## เอกสารประกอบ
+
+- [Requirements และ Data Model](docs/v1-requirements-and-data-model.md)
+- [UX Flow](docs/v1-ux-flow.md)
+- [Technical Implementation Plan](docs/v1-technical-implementation-plan.md)
+- [Foundation Task List และ Deterministic Verification Loop](docs/v1-foundation-task-list-and-deterministic-verification-loop.md)
+- [AI Harness](docs/ai-harness.md)
+- [Cowork Log และ prompt ที่ใช้จริงใน application](docs/cowork-log.md)
+- [Production Task List](docs/production-task-list.md)
+- [Deployment Runbook](docs/deployment-runbook.md)
 
 ## Verification
 
@@ -59,20 +131,14 @@ npm run test:e2e
 npm run build
 ```
 
-Business logic coverage ถูก enforce ที่ 100% lines/branches/functions/statements ใน Vitest. E2E ปัจจุบันครอบคลุม anonymous redirect, HR login/session refresh/logout และ dashboard action queue; persistence-backed referral/application/stale-conflict journey ยังเป็น blocker ของ production scope. Evidence อยู่ใน `docs/verification/` และ task state อยู่ใน `docs/production-task-list.md`
+Business logic coverage ถูกกำหนดที่ 100% สำหรับ lines, branches, functions และ statements ใน Vitest โดย acceptance evidence อยู่ใน `docs/verification/`
 
-## Security decisions
+## Live demo
 
-- Supabase service role และ AI keys ไม่อยู่ใน client bundle
-- business records ใช้ soft-delete consistency constraints และ explicit FK delete policies
-- pipeline events มี database trigger ป้องกัน update/delete
-- private CV storage และ signed URL เป็น server-side responsibility
-- input boundary ใช้ Zod; duplicate application ใช้ unique constraint และ service check
+`https://talentflow-web-production.up.railway.app`
 
-## Known limitations
+## ข้อจำกัดที่ควรทราบ
 
-Vertical slice ปัจจุบันใช้ in-memory application repository สำหรับ UI prototype; Supabase repository adapter, authentication screens, AI Harness/provider adapters, discovery, resume screening และ interview scheduling ยังเป็นงานถัดไปของ V1 plan. ห้ามถือว่า foundation เสร็จ 100% จนกว่า task list และ acceptance evidence ทุกข้อจะถูกติ๊กครบ
+`AI_PROVIDER=fixture` ใช้สำหรับ deterministic harness และ local development เท่านั้น ไม่ควรใช้กับ production data ระบบ production ต้องตั้งค่า provider credential และ Supabase configuration ให้ครบก่อนเปิดรับข้อมูลจริง
 
-## Production grading handoff
-
-ดู [docs/production-readiness.md](docs/production-readiness.md) สำหรับหลักฐานที่ผ่านแล้วและ blocker ที่ยังไม่ควรนำเสนอเป็น production capability. `/api/health` ใช้ตรวจ readiness ของ Supabase configuration และคืน `503` เมื่อยังไม่ได้ตั้งค่า database client.
+ดู [docs/production-readiness.md](docs/production-readiness.md) และ [docs/production-task-list.md](docs/production-task-list.md) สำหรับสถานะ evidence และ blocker ที่ยังค้างอยู่
