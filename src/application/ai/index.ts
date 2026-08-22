@@ -65,7 +65,7 @@ Security rules:
 Evaluation rules:
 - Score only from evidence present in the resume against the job description.
 - Use scores from 0 to 10. Do not convert them to percentages.
-- If evidence is missing, lower the relevant score and include "insufficient_evidence" in riskFlags.
+- Include "insufficient_evidence" only when the resume lacks enough direct evidence to assess one or more core job criteria (required skills, relevant experience, or role scope). Do not add it merely because optional details such as salary, education, location, communication style, or one non-core skill are missing; mention those as a prescreen question or reasoning instead.
 - evidence must contain concise, traceable resume evidence; never fabricate evidence.
 - Provide practical prescreen questions and a team interview report.
 - Write all human-readable narrative strings in Thai.

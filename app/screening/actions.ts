@@ -14,8 +14,14 @@ import { createLogger } from "@/server/logger";
 
 const uploadRateLimiter = new InMemoryRateLimiter(rateLimitPolicies.upload);
 
-export async function uploadResume(candidateId: string, file: File) { const requestId = randomUUID(); try { const actor = await requireActiveHr(); const rate = uploadRateLimiter.check(rateLimitKey("upload", actor.id)); if (!rate.allowed) throw new AppError("RATE_LIMITED", "คำขอมากเกินไป กรุณาลองใหม่ภายหลัง", 429); const client = await createSupabaseServerClient(); return { data: await new SupabaseResumeRepository(client).insert(candidateId, actor.id, randomUUID(), await new ResumeService().validateUpload(file)) }; } catch (error) { return toSafeError(error, requestId); } }
-export async function extractResumeText(file: File) { const requestId = randomUUID(); try { await requireActiveHr(); return { data: await new ResumeService().extractText(file) }; } catch (error) { return toSafeError(error, requestId); } }
+const fileFromFormData = (formData: FormData): File => {
+  const file = formData.get("file");
+  if (!(file instanceof File)) throw new AppError("VALIDATION_ERROR", "ไม่พบไฟล์เรซูเม่");
+  return file;
+};
+
+export async function uploadResume(candidateId: string, formData: FormData) { const requestId = randomUUID(); try { const actor = await requireActiveHr(); const rate = uploadRateLimiter.check(rateLimitKey("upload", actor.id)); if (!rate.allowed) throw new AppError("RATE_LIMITED", "คำขอมากเกินไป กรุณาลองใหม่ภายหลัง", 429); const client = await createSupabaseServerClient(); return { data: await new SupabaseResumeRepository(client).insert(candidateId, actor.id, randomUUID(), await new ResumeService().validateUpload(fileFromFormData(formData))) }; } catch (error) { return toSafeError(error, requestId); } }
+export async function extractResumeText(formData: FormData) { const requestId = randomUUID(); try { await requireActiveHr(); return { data: await new ResumeService().extractText(fileFromFormData(formData)) }; } catch (error) { return toSafeError(error, requestId); } }
 export async function downloadResume(resumeId: string) { const requestId = randomUUID(); try { await requireActiveHr(); const client = await createSupabaseServerClient(); const file = await new SupabaseResumeRepository(client).download(resumeId); return { data: { ...file, bytes: Buffer.from(file.bytes).toString("base64") } }; } catch (error) { return toSafeError(error, requestId); } }
 export async function deleteResume(resumeId: string) { const requestId = randomUUID(); try { const actor = await requireActiveHr(); const client = await createSupabaseServerClient(); await new SupabaseResumeRepository(client).delete(resumeId, actor.id); return { data: { deleted: true } }; } catch (error) { return toSafeError(error, requestId); } }
 

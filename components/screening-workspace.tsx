@@ -80,13 +80,15 @@ export function ScreeningWorkspace({ data }: { data: ScreeningWorkspaceData }) {
     try {
       let selectedResumeId = resumeId;
       if (file) {
-        const uploaded = await uploadResume(target.candidateId, file);
+        const uploadForm = new FormData(); uploadForm.set("file", file);
+        const uploaded = await uploadResume(target.candidateId, uploadForm);
         if ("error" in uploaded) { setError(uploaded.error.message); return; }
         selectedResumeId = uploaded.data.id;
         setResumeId(selectedResumeId);
         setMessage("อัปโหลดเรซูเม่แล้ว");
       }
-      const extracted = resumeText.trim() ? { data: resumeText.trim() } : file ? await extractResumeText(file) : { data: "" };
+      const extractedForm = new FormData(); if (file) extractedForm.set("file", file);
+      const extracted = resumeText.trim() ? { data: resumeText.trim() } : file ? await extractResumeText(extractedForm) : { data: "" };
       if ("error" in extracted) { setError(extracted.error.message); return; }
       const extractedText = extracted.data;
       if (!extractedText.trim()) { setError("ไม่พบข้อความในเรซูเม่ กรุณาวางข้อความเรซูเม่ก่อนเริ่มการวิเคราะห์"); return; }
@@ -129,9 +131,6 @@ export function ScreeningWorkspace({ data }: { data: ScreeningWorkspaceData }) {
 <p className="mt-1 text-sm text-[#565e74]">{file?.name ?? target?.resumeFileName ?? "รองรับ PDF, DOCX (สูงสุด 5MB)"}</p>
 </label> : <textarea aria-label="ข้อความเรซูเม่" value={resumeText} onChange={(event) => setResumeText(event.target.value)} className="mt-5 block w-full rounded-lg border border-[#c2c6d9] p-4 text-sm" rows={9} placeholder="วางข้อความเรซูเม่ที่นี่..." />}{tab === "upload" && <textarea aria-label="ข้อความเรซูเม่" value={resumeText} onChange={(event) => setResumeText(event.target.value)} className="mt-4 block w-full rounded-lg border border-[#c2c6d9] p-4 text-sm" rows={5} placeholder="วางข้อความเรซูเม่เพื่อให้ AI วิเคราะห์หลังอัปโหลดไฟล์..." />}<button type="button" disabled={!canRun} onClick={startAnalysis} className={`${primary} mt-5 flex w-full items-center justify-center gap-2`}>
 <span aria-hidden="true" className="material-symbols-outlined">psychology</span>{busy ? "กำลังวิเคราะห์..." : "เริ่มการวิเคราะห์ AI"}</button>{message && <p role="status" aria-live="polite" className="mt-3 rounded-lg bg-[#dbe1ff] p-3 text-sm text-[#00174b]">{message}</p>}{error && <p role="alert" className="mt-3 rounded-lg bg-[#fff7f5] p-3 text-sm text-[#93000a]">{error}</p>}</section>
-<section className={panel}>
-<h2 className="mb-4 font-semibold">สถานะการประมวลผล</h2>
-<p className="text-sm text-[#565e74]">{busy ? "กำลังส่งข้อมูลให้ระบบวิเคราะห์..." : result ? "บันทึกผลจากระบบแล้ว" : "รอข้อมูลจากผู้สมัคร"}</p>{busy && <div className="mt-3 h-1.5 w-full animate-pulse rounded-full bg-[#0062ff]" />}</section>
 </div>
 <div className="space-y-6 lg:col-span-7">{result ? <>
 <section className={`${panel} grid gap-4 md:grid-cols-3`}>
@@ -180,9 +179,11 @@ function ScreeningIntake({ jobs }: { jobs: ScreeningJob[] }) {
       const application = await createApplication(candidate.data.id, selectedJob.id);
       if (application.error || !application.data) { setError(application.error?.message ?? "สร้างใบสมัครไม่สำเร็จ"); return; }
       const inputFile = file ?? new File([resumeText], "resume.txt", { type: "text/plain" });
-      const uploaded = await uploadResume(candidate.data.id, inputFile);
+      const uploadForm = new FormData(); uploadForm.set("file", inputFile);
+      const uploaded = await uploadResume(candidate.data.id, uploadForm);
       if ("error" in uploaded) { setError(uploaded.error.message); return; }
-      const extracted = resumeText.trim() ? { data: resumeText.trim() } : await extractResumeText(inputFile);
+      const extractedForm = new FormData(); extractedForm.set("file", inputFile);
+      const extracted = resumeText.trim() ? { data: resumeText.trim() } : await extractResumeText(extractedForm);
       if ("error" in extracted) { setError(extracted.error.message); return; }
       const extractedText = extracted.data;
       if (!extractedText.trim()) { setError("ไม่พบข้อความในเรซูเม่ กรุณาตรวจสอบไฟล์หรือวางข้อความเรซูเม่"); return; }
@@ -213,7 +214,6 @@ function ScreeningIntake({ jobs }: { jobs: ScreeningJob[] }) {
         {message && <p role="status" className="mt-3 rounded-lg bg-[#dbe1ff] p-3 text-sm text-[#00174b]">{message}</p>}
         {error && <p role="alert" className="mt-3 rounded-lg bg-[#fff7f5] p-3 text-sm text-[#93000a]">{error}</p>}
       </section>
-      <section className={panel}><div className="mb-4 flex items-center justify-between"><h2 className="font-semibold">สถานะการประมวลผล</h2><span className="rounded-full bg-[#f2f4f6] px-2 py-1 text-xs font-bold text-[#565e74]">รอเริ่มต้น</span></div><div className="space-y-4 text-sm text-[#565e74]"><div className="flex justify-between"><span>ดึงข้อมูลพื้นฐาน</span><span>—</span></div><div className="h-1.5 rounded-full bg-[#e0e3e5]" /><div className="flex justify-between"><span>วิเคราะห์ทักษะและประสบการณ์</span><span>—</span></div><div className="h-1.5 rounded-full bg-[#e0e3e5]" /></div></section>
     </div>
     <div className="space-y-6 lg:col-span-7">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">{[["ความเหมาะสมโดยรวม", result?.score, "stars"], ["ทักษะที่ตรงกัน (Hard Skills)", result?.scores.skills, "code"], ["ประสบการณ์การทำงาน", result?.scores.experience, "work_history"], ["การสื่อสารและวัฒนธรรม", result?.scores.cultureCommunication, "forum"]].map(([label, scoreValue, icon]) => <article key={label} aria-label={`${label} ${scoreValue ?? "ยังไม่มีคะแนน"}${scoreValue === undefined ? "" : " จาก 10"}`} className={`${panel} flex min-h-[150px] flex-col justify-between`}><div className="flex items-start justify-between"><span className="text-xs font-bold uppercase tracking-wide text-[#565e74]">{label}</span><span aria-hidden="true" className="material-symbols-outlined text-[20px] text-[#004cca]">{icon}</span></div><div className="flex items-baseline gap-1"><strong className="font-serif text-4xl text-[#191c1e]">{scoreValue ?? "—"}</strong><span className="text-sm text-[#565e74]">/10</span></div><p className="text-sm text-[#565e74]">{result ? "ผลจาก AI" : "รอผลวิเคราะห์"}</p></article>)}</div>
