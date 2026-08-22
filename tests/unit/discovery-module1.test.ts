@@ -17,6 +17,11 @@ describe("Module 1 discovery", () => {
     expect(enriched.normalizedProfile.ai?.evidence.semanticSimilarityPercent).toBe(82);
     expect(fetcher).toHaveBeenCalledOnce();
   });
+  it("includes the provider-safe response detail when discovery AI rejects a request", async () => {
+    const candidate = normalizeAndRank({ text: "react", terms: ["react"], minimumYears: 0 }, [source])[0];
+    const fetcher = vi.fn().mockResolvedValue({ ok: false, status: 400, text: async () => '{"error":{"message":"invalid response format"}}' });
+    await expect(createOpenRouterDiscoveryEnricher({ apiKey: "test", model: "test", fetcher }).enrich({ jobId: "00000000-0000-0000-0000-000000000001", title: "Frontend", jobDescription: "React", skills: ["React"], minimumYears: 0 }, [candidate])).rejects.toThrow("invalid response format");
+  });
   it("generates deterministic query and ranked evidence", () => { const input = { jobId: "00000000-0000-0000-0000-000000000001", title: "Tech Lead", jobDescription: "TypeScript platform engineer", skills: ["TypeScript"], minimumYears: 3 }; expect(generateDiscoveryQuery(input)).toEqual(generateDiscoveryQuery(input)); expect(normalizeAndRank(generateDiscoveryQuery(input), [source])[0].normalizedProfile.evidence.length).toBeGreaterThan(0); });
   it("returns an explainable semantic similarity component", () => { const query = { text: '"typescript" OR "platform" OR "engineer"', terms: ["typescript", "platform", "engineer"], minimumYears: 3 }; const ranked = normalizeAndRank(query, [source])[0].normalizedProfile; expect(ranked.semanticSimilarity).toBeGreaterThan(0); expect(ranked.keywordScore).toBeGreaterThan(0); expect(ranked.score).toBeGreaterThan(0); });
   it("allows a short job description when title and skills still form a valid query", () => { const input = { jobId: "00000000-0000-0000-0000-000000000001", title: "React", jobDescription: "ทีม", skills: ["TypeScript"], minimumYears: 0 }; expect(generateDiscoveryQuery(input).terms).toEqual(expect.arrayContaining(["react", "typescript"])); });
