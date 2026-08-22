@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { InterviewService } from "@/application/interview-service";
 import { InMemoryCalendarProvider } from "@/application/calendar-provider";
 import { InMemoryInterviewRepository } from "@/application/interview-repository";
+import { AppError } from "@/server/errors";
 
 const input = {
   applicationId: "00000000-0000-0000-0000-000000000030",
@@ -118,5 +119,54 @@ describe("InterviewService", () => {
     const repository = new InMemoryInterviewRepository();
     repository.recordProviderSuccess = async () => null;
     await expect(new InterviewService(repository, new InMemoryCalendarProvider()).schedule(input, "00000000-0000-0000-0000-000000000001", "00000000-0000-0000-0000-000000000080", "provider-race")).rejects.toMatchObject({ code: "NOT_FOUND" });
+  });
+
+  it("skips provider creation for an already synced interview", async () => {
+    const provider = new InMemoryCalendarProvider();
+    const repository = new InMemoryInterviewRepository();
+    const service = new InterviewService(repository, provider);
+    const scheduled = await service.schedule(input, "00000000-0000-0000-0000-000000000001", "00000000-0000-0000-0000-000000000080", "synced-replay");
+    const synced = { ...scheduled, providerStatus: "synced" as const };
+    repository.findById = async () => synced;
+
+    expect(await service.retryProvider(scheduled.id)).toEqual(synced);
+    expect(provider.calls).toHaveLength(1);
+  });
+
+  it("updates and cancels the external calendar event when one exists", async () => {
+    const calls: string[] = [];
+    const provider = {
+      async createEvent() { return { eventId: "calendar-81", meetUrl: "https://meet.example/81" }; },
+      async updateEvent(eventId: string) { calls.push(`update:${eventId}`); },
+      async cancelEvent(eventId: string) { calls.push(`cancel:${eventId}`); },
+      async listEvents() { return []; }
+    };
+    const service = new InterviewService(new InMemoryInterviewRepository(), provider);
+    const scheduled = await service.schedule(input, "00000000-0000-0000-0000-000000000001", "00000000-0000-0000-0000-000000000081", "calendar-events");
+    const repository = new InMemoryInterviewRepository();
+    const serviceWithEvent = new InterviewService(repository, provider);
+    const withEvent = await serviceWithEvent.schedule({ ...input, applicationId: scheduled.applicationId }, "00000000-0000-0000-0000-000000000001", "00000000-0000-0000-0000-000000000082", "calendar-events-existing");
+    const originalFindById = repository.findById.bind(repository);
+    repository.findById = async (id) => {
+      const current = await originalFindById(id);
+      return current ? { ...current, googleEventId: "calendar-existing", providerStatus: "synced" } : null;
+    };
+
+    await serviceWithEvent.reschedule({ interviewId: withEvent.id, startsAt: "2026-08-24T04:00:00.000Z", endsAt: "2026-08-24T04:30:00.000Z", reason: "Move" }, "00000000-0000-0000-0000-000000000001", 1);
+    await serviceWithEvent.cancel({ interviewId: withEvent.id, reason: "Cancelled" }, "00000000-0000-0000-0000-000000000001", 2);
+
+    expect(calls).toEqual(["update:calendar-existing", "cancel:calendar-existing"]);
+  });
+
+  it("preserves provider not-found errors while recording the failed sync", async () => {
+    const repository = new InMemoryInterviewRepository();
+    const provider = {
+      async createEvent() { return { eventId: "calendar-82", meetUrl: null }; },
+      async updateEvent() {}, async cancelEvent() {}, async listEvents() { return []; }
+    };
+    repository.recordProviderSuccess = async () => { throw new AppError("NOT_FOUND", "Interview not found"); };
+    const service = new InterviewService(repository, provider);
+
+    await expect(service.schedule(input, "00000000-0000-0000-0000-000000000001", "00000000-0000-0000-0000-000000000083", "provider-not-found")).rejects.toMatchObject({ code: "NOT_FOUND" });
   });
 });
