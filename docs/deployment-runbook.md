@@ -34,21 +34,21 @@ npm run test:e2e
 
 ผลต้องผ่านโดยไม่มี test skip และใช้ test user แยกจาก production users
 
-## Vercel deployment
+## Railway deployment
 
-ผูก repository กับ Vercel project ที่ได้รับอนุญาตแล้วตั้งค่า environment variables แยกตาม environment:
+ผูก repository กับ Railway service ที่ได้รับอนุญาตแล้วตั้งค่า environment variables แยกตาม environment:
 
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY` (server-only)
 - AI provider variables (server-only)
 
-Deploy preview ก่อน แล้วตรวจ `/api/health`, login และ critical HR journey. Production deploy ต้องมีผู้มีสิทธิ์อนุมัติและเก็บ deployment URL/commit SHA เป็น evidence
+Deploy ไปยัง Railway แล้วตรวจ `/api/health`, login และ critical HR journey. Production deploy ต้องมีผู้มีสิทธิ์อนุมัติและเก็บ deployment URL/commit SHA เป็น evidence
 
 ## Rollback
 
-1. เลือก deployment ก่อนหน้าที่ผ่าน smoke test
-2. promote deployment นั้นกลับเป็น production
+1. เลือก Railway deployment ก่อนหน้าที่ผ่าน smoke test
+2. rollback service ไปยัง deployment นั้น
 3. ตรวจ `/api/health`, authentication และ database read/write
 4. บันทึกเวลา, deployment ID, commit SHA และผลตรวจ
 

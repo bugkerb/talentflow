@@ -15,7 +15,7 @@
 ```env
 FACEBOOK_GROUP_URL=https://www.facebook.com/groups/625167729529245
 FACEBOOK_STORAGE_STATE_PATH=/secure/path/facebook-storage-state.json
-DISCOVERY_SOURCE_ENDPOINT=https://talentflow-rose.vercel.app/api/discovery/source
+DISCOVERY_SOURCE_ENDPOINT=https://talentflow-web-production.up.railway.app/api/discovery/source
 DISCOVERY_SOURCE_API_KEY=<server-generated-key>
 DISCOVERY_SEARCH_ENDPOINT=http://127.0.0.1:8787/search
 FACEBOOK_STORAGE_STATE_JSON=<secret-json-for-production-worker>
@@ -28,7 +28,7 @@ Web flow ส่ง query ที่สร้างจาก JD ไปยัง `D
 
 ตรวจสุขภาพ worker ได้ที่ `GET /healthz`; ค้นหาใช้ `POST /search` พร้อม `Authorization: Bearer <DISCOVERY_SOURCE_API_KEY>`
 
-รันแบบ local/worker เท่านั้น เพราะ Vercel serverless ไม่เหมาะกับ browser session แบบถาวร:
+รัน worker แยกจาก web service เพราะ browser session แบบถาวรไม่ควรผูกกับ request lifecycle ของ web service:
 
 ```bash
 node scripts/facebook-group-scraper.mjs

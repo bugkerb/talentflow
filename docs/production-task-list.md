@@ -53,7 +53,7 @@
 | [#9](https://github.com/bugkerb/talentflow/issues/9) | OWASP production verification | IN PROGRESS: threat model and CI dependency gate added; runtime abuse/Storage/AI/provider controls pending |
 | [#10](https://github.com/bugkerb/talentflow/issues/10) | UI maintainability/accessibility | IN PROGRESS (3 parallel slices) |
 | [#11](https://github.com/bugkerb/talentflow/issues/11) | Clean-checkout CI/full journey | IN PROGRESS: local isolated schema passes; latest GitHub CI pending |
-| [#12](https://github.com/bugkerb/talentflow/issues/12) | Deployment/observability/recovery | IN PROGRESS: Vercel production deployment READY; rollback/restore and runtime observability evidence pending |
+| [#12](https://github.com/bugkerb/talentflow/issues/12) | Deployment/observability/recovery | IN PROGRESS: Railway live URL configured; rollback/restore and runtime observability evidence pending |
 | [#13](https://github.com/bugkerb/talentflow/issues/13) | Handover/go-live sign-off | BLOCKED by #12 until rollback/restore and remaining Cloud E2E evidence pass |
 
 ## Active slice: Issue #2 Auth and role-scoped access
