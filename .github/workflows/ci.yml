@@ -1,5 +1,35 @@
 name: CI
-on: [push, pull_request]
+on:
+  push:
+    paths:
+      - "src/**"
+      - "app/**"
+      - "components/**"
+      - "public/**"
+      - "tests/unit/**"
+      - "package.json"
+      - "package-lock.json"
+      - "tsconfig.json"
+      - "next.config.*"
+      - "vitest.config.*"
+      - "eslint.config.*"
+      - ".eslintrc*"
+      - ".github/workflows/ci.yml"
+  pull_request:
+    paths:
+      - "src/**"
+      - "app/**"
+      - "components/**"
+      - "public/**"
+      - "tests/unit/**"
+      - "package.json"
+      - "package-lock.json"
+      - "tsconfig.json"
+      - "next.config.*"
+      - "vitest.config.*"
+      - "eslint.config.*"
+      - ".eslintrc*"
+      - ".github/workflows/ci.yml"
 
 concurrency:
   group: talentflow-ci-${{ github.workflow }}-${{ github.ref }}

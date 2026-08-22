@@ -1,6 +1,30 @@
 name: E2E tests
 
-on: [push, pull_request]
+on:
+  push:
+    paths:
+      - "src/**"
+      - "app/**"
+      - "components/**"
+      - "public/**"
+      - "tests/e2e/**"
+      - "scripts/run-e2e.sh"
+      - "playwright.config.*"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/e2e.yml"
+  pull_request:
+    paths:
+      - "src/**"
+      - "app/**"
+      - "components/**"
+      - "public/**"
+      - "tests/e2e/**"
+      - "scripts/run-e2e.sh"
+      - "playwright.config.*"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/e2e.yml"
 
 concurrency:
   group: talentflow-e2e-${{ github.workflow }}-${{ github.ref }}
