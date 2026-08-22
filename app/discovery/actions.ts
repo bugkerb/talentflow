@@ -74,3 +74,28 @@ export async function approveDiscoveryResult(input: unknown) {
     return { data: undefined, ...toSafeError(error, requestId) };
   }
 }
+
+export async function listPendingDiscovery(input: unknown) {
+  const requestId = randomUUID();
+  try {
+    const value = z.object({ jobId: z.string().uuid() }).parse(input);
+    await requireActiveHr();
+    const repository = new SupabaseDiscoveryRunRepository(createSupabaseServiceRoleClient());
+    return { data: await repository.listPendingResults(value.jobId), error: undefined };
+  } catch (error) {
+    return { data: undefined, ...toSafeError(error, requestId) };
+  }
+}
+
+export async function rejectDiscoveryResult(input: unknown) {
+  const requestId = randomUUID();
+  try {
+    const value = z.object({ runId: z.string().uuid(), externalId: z.string().min(1).max(200) }).parse(input);
+    const actor = await requireActiveHr();
+    const { data, error } = await createSupabaseServiceRoleClient().rpc("reject_discovery_result", { p_run_id: value.runId, p_external_id: value.externalId, p_actor_id: actor.id });
+    if (error) throw error;
+    return { data, error: undefined };
+  } catch (error) {
+    return { data: undefined, ...toSafeError(error, requestId) };
+  }
+}

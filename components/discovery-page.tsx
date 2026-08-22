@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition } from "react";
 import type { JobRecord } from "@/application/job-service";
-import { approveDiscoveryResult, runDemoDiscovery, runDiscovery } from "../app/discovery/actions";
+import { approveDiscoveryResult, listPendingDiscovery, rejectDiscoveryResult, runDemoDiscovery, runDiscovery } from "../app/discovery/actions";
 import { AppShell, Header, Sidebar } from "./talentflow";
 import { demoDiscoveryResults } from "@/application/discovery/demo-data";
 
@@ -14,9 +14,11 @@ const field =
   "mt-2 block w-full rounded-lg border border-[#c2c6d9] bg-white px-3 py-2.5 text-sm text-[#191c1e]";
 type CandidateDecision = "interview" | "rejected";
 const decisionDetails: Record<CandidateDecision, { label: string; message: string }> = { interview: { label: "อนุมัติเพื่อสัมภาษณ์", message: "อนุมัติผู้สมัครเพื่อเข้าสู่ขั้นตอนสัมภาษณ์แล้ว" }, rejected: { label: "ปฏิเสธ", message: "ปฏิเสธผู้สมัครแล้ว" } };
+const LAST_DISCOVERY_JOB_KEY = "talentflow.discovery.last-job-id";
 type LegacyCandidate = { id: string; fullName: string; initials: string; role: string; company: string; skills: string[]; score: number; evidence: string[]; concerns: string[]; applicationId: string; version: number };
 type DiscoveryResult = (typeof demoDiscoveryResults)[number];
-type DiscoveryViewResult = { source: string; externalId: string; profileUrl: string; fullName: string; role?: string; company?: string; skills: string[]; score: number; evidence: string[]; concerns: string[]; location?: string; education?: string; expectedSalary?: string; experience?: string };
+type DiscoveryViewResult = { runId: string; source: string; externalId: string; profileUrl: string; fullName: string; role?: string; company?: string; skills: string[]; score: number; evidence: string[]; concerns: string[]; location?: string; education?: string; expectedSalary?: string; experience?: string };
+const toViewResult = (item: any): DiscoveryViewResult => ({ runId: item.runId ?? item.run_id, source: item.source, externalId: item.externalId ?? item.external_id, profileUrl: item.profileUrl ?? item.profile_url, fullName: item.normalizedProfile?.ai?.name ?? item.normalized_profile?.ai?.name ?? item.fullName ?? item.full_name, role: item.normalizedProfile?.ai?.currentPosition ?? item.normalized_profile?.ai?.currentPosition ?? item.role, company: item.normalizedProfile?.ai?.company ?? item.normalized_profile?.ai?.company ?? item.company, skills: item.normalizedProfile?.ai?.skills ?? item.normalized_profile?.ai?.skills ?? item.skills ?? [], score: item.normalizedProfile?.ai?.matchScore ?? item.normalized_profile?.ai?.matchScore ?? item.score ?? 0, evidence: item.normalizedProfile?.ai?.evidence?.keywordMatches ?? item.normalized_profile?.ai?.evidence?.keywordMatches ?? item.evidence ?? [], concerns: item.normalizedProfile?.ai?.warnings ?? item.normalized_profile?.ai?.warnings ?? item.concerns ?? [], location: item.normalizedProfile?.ai?.location ?? item.normalized_profile?.ai?.location ?? item.raw?.location, education: item.normalizedProfile?.ai?.education ?? item.normalized_profile?.ai?.education ?? item.raw?.education, expectedSalary: item.normalizedProfile?.ai?.expectedSalary ?? item.normalized_profile?.ai?.expectedSalary ?? item.raw?.expectedSalary, experience: item.normalizedProfile?.ai?.evidence?.experienceSummary ?? item.normalized_profile?.ai?.evidence?.experienceSummary ?? item.raw?.experience });
 
 export function DiscoveryPage({ jobs }: { jobs: JobRecord[] }) {
   const [searchQuery, setSearchQuery] = useState("");
@@ -27,6 +29,7 @@ export function DiscoveryPage({ jobs }: { jobs: JobRecord[] }) {
   const [searchConfirmationOpen, setSearchConfirmationOpen] = useState(false);
   const searchConfirmButtonRef = useRef<HTMLButtonElement>(null);
   const previouslyFocusedElementRef = useRef<HTMLElement | null>(null);
+  const pendingLoadTokenRef = useRef(0);
   const [, startTransition] = useTransition();
   const [actionError, setActionError] = useState<string | null>(null);
   const [candidateDecisions, setCandidateDecisions] = useState<Record<string, CandidateDecision>>({});
@@ -34,14 +37,38 @@ export function DiscoveryPage({ jobs }: { jobs: JobRecord[] }) {
   const [skillsInput, setSkillsInput] = useState("");
   const [minimumYears, setMinimumYears] = useState("0");
   const [runState, setRunState] = useState<"idle" | "running" | "done">("idle");
-  const [runId, setRunId] = useState<string | null>(null);
   const [runResults, setRunResults] = useState<DiscoveryViewResult[]>([]);
   const [demoMode, setDemoMode] = useState(false);
   const [approvedResults, setApprovedResults] = useState<Record<string, string>>({});
 
   const openJobs = jobs.filter((job) => job.status === "open");
   const selectedJob = openJobs.find((job) => job.id === selectedJobId);
-  useEffect(() => { if (selectedJob) { setJobDescription(selectedJob.description); setSkillsInput(""); setMinimumYears("0"); } }, [selectedJob]);
+  useEffect(() => {
+    const lastJobId = window.localStorage.getItem(LAST_DISCOVERY_JOB_KEY);
+    if (lastJobId && openJobs.some((job) => job.id === lastJobId)) setSelectedJobId((current) => current || lastJobId);
+  }, [jobs]);
+  useEffect(() => {
+    if (selectedJobId) window.localStorage.setItem(LAST_DISCOVERY_JOB_KEY, selectedJobId);
+  }, [selectedJobId]);
+  useEffect(() => {
+    if (!selectedJob) return;
+    setJobDescription(selectedJob.description);
+    setSkillsInput("");
+    setMinimumYears("0");
+    const token = pendingLoadTokenRef.current + 1;
+    pendingLoadTokenRef.current = token;
+    startTransition(async () => {
+      const response = await listPendingDiscovery({ jobId: selectedJob.id });
+      if (token !== pendingLoadTokenRef.current) return;
+      if (response.data) {
+        setRunResults((current) => {
+          const byIdentity = new Map([...response.data.map(toViewResult), ...current].map((item) => [`${item.runId}:${item.source}:${item.externalId}`, item]));
+          return [...byIdentity.values()];
+        });
+        setRunState((current) => current === "running" ? current : response.data.length ? "done" : current);
+      } else if (response.error) setActionError(response.error.message);
+    });
+  }, [selectedJobId, selectedJob, startTransition]);
   const rankedResults: LegacyCandidate[] = [];
 
   useEffect(() => {
@@ -71,23 +98,25 @@ export function DiscoveryPage({ jobs }: { jobs: JobRecord[] }) {
   function updateResultDecision(result: typeof runResults[number], decision: CandidateDecision) {
     setCandidateDecisions((current) => ({ ...current, [result.externalId]: decision }));
     if (decision === "interview") approveResult(result);
+    if (decision === "rejected") startTransition(async () => { const response = await rejectDiscoveryResult({ runId: result.runId, externalId: result.externalId }); if (response.error) setActionError(response.error.message); else setRunResults((current) => current.filter((item) => item.externalId !== result.externalId)); });
   }
 
   function confirmSearch() {
     if (!selectedJobId) return;
     setSearchConfirmationOpen(false);
     setRunState("running");
+    pendingLoadTokenRef.current += 1;
     startTransition(async () => {
       const input = { jobId: selectedJobId, title: selectedJob?.title ?? "", jobDescription, skills: skillsInput.split(",").map((item) => item.trim()).filter(Boolean), minimumYears: Number(minimumYears) };
       const result = demoMode ? await runDemoDiscovery(input) : await runDiscovery(input);
       if (result.error || !result.data) { setRunState("idle"); setActionError(result.error ? `${result.error.message} (รหัสคำขอ ${result.error.requestId})` : "ไม่สามารถเริ่มการค้นหาได้"); return; }
-      setRunId(result.data.runId); setRunResults(result.data.results.map((item) => ({ source: item.source, externalId: item.externalId, profileUrl: item.profileUrl, fullName: item.normalizedProfile.ai?.name ?? item.fullName, role: item.normalizedProfile.ai?.currentPosition ?? item.role, company: item.normalizedProfile.ai?.company ?? item.company, skills: item.normalizedProfile.ai?.skills ?? item.skills, score: item.normalizedProfile.ai?.matchScore ?? item.normalizedProfile.score, evidence: item.normalizedProfile.ai?.evidence.keywordMatches ?? item.normalizedProfile.evidence, concerns: item.normalizedProfile.ai?.warnings ?? item.normalizedProfile.concerns, location: item.normalizedProfile.ai?.location ?? (typeof item.raw.location === "string" ? item.raw.location : undefined), education: item.normalizedProfile.ai?.education ?? (typeof item.raw.education === "string" ? item.raw.education : undefined), expectedSalary: item.normalizedProfile.ai?.expectedSalary ?? (typeof item.raw.expectedSalary === "string" ? item.raw.expectedSalary : undefined), experience: item.normalizedProfile.ai?.evidence.experienceSummary ?? (typeof item.raw.experience === "string" ? item.raw.experience : undefined) }))); setRunState("done"); setSearchedJobId(selectedJobId); setActionError(null);
+      setRunResults((current) => { const incoming = result.data.results.map((item) => toViewResult({ ...item, runId: result.data.runId })); const byIdentity = new Map([...current, ...incoming].map((item) => [`${item.runId}:${item.source}:${item.externalId}`, item])); return [...byIdentity.values()]; }); setRunState("done"); setSearchedJobId(selectedJobId); setActionError(null);
     });
   }
 
   function approveResult(result: typeof runResults[number]) {
-    if (!runId || !selectedJobId) return;
-    startTransition(async () => { const response = await approveDiscoveryResult({ runId, externalId: result.externalId, jobId: selectedJobId, idempotencyKey: `discovery-${runId}-${result.externalId}` }); if (response.error) setActionError(`${response.error.message} (รหัสคำขอ ${response.error.requestId})`); else setApprovedResults((current) => ({ ...current, [result.externalId]: response.data?.applicationId ?? "approved" })); });
+    if (!selectedJobId) return;
+    startTransition(async () => { const response = await approveDiscoveryResult({ runId: result.runId, externalId: result.externalId, jobId: selectedJobId, idempotencyKey: `discovery-${result.runId}-${result.externalId}` }); if (response.error) setActionError(`${response.error.message} (รหัสคำขอ ${response.error.requestId})`); else { setApprovedResults((current) => ({ ...current, [result.externalId]: response.data?.applicationId ?? "approved" })); setRunResults((current) => current.filter((item) => item.externalId !== result.externalId)); } });
   }
 
 
@@ -134,9 +163,9 @@ export function DiscoveryPage({ jobs }: { jobs: JobRecord[] }) {
           </div>
         </section>
 
-        {runState === "done" && <section aria-labelledby="discovery-run-results" className="mx-auto w-full max-w-7xl rounded-xl border border-[#c2c6d9] bg-white p-6 shadow-sm">
-          <div className="flex items-center justify-between gap-3"><div><h2 id="discovery-run-results" className="text-xl font-bold">ผลลัพธ์จากแหล่งข้อมูล</h2><p className="mt-1 text-sm text-[#565e74]">ตรวจสอบ evidence ก่อนอนุมัติเข้า Applicant Tracker</p></div><span className="text-sm font-semibold text-[#565e74]">พบ {runResults.length} คน</span></div>
-          <div className="mt-6 grid gap-6">{runResults.map((result) => <article key={result.externalId} className="overflow-hidden rounded-xl border border-[#c2c6d9] bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"><header className="flex flex-col items-start justify-between gap-5 border-b border-[#e0e3e5] bg-[#f7f9fb] p-6 sm:flex-row"><div className="flex min-w-0 items-center gap-5"><div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border-2 border-white bg-[#dae2fd] text-xl font-bold text-[#004cca] shadow-sm">{result.fullName.slice(0, 2)}</div><div className="min-w-0"><h3 className="flex flex-wrap items-center gap-2 text-lg font-bold">{result.fullName}<span aria-hidden="true" className="material-symbols-outlined text-sm text-[#004cca]">verified</span></h3><p className="text-sm text-[#565e74]">{result.role ?? "ไม่ระบุ"} · {result.company ?? "ไม่ระบุ"}</p><p className="mt-1 text-xs text-[#565e74]">{(result as DiscoveryResult).location ?? "ไม่ระบุ"} · {(result as DiscoveryResult).education ?? "ไม่ระบุ"} · {(result as DiscoveryResult).expectedSalary ?? "ไม่ระบุ"}</p><div className="mt-2 flex flex-wrap gap-2">{result.skills.map((skill) => <span key={skill} className="rounded-full border border-[#005e80]/20 bg-[#c4e7ff]/40 px-2.5 py-0.5 text-xs font-semibold text-[#005e80]">{skill}</span>)}</div></div></div><div className="flex shrink-0 items-center gap-3 self-start sm:block sm:text-right"><div className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-[#004cca] bg-[#dbe1ff]/50 text-xl font-bold text-[#004cca]">{result.score}</div><p className="text-xs font-semibold text-[#565e74]">คะแนนความเหมาะสม</p></div></header><div className="grid divide-y divide-[#e0e3e5] md:grid-cols-3 md:divide-x md:divide-y-0"><section className="border-b border-[#e0e3e5] bg-white p-6 md:border-b-0 md:border-r"><h4 className="mb-4 flex items-center gap-2 text-sm font-bold"><span aria-hidden="true" className="material-symbols-outlined !text-base !leading-none text-[#004cca]">fact_check</span>หลักฐานที่พบ</h4><ul className="space-y-3 text-sm text-[#424656]">{result.evidence.map((item) => <li key={item} className="flex items-start gap-2"><span aria-hidden="true" className="material-symbols-outlined mt-0.5 text-base text-[#22c55e]">check_circle</span><span>{item}</span></li>)}</ul><p className="mt-4 border-t border-[#e0e3e5] pt-3 text-xs text-[#565e74]"><strong>ประสบการณ์:</strong> {(result as DiscoveryResult).experience ?? "ไม่ระบุ"}</p></section><section className="border-b border-[#e0e3e5] bg-white p-6 md:border-b-0 md:border-r"><h4 className="mb-4 flex items-center gap-2 text-sm font-bold text-[#191c1e]"><span aria-hidden="true" className="material-symbols-outlined !text-base !leading-none text-[#ba1a1a]">warning</span>ข้อควรตรวจสอบ</h4><ul className="space-y-3 text-sm text-[#424656]">{(result.concerns.length ? result.concerns : ["ไม่พบข้อควรตรวจสอบเพิ่มเติม"]).map((item) => <li key={item} className="flex items-start gap-2"><span aria-hidden="true" className="material-symbols-outlined mt-0.5 text-base text-[#737687]">info</span><span>{item}</span></li>)}</ul></section><section className="flex flex-col justify-center bg-white p-6" aria-label={`การตัดสินใจสำหรับ ${result.fullName}`}>{candidateDecisions[result.externalId] && <p role="status" aria-live="polite" className="mb-3 rounded-lg bg-[#dbe1ff] p-3 text-sm font-semibold text-[#00174b]">{decisionDetails[candidateDecisions[result.externalId] as CandidateDecision].message}</p>}<div className="flex w-full flex-col gap-3"><button type="button" onClick={() => updateResultDecision(result, "interview")} aria-pressed={candidateDecisions[result.externalId] === "interview"} className={`${primaryButton} w-full ${candidateDecisions[result.externalId] === "interview" ? "ring-2 ring-[#004cca] ring-offset-2" : ""}`}><span aria-hidden="true" className="material-symbols-outlined text-lg">thumb_up</span>{approvedResults[result.externalId] ? "อนุมัติแล้ว" : "อนุมัติเพื่อสัมภาษณ์"}</button><button type="button" onClick={() => updateResultDecision(result, "rejected")} aria-pressed={candidateDecisions[result.externalId] === "rejected"} className={`inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[#ba1a1a] px-4 py-2 text-sm font-semibold text-[#ba1a1a] transition hover:bg-[#ffdad6]/30 ${candidateDecisions[result.externalId] === "rejected" ? "ring-2 ring-[#ba1a1a] ring-offset-2" : ""}`}><span aria-hidden="true" className="material-symbols-outlined text-lg">thumb_down</span>ปฏิเสธ</button></div></section></div></article>)}</div>
+        {(runState === "done" || runResults.length > 0) && <section aria-labelledby="discovery-run-results" className="mx-auto w-full max-w-7xl rounded-xl border border-[#c2c6d9] bg-white p-6 shadow-sm">
+          <div className="flex items-center justify-between gap-3"><div><h2 id="discovery-run-results" className="text-xl font-bold">ผลลัพธ์จากแหล่งข้อมูล</h2><p className="mt-1 text-sm text-[#565e74]">ตรวจสอบ evidence ก่อนอนุมัติเข้า Applicant Tracker{runState === "running" ? " · กำลังเพิ่มผลลัพธ์ใหม่…" : ""}</p></div><span className="text-sm font-semibold text-[#565e74]">พบ {runResults.length} คน</span></div>
+          <div className="mt-6 grid gap-6">{runResults.map((result) => <article key={`${result.runId}:${result.source}:${result.externalId}`} className="overflow-hidden rounded-xl border border-[#c2c6d9] bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"><header className="flex flex-col items-start justify-between gap-5 border-b border-[#e0e3e5] bg-[#f7f9fb] p-6 sm:flex-row"><div className="flex min-w-0 items-center gap-5"><div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full border-2 border-white bg-[#dae2fd] text-xl font-bold text-[#004cca] shadow-sm">{result.fullName.slice(0, 2)}</div><div className="min-w-0"><h3 className="flex flex-wrap items-center gap-2 text-lg font-bold">{result.fullName}<span aria-hidden="true" className="material-symbols-outlined text-sm text-[#004cca]">verified</span></h3><p className="text-sm text-[#565e74]">{result.role ?? "ไม่ระบุ"} · {result.company ?? "ไม่ระบุ"}</p><p className="mt-1 text-xs text-[#565e74]">{(result as DiscoveryResult).location ?? "ไม่ระบุ"} · {(result as DiscoveryResult).education ?? "ไม่ระบุ"} · {(result as DiscoveryResult).expectedSalary ?? "ไม่ระบุ"}</p><div className="mt-2 flex flex-wrap gap-2">{result.skills.map((skill) => <span key={skill} className="rounded-full border border-[#005e80]/20 bg-[#c4e7ff]/40 px-2.5 py-0.5 text-xs font-semibold text-[#005e80]">{skill}</span>)}</div></div></div><div className="flex shrink-0 items-center gap-3 self-start sm:block sm:text-right"><div className="flex h-14 w-14 items-center justify-center rounded-full border-2 border-[#004cca] bg-[#dbe1ff]/50 text-xl font-bold text-[#004cca]">{result.score}</div><p className="text-xs font-semibold text-[#565e74]">คะแนนความเหมาะสม</p></div></header><div className="grid divide-y divide-[#e0e3e5] md:grid-cols-3 md:divide-x md:divide-y-0"><section className="border-b border-[#e0e3e5] bg-white p-6 md:border-b-0 md:border-r"><h4 className="mb-4 flex items-center gap-2 text-sm font-bold"><span aria-hidden="true" className="material-symbols-outlined !text-base !leading-none text-[#004cca]">fact_check</span>หลักฐานที่พบ</h4><ul className="space-y-3 text-sm text-[#424656]">{result.evidence.map((item) => <li key={item} className="flex items-start gap-2"><span aria-hidden="true" className="material-symbols-outlined mt-0.5 text-base text-[#22c55e]">check_circle</span><span>{item}</span></li>)}</ul><p className="mt-4 border-t border-[#e0e3e5] pt-3 text-xs text-[#565e74]"><strong>ประสบการณ์:</strong> {(result as DiscoveryResult).experience ?? "ไม่ระบุ"}</p></section><section className="border-b border-[#e0e3e5] bg-white p-6 md:border-b-0 md:border-r"><h4 className="mb-4 flex items-center gap-2 text-sm font-bold text-[#191c1e]"><span aria-hidden="true" className="material-symbols-outlined !text-base !leading-none text-[#ba1a1a]">warning</span>ข้อควรตรวจสอบ</h4><ul className="space-y-3 text-sm text-[#424656]">{(result.concerns.length ? result.concerns : ["ไม่พบข้อควรตรวจสอบเพิ่มเติม"]).map((item) => <li key={item} className="flex items-start gap-2"><span aria-hidden="true" className="material-symbols-outlined mt-0.5 text-base text-[#737687]">info</span><span>{item}</span></li>)}</ul></section><section className="flex flex-col justify-center bg-white p-6" aria-label={`การตัดสินใจสำหรับ ${result.fullName}`}><div className="flex w-full flex-col gap-3"><button type="button" onClick={() => updateResultDecision(result, "interview")} aria-pressed={candidateDecisions[result.externalId] === "interview"} className={`${primaryButton} w-full ${candidateDecisions[result.externalId] === "interview" ? "ring-2 ring-[#004cca] ring-offset-2" : ""}`}><span aria-hidden="true" className="material-symbols-outlined text-lg">thumb_up</span>{approvedResults[result.externalId] ? "อนุมัติแล้ว" : "อนุมัติเพื่อสัมภาษณ์"}</button><button type="button" onClick={() => updateResultDecision(result, "rejected")} aria-pressed={candidateDecisions[result.externalId] === "rejected"} className={`inline-flex w-full items-center justify-center gap-2 rounded-lg border border-[#ba1a1a] px-4 py-2 text-sm font-semibold text-[#ba1a1a] transition hover:bg-[#ffdad6]/30 ${candidateDecisions[result.externalId] === "rejected" ? "ring-2 ring-[#ba1a1a] ring-offset-2" : ""}`}><span aria-hidden="true" className="material-symbols-outlined text-lg">thumb_down</span>ปฏิเสธ</button></div></section></div></article>)}</div>
         </section>}
 
         <section aria-label="ตั้งค่าการค้นหา">
