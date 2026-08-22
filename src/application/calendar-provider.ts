@@ -1,9 +1,9 @@
-import type { CalendarEvent, CalendarEventInput, CalendarProvider } from "./interview-ports";
+import type { CalendarEvent, CalendarEventInput, CalendarEventSummary, CalendarProvider } from "./interview-ports";
 import { AppError } from "@/server/errors";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { decryptGoogleToken } from "@/server/google-oauth";
 
-type GoogleEventResponse = { id?: string; hangoutLink?: string; conferenceData?: { entryPoints?: Array<{ entryPointType?: string; uri?: string }> } };
+type GoogleEventResponse = { id?: string; summary?: string; status?: string; htmlLink?: string; start?: { dateTime?: string; date?: string; timeZone?: string }; end?: { dateTime?: string; date?: string; timeZone?: string }; hangoutLink?: string; conferenceData?: { entryPoints?: Array<{ entryPointType?: string; uri?: string }> } };
 
 /** Server-side Google Calendar adapter. It never fabricates an event when configuration or API response is invalid. */
 export class GoogleCalendarProvider implements CalendarProvider {
@@ -52,6 +52,15 @@ export class GoogleCalendarProvider implements CalendarProvider {
 
   async cancelEvent(eventId: string): Promise<void> { await this.requestEvent(eventId, "DELETE"); }
 
+  async listEvents(range: { timeMin: string; timeMax: string }): Promise<CalendarEventSummary[]> {
+    await this.ensureAccessToken();
+    const params = new URLSearchParams({ timeMin: range.timeMin, timeMax: range.timeMax, singleEvents: "true", orderBy: "startTime", maxResults: "250" });
+    const response = await fetch(`${this.baseUrl}/calendars/${encodeURIComponent(this.calendarId)}/events?${params.toString()}`, { headers: { authorization: `Bearer ${this.accessToken}` }, cache: "no-store" });
+    if (!response.ok) throw new AppError("CALENDAR_PROVIDER_ERROR", `Google Calendar rejected event listing (${response.status})`, 502);
+    const payload = await response.json() as { items?: GoogleEventResponse[] };
+    return (payload.items ?? []).filter((event) => event.id && event.start && event.end).map((event) => ({ eventId: event.id!, title: event.summary?.trim() || "ไม่มีชื่อกิจกรรม", startsAt: event.start!.dateTime ?? `${event.start!.date}T00:00:00.000Z`, endsAt: event.end!.dateTime ?? `${event.end!.date}T00:00:00.000Z`, timezone: event.start!.timeZone ?? "UTC", status: event.status ?? "confirmed", htmlUrl: event.htmlLink ?? null }));
+  }
+
   private async ensureAccessToken(): Promise<void> {
     if (this.accessToken && !this.refreshToken) return;
     const env = process.env;
@@ -84,4 +93,5 @@ export class InMemoryCalendarProvider implements CalendarProvider {
   }
   async updateEvent(): Promise<void> {}
   async cancelEvent(): Promise<void> {}
+  async listEvents(): Promise<CalendarEventSummary[]> { return []; }
 }

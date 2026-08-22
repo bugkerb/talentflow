@@ -17,4 +17,13 @@ describe("GoogleCalendarProvider", () => {
     expect(request.conferenceData.createRequest.requestId).toBe("idem-1");
     fetchMock.mockRestore();
   });
+
+  it("lists real calendar events within the requested range", async () => {
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(JSON.stringify({ items: [{ id: "event-1", summary: "ทีมสัมภาษณ์", status: "confirmed", htmlLink: "https://calendar.google.com/event-1", start: { dateTime: "2026-08-24T03:00:00.000Z", timeZone: "Asia/Bangkok" }, end: { dateTime: "2026-08-24T03:30:00.000Z", timeZone: "Asia/Bangkok" } }] }), { status: 200 }));
+    const provider = new GoogleCalendarProvider({ accessToken: "token", calendarId: "primary" });
+    await expect(provider.listEvents({ timeMin: "2026-08-24T00:00:00.000Z", timeMax: "2026-08-25T00:00:00.000Z" })).resolves.toEqual([{ eventId: "event-1", title: "ทีมสัมภาษณ์", startsAt: "2026-08-24T03:00:00.000Z", endsAt: "2026-08-24T03:30:00.000Z", timezone: "Asia/Bangkok", status: "confirmed", htmlUrl: "https://calendar.google.com/event-1" }]);
+    const [url] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(url).toContain("singleEvents=true");
+    fetchMock.mockRestore();
+  });
 });

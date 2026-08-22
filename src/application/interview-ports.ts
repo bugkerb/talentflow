@@ -34,11 +34,13 @@ export type InterviewActivityEvent = {
 };
 export type CalendarEventInput = Pick<InterviewRecord, "id" | "applicationId" | "interviewType" | "startsAt" | "endsAt" | "timezone" | "interviewerId" | "description" | "additionalQuestions">;
 export type CalendarEvent = { eventId: string; meetUrl: string | null };
+export type CalendarEventSummary = { eventId: string; title: string; startsAt: string; endsAt: string; timezone: string; status: string; htmlUrl: string | null };
 
 export interface CalendarProvider {
   createEvent(input: CalendarEventInput, idempotencyKey: string): Promise<CalendarEvent>;
   updateEvent(eventId: string, input: CalendarEventInput): Promise<void>;
   cancelEvent(eventId: string): Promise<void>;
+  listEvents(range: { timeMin: string; timeMax: string }): Promise<CalendarEventSummary[]>;
 }
 
 export interface InterviewRepository {
