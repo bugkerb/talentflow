@@ -14,6 +14,7 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:integration": "bash scripts/verify-database.sh",
+    "seed:local-user": "bash scripts/seed-local-user.sh",
     "test:cloud-db": "bash scripts/verify-cloud-database.sh",
     "test:e2e": "bash scripts/run-e2e.sh",
     "worker:facebook": "node scripts/facebook-group-search-worker.mjs",

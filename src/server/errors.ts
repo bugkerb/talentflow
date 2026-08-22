@@ -23,14 +23,14 @@ export class AppError extends Error {
 export const toSafeError = (error: unknown, requestId: string): { error: { code: ErrorCode; message: string; requestId: string } } => {
   const logger = createLogger(requestId);
   if (error instanceof AppError) {
-    logger.error("request_failed", { code: error.code, error: error.message, details: error.details });
+    logger.error("request_failed", { code: error.code, error: error.message, details: error.details, stack: error.stack });
     return { error: { code: error.code, message: error.message, requestId } };
   }
   if (error instanceof Error && error.name === "ZodError") {
-    logger.error("request_failed", { code: "VALIDATION_ERROR", error: error.message });
+    logger.error("request_failed", { code: "VALIDATION_ERROR", error: error.message, stack: error.stack });
     return { error: { code: "VALIDATION_ERROR", message: "ข้อมูลค้นหาไม่ถูกต้อง กรุณาตรวจสอบตำแหน่งงานและเกณฑ์การค้นหา", requestId } };
   }
-  logger.error("request_failed", { code: "INTERNAL_ERROR", error: error instanceof Error ? error.message : String(error) });
+  logger.error("request_failed", { code: "INTERNAL_ERROR", error: error instanceof Error ? error.message : String(error), stack: error instanceof Error ? error.stack : undefined });
   return { error: { code: "INTERNAL_ERROR", message: "เกิดข้อผิดพลาดภายในระบบ", requestId } };
 };
 import { createLogger } from "./logger";
