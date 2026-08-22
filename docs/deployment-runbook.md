@@ -51,7 +51,7 @@ Deploy ไปยัง Railway แล้วตรวจ `/api/health`, login แ
 
 1. รอ approval ของ GitHub `production` environment
 2. Apply migration ด้วย `SUPABASE_DB_URL`
-3. รัน `supabase/verify.sql`
+3. รัน `supabase/verify-production.sql` (ใช้ `supabase/verify.sql` เฉพาะ cloud test project ที่มี seed)
 4. Deploy Railway service
 5. ตรวจ health check ก่อนจบงาน
 
