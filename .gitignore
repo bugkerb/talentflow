@@ -26,7 +26,7 @@ tmp/
 railway-vnc/
 dashboard-route-*.png
 discovery-login-console-errors.txt
-\ .pdf
+*.pdf
 AGENTS.md
 
 !.env.example

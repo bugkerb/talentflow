@@ -6,6 +6,7 @@ import React from "react";
 
 vi.mock("next/navigation", () => ({ usePathname: () => "/applications", useRouter: () => ({ refresh: vi.fn() }) }));
 vi.mock("../../app/auth/actions", () => ({ logoutAction: vi.fn() }));
+vi.mock("server-only", () => ({}));
 
 import { ApplicationsView } from "../../components/applications-view";
 import type { ApplicationTrackerData } from "../../src/application/application-tracker";

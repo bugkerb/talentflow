@@ -36,6 +36,8 @@ npm run test:e2e
 
 ## Railway deployment
 
+Railway is the only official production target for the web application. `render.yaml` and `wrangler.jsonc` are retained only for historical/worker experiments and are not part of the production web release path; do not deploy them as the TalentFlow web service.
+
 ผูก repository กับ Railway service ที่ได้รับอนุญาตแล้วตั้งค่า environment variables แยกตาม environment:
 
 - `NEXT_PUBLIC_SUPABASE_URL`
