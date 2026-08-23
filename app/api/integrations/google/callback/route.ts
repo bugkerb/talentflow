@@ -3,10 +3,14 @@ import { cookies } from "next/headers";
 import { requireActiveHr } from "@/server/auth";
 import { createSupabaseServerClient } from "@/server/supabase-server";
 import { encryptGoogleToken, exchangeGoogleCode } from "@/server/google-oauth";
+import { createLogger } from "@/server/logger";
+import { randomUUID } from "node:crypto";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request: Request) {
+  const requestId = randomUUID();
+  const logger = createLogger(requestId);
   const url = new URL(request.url);
   const configuredOrigin = process.env.GOOGLE_OAUTH_REDIRECT_URI;
   const configuredUrl = configuredOrigin ? new URL(configuredOrigin) : null;
@@ -27,7 +31,8 @@ export async function GET(request: Request) {
     const response = NextResponse.redirect(new URL("/settings?google_calendar=connected", redirectOrigin));
     response.cookies.delete("talentflow_google_oauth_state");
     return response;
-  } catch {
+  } catch (error) {
+    logger.error("google_oauth_callback_failed", { error: error instanceof Error ? error.message : String(error) });
     return NextResponse.redirect(new URL("/settings?google_calendar=error", redirectOrigin));
   }
 }

@@ -49,7 +49,10 @@ export const exchangeGoogleCode = async (code: string): Promise<{ refreshToken: 
   const redirectUri = configuredRedirectUri();
   if (!env.GOOGLE_CLIENT_ID || !env.GOOGLE_CLIENT_SECRET || !redirectUri) throw new Error("Google OAuth is not configured");
   const response = await fetch("https://oauth2.googleapis.com/token", { method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ code, client_id: env.GOOGLE_CLIENT_ID, client_secret: env.GOOGLE_CLIENT_SECRET, redirect_uri: redirectUri, grant_type: "authorization_code" }), cache: "no-store" });
-  if (!response.ok) throw new Error("Google OAuth token exchange failed");
+  if (!response.ok) {
+    const payload = await response.json().catch(() => ({})) as { error?: string; error_description?: string };
+    throw new Error(`Google OAuth token exchange failed (${response.status}): ${payload.error ?? "unknown_error"}`);
+  }
   const data = await response.json() as { refresh_token?: string };
   if (!data.refresh_token) throw new Error("Google did not return a refresh token");
   return { refreshToken: data.refresh_token };
