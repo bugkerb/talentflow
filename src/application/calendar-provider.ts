@@ -35,7 +35,7 @@ export class GoogleCalendarProvider implements CalendarProvider {
         description: [input.description, input.additionalQuestions].filter(Boolean).join("\n\n"),
         start: { dateTime: input.startsAt, timeZone: input.timezone },
         end: { dateTime: input.endsAt, timeZone: input.timezone },
-        conferenceData: { createRequest: { requestId: idempotencyKey, conferenceSolutionKey: { type: "hangoutsMeet" } } }
+        ...(input.format !== "onsite" ? { conferenceData: { createRequest: { requestId: idempotencyKey, conferenceSolutionKey: { type: "hangoutsMeet" } } } } : {})
       })
     });
     if (!response.ok) throw new AppError("CALENDAR_PROVIDER_ERROR", `Google Calendar rejected the event (${response.status})`, 502);

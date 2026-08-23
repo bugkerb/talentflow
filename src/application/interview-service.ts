@@ -21,7 +21,7 @@ export class InterviewService {
     if (!idempotencyKey.trim()) throw new AppError("VALIDATION_ERROR", "Idempotency key is required");
     const record: InterviewRecord = { ...value, id, idempotencyKey, status: "scheduled", version: 1, createdBy: actorId, updatedBy: null, cancelledBy: null, cancelledAt: null, providerStatus: "pending", googleEventId: null, googleMeetUrl: null };
     const stored = await this.repository.schedule(record, hashRequest(value));
-    return this.syncProvider({ ...stored, description: record.description });
+    return this.syncProvider({ ...stored, format: record.format, description: record.description });
   }
 
   async retryProvider(interviewId: string): Promise<InterviewRecord> {

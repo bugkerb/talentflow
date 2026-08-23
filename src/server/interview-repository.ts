@@ -5,11 +5,11 @@ import type { CalendarEvent, InterviewListItem, InterviewRecord, InterviewReposi
 
 type InterviewRow = {
   id: string; application_id: string; interview_type: string; starts_at: string; ends_at: string; timezone: string; interviewer_id?: string;
-  description: string; additional_questions: string; status: InterviewRecord["status"]; version: number; idempotency_key: string; created_by: string; updated_by: string | null;
+  description: string; additional_questions: string; format?: "online" | "onsite"; status: InterviewRecord["status"]; version: number; idempotency_key: string; created_by: string; updated_by: string | null;
   cancelled_by: string | null; cancelled_at: string | null; provider_status: InterviewRecord["providerStatus"]; google_event_id: string | null; google_meet_url: string | null;
 };
-const columns = "id,application_id,interview_type,starts_at,ends_at,timezone,description,additional_questions,status,version,idempotency_key,created_by,updated_by,cancelled_by,cancelled_at,provider_status,google_event_id,google_meet_url";
-const toRecord = (row: InterviewRow): InterviewRecord => ({ id: row.id, applicationId: row.application_id, interviewType: row.interview_type, startsAt: row.starts_at, endsAt: row.ends_at, timezone: row.timezone, interviewerId: row.interviewer_id ?? "", description: row.description, additionalQuestions: row.additional_questions, status: row.status, version: row.version, idempotencyKey: row.idempotency_key, createdBy: row.created_by, updatedBy: row.updated_by, cancelledBy: row.cancelled_by, cancelledAt: row.cancelled_at, providerStatus: row.provider_status, googleEventId: row.google_event_id, googleMeetUrl: row.google_meet_url });
+const columns = "id,application_id,interview_type,starts_at,ends_at,timezone,description,additional_questions,format,status,version,idempotency_key,created_by,updated_by,cancelled_by,cancelled_at,provider_status,google_event_id,google_meet_url";
+const toRecord = (row: InterviewRow): InterviewRecord => ({ id: row.id, applicationId: row.application_id, interviewType: row.interview_type, startsAt: row.starts_at, endsAt: row.ends_at, timezone: row.timezone, interviewerId: row.interviewer_id ?? "", format: row.format ?? "online", description: row.description, additionalQuestions: row.additional_questions, status: row.status, version: row.version, idempotencyKey: row.idempotency_key, createdBy: row.created_by, updatedBy: row.updated_by, cancelledBy: row.cancelled_by, cancelledAt: row.cancelled_at, providerStatus: row.provider_status, googleEventId: row.google_event_id, googleMeetUrl: row.google_meet_url });
 const throwDatabaseError = (error: { message: string; code?: string; details?: string | null } | null): void => {
   if (!error) return;
   if (error.message.includes("idempotency key")) throw new AppError("IDEMPOTENCY_CONFLICT", "Idempotency key was reused with a different request");
@@ -31,7 +31,8 @@ export class SupabaseInterviewRepository implements InterviewRepository {
   }
 
   async schedule(interview: InterviewRecord, requestHash: string): Promise<InterviewRecord> {
-    const { data, error } = await this.client.rpc("schedule_interview", { p_interview_id: interview.id, p_application_id: interview.applicationId, p_interview_type: interview.interviewType, p_starts_at: interview.startsAt, p_ends_at: interview.endsAt, p_timezone: interview.timezone, p_interviewer_id: interview.interviewerId, p_additional_questions: interview.additionalQuestions, p_idempotency_key: interview.idempotencyKey, p_request_hash: requestHash, p_actor_id: interview.createdBy });
+    const persistedQuestions = [`รูปแบบ: ${interview.format ?? "online"}`, interview.additionalQuestions].filter(Boolean).join("\n");
+    const { data, error } = await this.client.rpc("schedule_interview", { p_interview_id: interview.id, p_application_id: interview.applicationId, p_interview_type: interview.interviewType, p_starts_at: interview.startsAt, p_ends_at: interview.endsAt, p_timezone: interview.timezone, p_interviewer_id: interview.interviewerId, p_additional_questions: persistedQuestions, p_idempotency_key: interview.idempotencyKey, p_request_hash: requestHash, p_actor_id: interview.createdBy });
     throwDatabaseError(error);
     if (!data) throw new Error("Interview was not returned after schedule");
     const persisted = await this.findById(interview.id);

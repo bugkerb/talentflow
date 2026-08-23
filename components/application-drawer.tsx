@@ -4,8 +4,16 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { TrackerApplication } from "@/application/application-tracker";
 import { isValidStageTransition, type ApplicationStage } from "@/domain/enums";
+import { scheduleApplicationInterview } from "../app/interviews/actions";
 
-const stageLabels: Record<ApplicationStage, string> = { screening: "คัดกรองเบื้องต้น", phone_screen: "คัดกรองทางโทรศัพท์", interview: "สัมภาษณ์", offer: "ข้อเสนอ", hired: "รับเข้าทำงาน", rejected: "ปฏิเสธ" };
+const stageLabels: Record<ApplicationStage, string> = {
+  screening: "คัดกรองเบื้องต้น",
+  phone_screen: "คัดกรองทางโทรศัพท์",
+  interview: "สัมภาษณ์",
+  offer: "ข้อเสนอ",
+  hired: "รับเข้าทำงาน",
+  rejected: "ปฏิเสธ",
+};
 const unavailable = "ไม่พบข้อมูล";
 type DrawerProfile = {
   location?: string;
@@ -22,8 +30,18 @@ type DrawerProfile = {
     evidence?: { experienceSummary?: string };
   };
 };
-const profileValue = (profile: DrawerProfile | null | undefined, key: "location" | "education" | "expectedSalary" | "experience" | "experienceSummary"): string | undefined => {
-  const value = profile?.ai?.[key as "location" | "education" | "expectedSalary"] ?? profile?.[key];
+const profileValue = (
+  profile: DrawerProfile | null | undefined,
+  key:
+    | "location"
+    | "education"
+    | "expectedSalary"
+    | "experience"
+    | "experienceSummary",
+): string | undefined => {
+  const value =
+    profile?.ai?.[key as "location" | "education" | "expectedSalary"] ??
+    profile?.[key];
   return typeof value === "string" && value.trim() ? value : undefined;
 };
 const localDateTimeInput = (): string => {
@@ -32,7 +50,13 @@ const localDateTimeInput = (): string => {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T11:00`;
 };
 
-export function ApplicationDrawer({ application, onClose }: { application: TrackerApplication; onClose: () => void }) {
+export function ApplicationDrawer({
+  application,
+  onClose,
+}: {
+  application: TrackerApplication;
+  onClose: () => void;
+}) {
   const router = useRouter();
   const profile = application.candidate.normalizedProfile;
   const drawerProfile = profile as DrawerProfile | null | undefined;
@@ -40,36 +64,389 @@ export function ApplicationDrawer({ application, onClose }: { application: Track
   const skills = drawerProfile?.ai?.skills ?? drawerProfile?.skills ?? [];
   const education = profileValue(drawerProfile, "education");
   const expectedSalary = profileValue(drawerProfile, "expectedSalary");
-  const experience = drawerProfile?.ai?.evidence?.experienceSummary ?? profileValue(drawerProfile, "experienceSummary") ?? profileValue(drawerProfile, "experience");
+  const experience =
+    drawerProfile?.ai?.evidence?.experienceSummary ??
+    profileValue(drawerProfile, "experienceSummary") ??
+    profileValue(drawerProfile, "experience");
   const [stage, setStage] = useState(application.stage);
   const [editingStage, setEditingStage] = useState(false);
   const [scheduleOpen, setScheduleOpen] = useState(false);
   const [scheduleDateTime, setScheduleDateTime] = useState(localDateTimeInput);
+  const [schedulePending, setSchedulePending] = useState(false);
   const [scheduleError, setScheduleError] = useState("");
+  const [scheduleFormat, setScheduleFormat] = useState<"online" | "onsite">(
+    "online",
+  );
+  const [scheduleReason, setScheduleReason] = useState("");
+  const [interviewerName, setInterviewerName] = useState("");
   useEffect(() => setStage(application.stage), [application.stage]);
   const changeStage = (nextStage: ApplicationStage): void => {
     if (!isValidStageTransition(application.stage, nextStage)) return;
     setEditingStage(false);
-    window.dispatchEvent(new CustomEvent("talentflow:change-stage", { detail: { application, stage: nextStage } }));
+    window.dispatchEvent(
+      new CustomEvent("talentflow:change-stage", {
+        detail: { application, stage: nextStage },
+      }),
+    );
   };
 
-  return <div className="fixed inset-0 z-50" role="presentation">
-    <button type="button" aria-label="ปิดรายละเอียดผู้สมัคร" className="absolute inset-0 h-full w-full bg-[#071d37]/40" onClick={onClose} />
-    <aside role="dialog" aria-modal="true" aria-labelledby="application-drawer-title" className="absolute right-0 top-0 flex h-full w-full max-w-[400px] flex-col bg-white shadow-2xl">
-      <header className="flex items-center justify-between border-b border-[#e1e4ea] p-6"><h2 id="application-drawer-title" className="text-xl font-bold">รายละเอียดผู้สมัคร</h2><button type="button" aria-label="ปิดรายละเอียด" onClick={onClose} className="rounded-full p-1 text-2xl text-[#565e74] hover:bg-[#f2f4f6]">×</button></header>
-      <div className="flex-1 overflow-y-auto p-6">
-        <div className="mb-6 flex items-start gap-4"><div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl border border-[#c2c6d9] bg-[#dbe1ff] text-xl font-bold text-[#004cca]">{application.candidate.fullName.slice(0, 2)}</div><div><h3 className="text-2xl font-bold leading-tight">{application.candidate.fullName}</h3><p className="text-base text-[#565e74]">{application.job.title}</p>{location && <p className="mt-1 flex items-center gap-1 text-sm text-[#7c8292]"><span className="material-symbols-outlined !text-[14px] !leading-none">location_on</span>{location}</p>}</div></div>
-        <div className="mb-8 flex gap-2"><button type="button" disabled={!application.candidate.resumeUrl} onClick={() => application.candidate.resumeUrl && window.open(application.candidate.resumeUrl, "_blank", "noopener,noreferrer")} className="flex-1 rounded-lg border border-[#c2c6d9] bg-white py-2 text-sm font-medium shadow-sm disabled:opacity-50"><span className="material-symbols-outlined mr-1 !text-[18px] !leading-none align-middle">visibility</span>เรซูเม่ (PDF)</button><button type="button" disabled={!application.candidate.email} onClick={() => { if (application.candidate.email) window.location.href = `mailto:${application.candidate.email}`; }} className="flex-1 rounded-lg border border-[#c2c6d9] bg-white py-2 text-sm font-medium shadow-sm disabled:opacity-50"><span className="material-symbols-outlined mr-1 !text-[18px] !leading-none align-middle">mail</span>อีเมล</button><button type="button" aria-label="ลบผู้สมัคร" onClick={() => window.dispatchEvent(new CustomEvent("talentflow:delete-candidate", { detail: { candidateId: application.candidate.id, applicationId: application.id } }))} className="flex w-10 items-center justify-center rounded-lg border border-[#c2c6d9] bg-white text-[#ba1a1a] shadow-sm"><span className="material-symbols-outlined !text-[18px] !leading-none">delete</span></button></div>
-        <div className="space-y-6">
-          <section><h4 className="mb-2 text-xs font-bold uppercase tracking-wide text-[#565e74]">สถานะปัจจุบัน</h4>{editingStage ? <select autoFocus aria-label="เปลี่ยนสถานะผู้สมัคร" value={stage} onChange={(event) => changeStage(event.target.value as ApplicationStage)} onBlur={() => setEditingStage(false)} className="w-full rounded-lg border border-[#8fcbe8] bg-white px-3 py-3 text-sm font-medium text-[#005e80] outline-none focus:ring-2 focus:ring-[#38bdf8]/40">{Object.entries(stageLabels).filter(([value]) => value === application.stage || isValidStageTransition(application.stage, value as ApplicationStage)).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select> : <button type="button" onClick={() => setEditingStage(true)} className="flex w-full items-center justify-between rounded-lg border border-[#38bdf8]/30 bg-[#e0f2fe] p-3 text-left"><span className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-[#0f766e]" /><span className="font-medium text-[#005e80]">{stageLabels[stage]}</span></span><span className="text-sm text-[#005e80] underline decoration-dotted">เปลี่ยนสถานะ</span></button>}</section>
-          <section><h4 className="mb-2 text-xs font-bold uppercase tracking-wide text-[#565e74]">ทักษะหลัก (Primary Skills)</h4><div className="flex flex-wrap gap-2">{skills.length > 0 ? skills.map((skill) => <span key={skill} className="rounded-full border border-[#c2d2ff] bg-[#dbe1ff] px-3 py-1 text-sm text-[#00174b]">{skill}</span>) : <span className="text-sm text-[#7c8292]">{unavailable}</span>}</div></section>
-          <section><h4 className="mb-3 text-xs font-bold uppercase tracking-wide text-[#565e74]">ประสบการณ์ทำงาน</h4><div className="relative space-y-4 border-l-2 border-[#c2c6d9] pl-4"><div className="relative"><span className="absolute -left-[21px] top-1 h-2.5 w-2.5 rounded-full border-2 border-white bg-[#c2c6d9]" /><p className="text-sm text-[#7c8292]">{experience ?? unavailable}</p></div></div></section>
-          <section><h4 className="mb-3 text-xs font-bold uppercase tracking-wide text-[#565e74]">การศึกษา</h4><div className="relative space-y-4 border-l-2 border-[#c2c6d9] pl-4"><div className="relative"><span className="absolute -left-[21px] top-1 h-2.5 w-2.5 rounded-full border-2 border-white bg-[#c2c6d9]" /><p className="text-sm text-[#7c8292]">{education ?? unavailable}</p></div></div></section>
-          <section><h4 className="mb-3 text-sm font-bold text-[#565e74]">เงินเดือนที่คาดหวัง</h4><div className="rounded-xl border border-[#e1e4ea] bg-white p-3"><span className="text-base font-bold leading-tight text-[#20232a]">{expectedSalary ?? unavailable}</span></div></section>
+  return (
+    <div className="fixed inset-0 z-50" role="presentation">
+      <button
+        type="button"
+        aria-label="ปิดรายละเอียดผู้สมัคร"
+        className="absolute inset-0 h-full w-full bg-[#071d37]/40"
+        onClick={onClose}
+      />
+      <aside
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="application-drawer-title"
+        className="absolute right-0 top-0 flex h-full w-full max-w-[400px] flex-col bg-white shadow-2xl"
+      >
+        <header className="flex items-center justify-between border-b border-[#e1e4ea] p-6">
+          <h2 id="application-drawer-title" className="text-xl font-bold">
+            รายละเอียดผู้สมัคร
+          </h2>
+          <button
+            type="button"
+            aria-label="ปิดรายละเอียด"
+            onClick={onClose}
+            className="rounded-full p-1 text-2xl text-[#565e74] hover:bg-[#f2f4f6]"
+          >
+            ×
+          </button>
+        </header>
+        <div className="flex-1 overflow-y-auto p-6">
+          <div className="mb-6 flex items-start gap-4">
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl border border-[#c2c6d9] bg-[#dbe1ff] text-xl font-bold text-[#004cca]">
+              {application.candidate.fullName.slice(0, 2)}
+            </div>
+            <div>
+              <h3 className="text-2xl font-bold leading-tight">
+                {application.candidate.fullName}
+              </h3>
+              <p className="text-base text-[#565e74]">
+                {application.job.title}
+              </p>
+              {location && (
+                <p className="mt-1 flex items-center gap-1 text-sm text-[#7c8292]">
+                  <span className="material-symbols-outlined !text-[14px] !leading-none">
+                    location_on
+                  </span>
+                  {location}
+                </p>
+              )}
+            </div>
+          </div>
+          <div className="mb-8 flex gap-2">
+            <button
+              type="button"
+              disabled={!application.candidate.resumeUrl}
+              onClick={() =>
+                application.candidate.resumeUrl &&
+                window.open(
+                  application.candidate.resumeUrl,
+                  "_blank",
+                  "noopener,noreferrer",
+                )
+              }
+              className="flex-1 rounded-lg border border-[#c2c6d9] bg-white py-2 text-sm font-medium shadow-sm disabled:opacity-50"
+            >
+              <span className="material-symbols-outlined mr-1 !text-[18px] !leading-none align-middle">
+                visibility
+              </span>
+              เรซูเม่ (PDF)
+            </button>
+            <button
+              type="button"
+              disabled={!application.candidate.email}
+              onClick={() => {
+                if (application.candidate.email)
+                  window.location.href = `mailto:${application.candidate.email}`;
+              }}
+              className="flex-1 rounded-lg border border-[#c2c6d9] bg-white py-2 text-sm font-medium shadow-sm disabled:opacity-50"
+            >
+              <span className="material-symbols-outlined mr-1 !text-[18px] !leading-none align-middle">
+                mail
+              </span>
+              อีเมล
+            </button>
+            <button
+              type="button"
+              aria-label="ลบผู้สมัคร"
+              onClick={() =>
+                window.dispatchEvent(
+                  new CustomEvent("talentflow:delete-candidate", {
+                    detail: {
+                      candidateId: application.candidate.id,
+                      applicationId: application.id,
+                    },
+                  }),
+                )
+              }
+              className="flex w-10 items-center justify-center rounded-lg border border-[#c2c6d9] bg-white text-[#ba1a1a] shadow-sm"
+            >
+              <span className="material-symbols-outlined !text-[18px] !leading-none">
+                delete
+              </span>
+            </button>
+          </div>
+          <div className="space-y-6">
+            <section>
+              <h4 className="mb-2 text-xs font-bold uppercase tracking-wide text-[#565e74]">
+                สถานะปัจจุบัน
+              </h4>
+              {editingStage ? (
+                <select
+                  autoFocus
+                  aria-label="เปลี่ยนสถานะผู้สมัคร"
+                  value={stage}
+                  onChange={(event) =>
+                    changeStage(event.target.value as ApplicationStage)
+                  }
+                  onBlur={() => setEditingStage(false)}
+                  className="w-full rounded-lg border border-[#8fcbe8] bg-white px-3 py-3 text-sm font-medium text-[#005e80] outline-none focus:ring-2 focus:ring-[#38bdf8]/40"
+                >
+                  {Object.entries(stageLabels)
+                    .filter(
+                      ([value]) =>
+                        value === application.stage ||
+                        isValidStageTransition(
+                          application.stage,
+                          value as ApplicationStage,
+                        ),
+                    )
+                    .map(([value, label]) => (
+                      <option key={value} value={value}>
+                        {label}
+                      </option>
+                    ))}
+                </select>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setEditingStage(true)}
+                  className="flex w-full items-center justify-between rounded-lg border border-[#38bdf8]/30 bg-[#e0f2fe] p-3 text-left"
+                >
+                  <span className="flex items-center gap-2">
+                    <span className="h-2.5 w-2.5 rounded-full bg-[#0f766e]" />
+                    <span className="font-medium text-[#005e80]">
+                      {stageLabels[stage]}
+                    </span>
+                  </span>
+                  <span className="text-sm text-[#005e80] underline decoration-dotted">
+                    เปลี่ยนสถานะ
+                  </span>
+                </button>
+              )}
+            </section>
+            <section>
+              <h4 className="mb-2 text-xs font-bold uppercase tracking-wide text-[#565e74]">
+                ทักษะหลัก (Primary Skills)
+              </h4>
+              <div className="flex flex-wrap gap-2">
+                {skills.length > 0 ? (
+                  skills.map((skill) => (
+                    <span
+                      key={skill}
+                      className="rounded-full border border-[#c2d2ff] bg-[#dbe1ff] px-3 py-1 text-sm text-[#00174b]"
+                    >
+                      {skill}
+                    </span>
+                  ))
+                ) : (
+                  <span className="text-sm text-[#7c8292]">{unavailable}</span>
+                )}
+              </div>
+            </section>
+            <section>
+              <h4 className="mb-3 text-xs font-bold uppercase tracking-wide text-[#565e74]">
+                ประสบการณ์ทำงาน
+              </h4>
+              <div className="relative space-y-4 border-l-2 border-[#c2c6d9] pl-4">
+                <div className="relative">
+                  <span className="absolute -left-[21px] top-1 h-2.5 w-2.5 rounded-full border-2 border-white bg-[#c2c6d9]" />
+                  <p className="text-sm text-[#7c8292]">
+                    {experience ?? unavailable}
+                  </p>
+                </div>
+              </div>
+            </section>
+            <section>
+              <h4 className="mb-3 text-xs font-bold uppercase tracking-wide text-[#565e74]">
+                การศึกษา
+              </h4>
+              <div className="relative space-y-4 border-l-2 border-[#c2c6d9] pl-4">
+                <div className="relative">
+                  <span className="absolute -left-[21px] top-1 h-2.5 w-2.5 rounded-full border-2 border-white bg-[#c2c6d9]" />
+                  <p className="text-sm text-[#7c8292]">
+                    {education ?? unavailable}
+                  </p>
+                </div>
+              </div>
+            </section>
+            <section>
+              <h4 className="mb-3 text-sm font-bold text-[#565e74]">
+                เงินเดือนที่คาดหวัง
+              </h4>
+              <div className="rounded-xl border border-[#e1e4ea] bg-white p-3">
+                <span className="text-base font-bold leading-tight text-[#20232a]">
+                  {expectedSalary ?? unavailable}
+                </span>
+              </div>
+            </section>
+          </div>
         </div>
-      </div>
-      <footer className="border-t border-[#e1e4ea] bg-[#f7f9fb] p-6"><button type="button" onClick={() => { setScheduleError(""); setScheduleOpen(true); }} className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-[#0062ff] to-[#38bdf8] px-4 py-3 font-bold text-white shadow-md"><span className="material-symbols-outlined">calendar_add_on</span>นัดหมายสัมภาษณ์</button></footer>
-    </aside>
-    {scheduleOpen && <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#071d37]/55 p-4" role="presentation"><section role="dialog" aria-modal="true" aria-labelledby="schedule-dialog-title" className="w-full max-w-xl rounded-2xl bg-white p-6 shadow-2xl"><header className="flex items-start justify-between gap-4"><h2 id="schedule-dialog-title" className="text-2xl font-bold">นัดหมายสัมภาษณ์</h2><button type="button" aria-label="ปิดหน้าต่างนัดหมาย" onClick={() => setScheduleOpen(false)} className="rounded-lg p-1 text-2xl text-[#565e74] hover:bg-[#f2f4f6]">×</button></header><label className="mt-6 block text-sm font-bold text-[#565e74]">วันเวลา<input aria-label="วันเวลา interview" type="datetime-local" value={scheduleDateTime} onChange={(event) => setScheduleDateTime(event.target.value)} className="mt-2 block w-full rounded-lg border border-[#c2c6d9] px-4 py-3 text-base" /></label><p className="mt-4 rounded-lg bg-[#fff9e8] p-4 text-sm font-medium text-[#725b00]">ระบบจะตรวจสอบเวลาชนก่อนสร้างนัด</p>{scheduleError && <p role="alert" className="mt-3 rounded-lg bg-[#fff5f4] p-3 text-sm text-[#ba1a1a]">{scheduleError}</p>}<div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end"><button type="button" onClick={() => setScheduleOpen(false)} className="rounded-lg border border-[#c2c6d9] px-5 py-3 font-semibold">ยกเลิก</button><button type="button" onClick={() => setScheduleError("จำลองการเชื่อมต่อล้มเหลว กรุณาลองใหม่")} className="rounded-lg border border-[#c2c6d9] px-5 py-3 font-semibold">จำลองการเชื่อมต่อล้มเหลว</button><button type="button" disabled={!scheduleDateTime} onClick={() => { const [date, time] = scheduleDateTime.split("T"); const end = new Date(`${date}T${time}:00`); end.setMinutes(end.getMinutes() + 30); const pad = (value: number) => String(value).padStart(2, "0"); const endTime = `${pad(end.getHours())}:${pad(end.getMinutes())}`; router.push(`/interviews?application=${encodeURIComponent(application.id)}&date=${encodeURIComponent(date)}&start=${encodeURIComponent(time)}&end=${encodeURIComponent(endTime)}`); }} className="rounded-lg bg-gradient-to-r from-[#0062ff] to-[#38bdf8] px-5 py-3 font-bold text-white disabled:opacity-50">ตรวจสอบและสร้างนัด</button></div></section></div>}
-  </div>;
+        <footer className="border-t border-[#e1e4ea] bg-[#f7f9fb] p-6">
+          <button
+            type="button"
+            onClick={() => {
+              setScheduleError("");
+              setScheduleOpen(true);
+            }}
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-[#0062ff] to-[#38bdf8] px-4 py-3 font-bold text-white shadow-md"
+          >
+            <span className="material-symbols-outlined">calendar_add_on</span>
+            นัดหมายสัมภาษณ์
+          </button>
+        </footer>
+      </aside>
+      {scheduleOpen && (
+        <div
+          className="absolute inset-0 z-10 flex items-center justify-center bg-[#071d37]/55 p-4"
+          role="presentation"
+        >
+          <section
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="schedule-dialog-title"
+            className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl"
+          >
+            <header className="flex items-start justify-between gap-4">
+              <h2 id="schedule-dialog-title" className="text-2xl font-bold">
+                นัดหมายสัมภาษณ์
+              </h2>
+              <button
+                type="button"
+                aria-label="ปิดหน้าต่างนัดหมาย"
+                onClick={() => setScheduleOpen(false)}
+                className="rounded-lg p-1 text-2xl text-[#565e74] hover:bg-[#f2f4f6]"
+              >
+                ×
+              </button>
+            </header>
+            <label className="mt-6 block text-sm font-bold text-[#565e74]">
+              วันเวลา
+              <input
+                aria-label="วันเวลา interview"
+                type="datetime-local"
+                value={scheduleDateTime}
+                onChange={(event) => setScheduleDateTime(event.target.value)}
+                className="mt-2 block w-full rounded-lg border border-[#c2c6d9] px-4 py-3 text-base"
+              />
+            </label>
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                <label className="block text-sm font-bold text-[#565e74]">
+                  ผู้สัมภาษณ์
+                  <input aria-label="ผู้สัมภาษณ์" value={interviewerName} onChange={(event) => setInterviewerName(event.target.value)} disabled={schedulePending} placeholder="เช่น อานนท์ ภักดี (Tech Lead)" className="mt-2 block w-full rounded-lg border border-[#c2c6d9] bg-white px-3 py-2.5 text-sm disabled:bg-[#f8f9fb]" />
+                </label>
+              <fieldset>
+                <legend className="text-sm font-bold text-[#565e74]">
+                  รูปแบบ
+                </legend>
+                <div className="mt-2 flex gap-4 text-sm">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="schedule-format"
+                      checked={scheduleFormat === "online"}
+                      onChange={() => setScheduleFormat("online")}
+                    />
+                    Online (Meet)
+                  </label>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="radio"
+                      name="schedule-format"
+                      checked={scheduleFormat === "onsite"}
+                      onChange={() => setScheduleFormat("onsite")}
+                    />
+                    On-site
+                  </label>
+                </div>
+              </fieldset>
+            </div>
+            <label className="mt-4 block text-sm font-bold text-[#565e74]">
+              เหตุผลการเปลี่ยนแปลง (ถ้ามี)
+              <textarea
+                value={scheduleReason}
+                onChange={(event) => setScheduleReason(event.target.value)}
+                className="mt-2 h-20 w-full resize-none rounded-lg border border-[#c2c6d9] p-3 text-sm"
+                placeholder="ระบุเหตุผล..."
+              />
+            </label>
+            <p className="mt-4 rounded-lg bg-[#fff9e8] p-4 text-sm font-medium text-[#725b00]">
+              ระบบจะตรวจสอบเวลาชนก่อนสร้างนัด และสร้าง Google Meet ให้อัตโนมัติ
+            </p>
+            {scheduleError && (
+              <p
+                role="alert"
+                className="mt-3 rounded-lg bg-[#fff5f4] p-3 text-sm text-[#ba1a1a]"
+              >
+                {scheduleError}
+              </p>
+            )}
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                disabled={schedulePending}
+                onClick={() => setScheduleOpen(false)}
+                className="rounded-lg border border-[#c2c6d9] px-5 py-3 font-semibold disabled:opacity-50"
+              >
+                ยกเลิก
+              </button>
+              <button
+                type="button"
+                disabled={!scheduleDateTime || schedulePending}
+                onClick={async () => {
+                  const [date, time] = scheduleDateTime.split("T");
+                  const start = new Date(`${date}T${time}:00`);
+                  const end = new Date(start.getTime() + 30 * 60 * 1000);
+                  setSchedulePending(true);
+                  setScheduleError("");
+                  const result = await scheduleApplicationInterview({
+                    applicationId: application.id,
+                    startsAt: start.toISOString(),
+                    endsAt: end.toISOString(),
+                    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                    interviewType: `สัมภาษณ์ ${application.job.title}`,
+                    interviewerName,
+                    format: scheduleFormat,
+                    description: `${scheduleFormat === "online" ? "Online (Google Meet)" : "On-site"}${scheduleReason.trim() ? ` — ${scheduleReason.trim()}` : ""}`,
+                  });
+                  setSchedulePending(false);
+                  if ("data" in result && result.data) {
+                    router.push(
+                      `/interviews?created=1&interview=${encodeURIComponent(result.data.id)}`,
+                    );
+                  } else
+                    setScheduleError(
+                      typeof result.error === "string"
+                        ? result.error
+                        : (result.message ?? "สร้างนัดหมายไม่สำเร็จ"),
+                    );
+                }}
+                className="rounded-lg bg-gradient-to-r from-[#0062ff] to-[#38bdf8] px-5 py-3 font-bold text-white disabled:opacity-50"
+              >
+                {schedulePending
+                  ? "กำลังสร้างนัดหมาย..."
+                  : "ตรวจสอบและสร้างนัด"}
+              </button>
+            </div>
+          </section>
+        </div>
+      )}
+    </div>
+  );
 }

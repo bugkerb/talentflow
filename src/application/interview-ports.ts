@@ -8,6 +8,7 @@ export type InterviewRecord = {
   endsAt: string;
   timezone: string;
   interviewerId: string;
+  format?: "online" | "onsite";
   description: string;
   additionalQuestions: string;
   status: InterviewStatus;
@@ -32,7 +33,7 @@ export type InterviewActivityEvent = {
   endsAt?: string;
   createdAt: string;
 };
-export type CalendarEventInput = Pick<InterviewRecord, "id" | "applicationId" | "interviewType" | "startsAt" | "endsAt" | "timezone" | "interviewerId" | "description" | "additionalQuestions">;
+export type CalendarEventInput = Pick<InterviewRecord, "id" | "applicationId" | "interviewType" | "startsAt" | "endsAt" | "timezone" | "interviewerId" | "description" | "additionalQuestions"> & { format?: "online" | "onsite" };
 export type CalendarEvent = { eventId: string; meetUrl: string | null };
 export type CalendarEventSummary = { eventId: string; title: string; startsAt: string; endsAt: string; timezone: string; status: string; htmlUrl: string | null };
 

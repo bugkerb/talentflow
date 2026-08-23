@@ -30,4 +30,13 @@ describe("GoogleCalendarProvider", () => {
     expect(url).toContain("singleEvents=true");
     fetchMock.mockRestore();
   });
+
+  it("does not request Google Meet for on-site interviews", async () => {
+    const fetchMock = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(JSON.stringify({ id: "google-event-onsite" }), { status: 200 }));
+    const provider = new GoogleCalendarProvider({ accessToken: "token", calendarId: "primary" });
+    await provider.createEvent({ id: "i-onsite", applicationId: "a-1", interviewType: "onsite", startsAt: "2026-08-24T03:00:00.000Z", endsAt: "2026-08-24T03:30:00.000Z", timezone: "Asia/Bangkok", interviewerId: "p-1", description: "On-site", additionalQuestions: "", format: "onsite" }, "idem-onsite");
+    const request = JSON.parse(String(fetchMock.mock.calls[0][1]?.body));
+    expect(request.conferenceData).toBeUndefined();
+    fetchMock.mockRestore();
+  });
 });

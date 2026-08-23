@@ -18,6 +18,7 @@ export const interviewScheduleSchema = z.object({
   endsAt: interviewTimestamp,
   timezone: z.string().trim().min(1).max(64),
   interviewerId: z.string().uuid(),
+  format: z.enum(["online", "onsite"]).default("online"),
   description: z.string().trim().max(5000).default(""),
   additionalQuestions: z.string().trim().max(2000).default("")
 }).superRefine((value, ctx) => {

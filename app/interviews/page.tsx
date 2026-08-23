@@ -2,8 +2,6 @@ import { InterviewsView } from "../../components/interviews-view";
 import { requireActiveHr } from "@/server/auth";
 import { createSupabaseServerClient } from "@/server/supabase-server";
 import { SupabaseInterviewRepository } from "@/server/interview-repository";
-import { GoogleCalendarProvider } from "@/application/calendar-provider";
-import type { CalendarEventSummary } from "@/application/interview-ports";
 
 export const dynamic = "force-dynamic";
 export default async function InterviewsPage({ searchParams }: { searchParams?: Promise<Record<string, string | string[] | undefined>> }) {
@@ -13,21 +11,8 @@ export default async function InterviewsPage({ searchParams }: { searchParams?: 
   const initialScheduleDate = typeof params.date === "string" ? params.date : "";
   const initialScheduleStart = typeof params.start === "string" ? params.start : "";
   const initialScheduleEnd = typeof params.end === "string" ? params.end : "";
-  const actor = await requireActiveHr();
+  await requireActiveHr();
   const client = await createSupabaseServerClient();
   const interviews = await new SupabaseInterviewRepository(client).list();
-  let calendarEvents: CalendarEventSummary[] = [];
-  let calendarError = "";
-  try {
-    const provider = await GoogleCalendarProvider.fromSupabase(client, actor.id);
-    const rangeStart = new Date();
-    rangeStart.setDate(rangeStart.getDate() - rangeStart.getDay());
-    rangeStart.setHours(0, 0, 0, 0);
-    const rangeEnd = new Date(rangeStart);
-    rangeEnd.setDate(rangeEnd.getDate() + 42);
-    calendarEvents = await provider.listEvents({ timeMin: rangeStart.toISOString(), timeMax: rangeEnd.toISOString() });
-  } catch (error) {
-    calendarError = error instanceof Error ? error.message : "ไม่สามารถโหลดกิจกรรมจาก Google Calendar ได้";
-  }
-  return <InterviewsView initialInterviews={interviews} initialCalendarEvents={calendarEvents} calendarError={calendarError} initialScheduleApplicationId={initialScheduleApplicationId} initialScheduleDate={initialScheduleDate} initialScheduleStart={initialScheduleStart} initialScheduleEnd={initialScheduleEnd} />;
+  return <InterviewsView initialInterviews={interviews} initialScheduleApplicationId={initialScheduleApplicationId} initialScheduleDate={initialScheduleDate} initialScheduleStart={initialScheduleStart} initialScheduleEnd={initialScheduleEnd} />;
 }
