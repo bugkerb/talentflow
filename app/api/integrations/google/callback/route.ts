@@ -9,7 +9,9 @@ export const dynamic = "force-dynamic";
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const configuredOrigin = process.env.GOOGLE_OAUTH_REDIRECT_URI;
-  const redirectOrigin = configuredOrigin && !["localhost", "127.0.0.1"].includes(new URL(configuredOrigin).hostname) ? new URL(configuredOrigin).origin : "https://talentflow-web-production.up.railway.app";
+  const configuredUrl = configuredOrigin ? new URL(configuredOrigin) : null;
+  const isLocal = configuredUrl && ["localhost", "127.0.0.1"].includes(configuredUrl.hostname);
+  const redirectOrigin = configuredUrl && (!isLocal || process.env.NODE_ENV !== "production") ? configuredUrl.origin : "https://talentflow-web-production.up.railway.app";
   const state = url.searchParams.get("state");
   const code = url.searchParams.get("code");
   const cookieStore = await cookies();
