@@ -27,7 +27,17 @@ export class SupabaseInterviewRepository implements InterviewRepository {
   async list(): Promise<InterviewListItem[]> {
     const { data, error } = await this.client.from("interviews").select(`${columns},interview_participants!inner(profile_id,profiles!inner(full_name)),applications!inner(candidate:candidates!inner(full_name),job:jobs!inner(title))`).order("starts_at", { ascending: true });
     throwDatabaseError(error);
-    return ((data ?? []) as unknown as Array<InterviewRow & { interview_participants: { profile_id: string; profiles: { full_name: string }[] }[]; applications: { candidate: { full_name: string }[]; job: { title: string }[] }[] }>).map((row) => ({ ...toRecord({ ...row, interviewer_id: row.interview_participants[0]?.profile_id }), candidateName: row.applications[0]?.candidate[0]?.full_name ?? "ไม่ระบุผู้สมัคร", jobTitle: row.applications[0]?.job[0]?.title ?? "ไม่ระบุตำแหน่ง", interviewerName: row.interview_participants[0]?.profiles[0]?.full_name ?? "ไม่ระบุผู้สัมภาษณ์" }));
+    return ((data ?? []) as unknown as Array<InterviewRow & { interview_participants: unknown; applications: unknown }>).map((row) => {
+      const participants = Array.isArray(row.interview_participants) ? row.interview_participants : row.interview_participants ? [row.interview_participants] : [];
+      const applications = Array.isArray(row.applications) ? row.applications : row.applications ? [row.applications] : [];
+      const participant = participants[0] as { profile_id?: string; profiles?: unknown } | undefined;
+      const application = applications[0] as { candidate?: unknown; job?: unknown } | undefined;
+      const candidate = (Array.isArray(application?.candidate) ? application?.candidate[0] : application?.candidate) as { full_name?: string } | undefined;
+      const job = (Array.isArray(application?.job) ? application?.job[0] : application?.job) as { title?: string } | undefined;
+      const profiles = Array.isArray(participant?.profiles) ? participant?.profiles[0] : participant?.profiles;
+      const profile = profiles as { full_name?: string } | undefined;
+      return { ...toRecord({ ...row, interviewer_id: participant?.profile_id }), candidateName: candidate?.full_name ?? "ไม่ระบุผู้สมัคร", jobTitle: job?.title ?? "ไม่ระบุตำแหน่ง", interviewerName: profile?.full_name ?? "ไม่ระบุผู้สัมภาษณ์" };
+    });
   }
 
   async schedule(interview: InterviewRecord, requestHash: string): Promise<InterviewRecord> {

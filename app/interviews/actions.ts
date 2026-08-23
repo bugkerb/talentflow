@@ -8,6 +8,8 @@ import { toSafeError } from "@/server/errors";
 import { SupabaseInterviewRepository } from "@/server/interview-repository";
 import { createSupabaseServerClient } from "@/server/supabase-server";
 import type { InterviewRecord } from "@/application/interview-ports";
+import { ApplicationService } from "@/application/application-service";
+import { SupabaseApplicationRepository } from "@/server/application-repository";
 
 const getService = async (format: "online" | "onsite" = "online") => {
   const client = await createSupabaseServerClient();
@@ -22,7 +24,13 @@ export async function scheduleApplicationInterview(input: { applicationId: strin
     const actor = await requireActiveHr();
     const id = randomUUID();
     const interviewerDescription = `ผู้สัมภาษณ์: ${input.interviewerName.trim() || "ผู้ใช้ปัจจุบัน"}`;
-    return { data: await (await getService(input.format)).schedule({ ...input, interviewerId: actor.id, description: [interviewerDescription, input.description ?? "นัดหมายจากระบบติดตามผู้สมัคร"].join("\n"), additionalQuestions: input.additionalQuestions ?? "" }, actor.id, id, randomUUID()) };
+    const client = await createSupabaseServerClient();
+    const scheduled = await (await getService(input.format)).schedule({ ...input, interviewerId: actor.id, description: [interviewerDescription, input.description ?? "นัดหมายจากระบบติดตามผู้สมัคร"].join("\n"), additionalQuestions: input.additionalQuestions ?? "" }, actor.id, id, randomUUID());
+    const applicationRepository = new SupabaseApplicationRepository(client);
+    const application = await applicationRepository.findById(input.applicationId);
+    if (!application) throw new Error("Application was not found after scheduling interview");
+    if (application.stage !== "interview") await new ApplicationService(applicationRepository).move(application.id, "interview", application.version, actor.id, "เลื่อนผู้สมัครเข้าสู่ขั้นสัมภาษณ์หลังสร้างนัดหมาย");
+    return { data: scheduled };
   } catch (error) { return toSafeError(error, requestId); }
 }
 export async function rescheduleInterview(input: unknown, expectedVersion: number) { const requestId = randomUUID(); try { const actor = await requireActiveHr(); return { data: await (await getService()).reschedule(input, actor.id, expectedVersion) }; } catch (error) { return toSafeError(error, requestId); } }
