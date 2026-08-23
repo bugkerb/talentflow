@@ -95,3 +95,11 @@ export class InMemoryCalendarProvider implements CalendarProvider {
   async cancelEvent(): Promise<void> {}
   async listEvents(): Promise<CalendarEventSummary[]> { return []; }
 }
+
+/** On-site interviews are persisted in TalentFlow without requiring Google Calendar. */
+export class OnsiteCalendarProvider implements CalendarProvider {
+  async createEvent(input: CalendarEventInput): Promise<CalendarEvent> { return { eventId: `onsite-${input.id}`, meetUrl: null }; }
+  async updateEvent(): Promise<void> {}
+  async cancelEvent(): Promise<void> {}
+  async listEvents(): Promise<CalendarEventSummary[]> { return []; }
+}

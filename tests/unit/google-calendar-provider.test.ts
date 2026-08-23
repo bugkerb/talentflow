@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { GoogleCalendarProvider } from "@/application/calendar-provider";
+import { GoogleCalendarProvider, OnsiteCalendarProvider } from "@/application/calendar-provider";
 
 describe("GoogleCalendarProvider", () => {
   it("fails explicitly when production credentials are absent", () => {
@@ -38,5 +38,9 @@ describe("GoogleCalendarProvider", () => {
     const request = JSON.parse(String(fetchMock.mock.calls[0][1]?.body));
     expect(request.conferenceData).toBeUndefined();
     fetchMock.mockRestore();
+  });
+
+  it("allows on-site scheduling without Google Calendar credentials", async () => {
+    await expect(new OnsiteCalendarProvider().createEvent({ id: "i-onsite", applicationId: "a-1", interviewType: "onsite", startsAt: "2026-08-24T03:00:00.000Z", endsAt: "2026-08-24T03:30:00.000Z", timezone: "Asia/Bangkok", interviewerId: "p-1", description: "On-site", additionalQuestions: "", format: "onsite" })).resolves.toEqual({ eventId: "onsite-i-onsite", meetUrl: null });
   });
 });
