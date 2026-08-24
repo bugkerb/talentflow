@@ -88,7 +88,7 @@ export function InterviewsView({ initialInterviews = [], initialScheduleApplicat
     else setMessage("ไม่พบใบสมัครนี้ในรายการนัดหมาย กรุณาเลือกผู้สมัครจากรายการ");
     setScheduleOpen(true);
   }, [initialInterviews, initialScheduleApplicationId]);
-  const interviewEvents = useMemo(() => interviews.map(toEvent), [interviews]);
+  const interviewEvents = useMemo(() => interviews.filter((item) => item.status !== "cancelled").map(toEvent), [interviews]);
   const visibleDates = useMemo(() => viewDates(calendarView, calendarDate), [calendarDate, calendarView]);
   const filteredEvents = useMemo(() => {
     const query = searchTerm.trim().toLocaleLowerCase();

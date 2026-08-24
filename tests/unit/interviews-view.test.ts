@@ -72,5 +72,6 @@ describe("InterviewsView cancellation", () => {
         1,
       );
     });
+    expect(screen.queryByText("technical")).toBeNull();
   });
 });
